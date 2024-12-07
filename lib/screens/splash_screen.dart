@@ -23,7 +23,7 @@ class SplashScreen extends StatelessWidget {
                   height: double.infinity,
                   width: double.infinity,
                   fit: BoxFit.cover),
-              nextScreen: HomeScreen(),
+              nextScreen: LoginWithUsScreen(),
               duration: 6000,
               splashTransition: SplashTransition.fadeTransition,
               pageTransitionType: PageTransitionType.fade,
