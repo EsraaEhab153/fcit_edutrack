@@ -1,5 +1,8 @@
+import 'package:fci_edutrack/screens/camera_permission_screen.dart';
 import 'package:fci_edutrack/style/my_app_colors.dart';
 import 'package:flutter/material.dart';
+
+import '../modules/custom_button_widget.dart';
 
 class LoginWithUsScreen extends StatelessWidget {
   static const String routeName = 'home_screen';
@@ -19,15 +22,11 @@ class LoginWithUsScreen extends StatelessWidget {
             'assets/images/login_with_us.png',
             width: width * 0.8,
           ),
-          ElevatedButton(
-            onPressed: () {},
-            child: Text('سجل معنا'),
-            style: ElevatedButton.styleFrom(
-                fixedSize: Size(width * 0.5, height * 0.06),
-                backgroundColor: MyAppColors.primaryColor,
-                shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(width * 0.02))),
-          ),
+          CustomButtonWidget(
+              label: 'سجل معنا',
+              buttonFunction: () {
+                Navigator.pushNamed(context, CameraPermissionScreen.routeName);
+              }),
         ],
       ),
     );

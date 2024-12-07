@@ -1,4 +1,5 @@
-import 'package:fci_edutrack/screens/home_screen.dart';
+import 'package:fci_edutrack/screens/camera_permission_screen.dart';
+import 'package:fci_edutrack/screens/login_with_us_scr.dart';
 import 'package:fci_edutrack/screens/splash_screen.dart';
 import 'package:flutter/material.dart';
 
@@ -19,6 +20,8 @@ class MyApp extends StatelessWidget {
       routes: {
         SplashScreen.routeName: (context) => const SplashScreen(),
         LoginWithUsScreen.routeName: (context) => const LoginWithUsScreen(),
+        CameraPermissionScreen.routeName: (context) =>
+            const CameraPermissionScreen(),
       },
     );
   }
