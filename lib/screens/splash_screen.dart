@@ -1,5 +1,5 @@
 import 'package:animated_splash_screen/animated_splash_screen.dart';
-import 'package:fci_edutrack/screens/login_with_us_scr.dart';
+import 'package:fci_edutrack/screens/explain_screens.dart';
 import 'package:fci_edutrack/style/my_app_colors.dart';
 import 'package:fci_edutrack/style/my_theme_data.dart';
 import 'package:flutter/material.dart';
@@ -23,7 +23,7 @@ class SplashScreen extends StatelessWidget {
                   height: double.infinity,
                   width: double.infinity,
                   fit: BoxFit.cover),
-              nextScreen: LoginWithUsScreen(),
+              nextScreen: const ExplainScreens(),
               duration: 6000,
               splashTransition: SplashTransition.fadeTransition,
               pageTransitionType: PageTransitionType.fade,
@@ -45,6 +45,7 @@ class SplashScreen extends StatelessWidget {
                 child: Text(
                   'FCIT EduTrack',
                   style: MyThemeData.lightModeStyle.textTheme.titleLarge,
+                  textAlign: TextAlign.center,
                 ),
               ),
             ],
