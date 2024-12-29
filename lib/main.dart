@@ -1,3 +1,4 @@
+import 'package:fci_edutrack/auth/login_screen.dart';
 import 'package:fci_edutrack/auth/register_screen.dart';
 import 'package:fci_edutrack/screens/camera_permission_screen.dart';
 import 'package:fci_edutrack/screens/explain_screens.dart';
@@ -26,6 +27,7 @@ class MyApp extends StatelessWidget {
             const CameraPermissionScreen(),
         ExplainScreens.routeName: (context) => const ExplainScreens(),
         RegisterScreen.routeName: (context) => const RegisterScreen(),
+        LoginScreen.routeName: (context) => const LoginScreen(),
       },
     );
   }
