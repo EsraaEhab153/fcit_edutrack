@@ -24,123 +24,132 @@ class _ExplainScreensState extends State<ExplainScreens> {
     var width = MediaQuery.of(context).size.width;
 
     return Scaffold(
-      body: Padding(
-        padding: EdgeInsets.all(width * 0.011),
-        child: Column(
-          children: [
-            // PageView Widget
-            Expanded(
-              flex: 2,
-              child: PageView(
-                controller: _controller,
-                onPageChanged: (index) {
-                  setState(() {
-                    _currentPage = index; // Update current page
-                  });
-                },
-                children: const [
-                  ExplainPageItem(
-                    imagePath: "assets/images/explain_logo1.png",
-                    title: "نظرة عميقة على الميزات",
-                    description:
-                        "تصميم تطبيق الحضور البسيط لتسهيل و تبسيط عملية تتبع حضور الطلاب في المحاضرات الجامعية",
-                  ),
-                  ExplainPageItem(
-                    imagePath: "assets/images/explain_logo2.png",
-                    title: "فوائد التطبيق",
-                    description:
-                        "تسجيل الحضور السريع دون الحاجة لقوائم ورقية او تتبع الطلاب سيتم التعرف علي البيانات المفقودة",
-                  ),
-                  ExplainPageItem(
-                    imagePath: "assets/images/explain_logo3.png",
-                    title: "هيا بنا نبدأ",
-                    description: "فلنبدأ في كيفية التعرف على تطبيقنا...",
-                  ),
-                ],
-              ),
-            ),
-            Expanded(
-                child: Column(
-              children: [
-                ElevatedButton(
-                  onPressed: () {
-                    if (_currentPage == 2) {
-                      // Navigate to LoginWithUsScreen on the last page
-                      Navigator.pushReplacementNamed(
-                          context, LoginWithUsScreen.routeName);
-                    } else {
-                      // Move to the next page
-                      _controller.nextPage(
-                        duration: const Duration(milliseconds: 300),
-                        curve: Curves.easeInOut,
-                      );
-                    }
+      body: SingleChildScrollView(
+        physics: const AlwaysScrollableScrollPhysics(),
+        child: Padding(
+          padding: EdgeInsets.all(width * 0.011),
+          child: Column(
+            children: [
+              // PageView Widget
+              SizedBox(
+                height: height * 0.6, // Set a specific height for PageView
+                child: PageView(
+                  controller: _controller,
+                  onPageChanged: (index) {
+                    setState(() {
+                      _currentPage = index; // Update current page
+                    });
                   },
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: MyAppColors.primaryColor,
-                    shape: const CircleBorder(),
-                    minimumSize: Size(width * 0.11, height * 0.05),
-                  ),
-                  child: Icon(
-                    Icons.arrow_right_alt,
-                    size: MediaQuery.of(context).size.width * 0.08,
-                    color: MyAppColors.whiteColor,
-                  ),
+                  children: const [
+                    ExplainPageItem(
+                      imagePath: "assets/images/explain_logo1.png",
+                      title: "نظرة عميقة على الميزات",
+                      description:
+                          "تصميم تطبيق الحضور البسيط لتسهيل و تبسيط عملية تتبع حضور الطلاب في المحاضرات الجامعية",
+                    ),
+                    ExplainPageItem(
+                      imagePath: "assets/images/explain_logo2.png",
+                      title: "فوائد التطبيق",
+                      description:
+                          "تسجيل الحضور السريع دون الحاجة لقوائم ورقية او تتبع الطلاب سيتم التعرف علي البيانات المفقودة",
+                    ),
+                    ExplainPageItem(
+                      imagePath: "assets/images/explain_logo3.png",
+                      title: "هيا بنا نبدأ",
+                      description: "فلنبدأ في كيفية التعرف على تطبيقنا...",
+                    ),
+                  ],
                 ),
-                Padding(
-                  padding:
-                      EdgeInsets.only(bottom: height * 0.2, top: height * 0.01),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: List.generate(3, (index) {
-                      return AnimatedContainer(
-                        duration: const Duration(milliseconds: 300),
-                        margin: const EdgeInsets.symmetric(horizontal: 5),
-                        height: _currentPage == index
-                            ? height * 0.004
-                            : height * 0.003,
-                        width:
-                            _currentPage == index ? width * 0.08 : width * 0.05,
-                        decoration: BoxDecoration(
-                          color: _currentPage == index
-                              ? MyAppColors.primaryColor
-                              : Colors.grey.withOpacity(0.5),
-                          borderRadius: BorderRadius.circular(6),
+              ),
+              SizedBox(height: height * 0.02), // Add spacing
+              // Buttons and indicators
+              SizedBox(
+                height: height * 0.3,
+                // Add height to fit content without Expanded
+                child: Column(
+                  children: [
+                    ElevatedButton(
+                      onPressed: () {
+                        if (_currentPage == 2) {
+                          Navigator.pushReplacementNamed(
+                              context, LoginWithUsScreen.routeName);
+                        } else {
+                          _controller.nextPage(
+                            duration: const Duration(milliseconds: 300),
+                            curve: Curves.easeInOut,
+                          );
+                        }
+                      },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: MyAppColors.primaryColor,
+                        shape: const CircleBorder(),
+                        minimumSize: Size(width * 0.11, height * 0.05),
+                      ),
+                      child: Icon(
+                        Icons.arrow_right_alt,
+                        size: MediaQuery.of(context).size.width * 0.08,
+                        color: MyAppColors.whiteColor,
+                      ),
+                    ),
+                    Padding(
+                      padding: EdgeInsets.only(
+                          bottom: height * 0.05, top: height * 0.01),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: List.generate(3, (index) {
+                          return AnimatedContainer(
+                            duration: const Duration(milliseconds: 300),
+                            margin: const EdgeInsets.symmetric(horizontal: 5),
+                            height: _currentPage == index
+                                ? height * 0.004
+                                : height * 0.003,
+                            width: _currentPage == index
+                                ? width * 0.08
+                                : width * 0.05,
+                            decoration: BoxDecoration(
+                              color: _currentPage == index
+                                  ? MyAppColors.primaryColor
+                                  : Colors.grey.withOpacity(0.5),
+                              borderRadius: BorderRadius.circular(6),
+                            ),
+                          );
+                        }),
+                      ),
+                    ),
+                    Align(
+                      alignment: Alignment.bottomRight,
+                      child: ElevatedButton(
+                        onPressed: () {
+                          Navigator.pushReplacementNamed(
+                              context, LoginWithUsScreen.routeName);
+                        },
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: MyAppColors.whiteColor,
+                          shape: RoundedRectangleBorder(
+                              side: BorderSide(
+                                color: MyAppColors.primaryColor,
+                                width: width * 0.001,
+                              ),
+                              borderRadius:
+                                  BorderRadius.circular(width * 0.02)),
                         ),
-                      );
-                    }),
-                  ),
-                ),
-                Align(
-                  alignment: Alignment.bottomRight,
-                  child: ElevatedButton(
-                    onPressed: () {
-                      Navigator.pushReplacementNamed(
-                          context, LoginWithUsScreen.routeName);
-                    },
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: MyAppColors.whiteColor,
-                      shape: RoundedRectangleBorder(
-                          side: BorderSide(
-                            color: MyAppColors.primaryColor,
-                            width: width * 0.005,
-                          ),
-                          borderRadius: BorderRadius.circular(width * 0.02)),
-                    ),
-                    child: Text(
-                      'skip',
-                      style: MyThemeData.lightModeStyle.textTheme.bodySmall!
-                          .copyWith(
-                              color: MyAppColors.primaryColor,
+                        child: Text(
+                          'skip',
+                          style: MyThemeData.lightModeStyle.textTheme.bodySmall!
+                              .copyWith(
+                                  color: MyAppColors.primaryColor,
                               fontWeight: FontWeight.w400),
+                        ),
+                      ),
                     ),
-                  ),
+                  ],
                 ),
-              ],
-            ))
-          ],
+              ),
+            ],
+          ),
         ),
       ),
     );
   }
 }
+
