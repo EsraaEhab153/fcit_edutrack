@@ -1,4 +1,5 @@
 import 'package:fci_edutrack/auth/register_screen.dart';
+import 'package:fci_edutrack/screens/forget_password_screen.dart';
 import 'package:fci_edutrack/style/my_theme_data.dart';
 import 'package:flutter/material.dart';
 
@@ -49,6 +50,7 @@ class _RegisterScreenState extends State<LoginScreen> {
             padding: EdgeInsets.symmetric(
                 horizontal: MediaQuery.of(context).size.width * 0.03),
             child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
                   'هيا بنا نبدا',
@@ -100,12 +102,19 @@ class _RegisterScreenState extends State<LoginScreen> {
                   },
                   obscureText: true,
                 ),
+                InkWell(
+                  onTap: () {
+                    Navigator.pushReplacementNamed(
+                        context, ForgetPassword.routeName);
+                  },
+                  child: const Text('forget password ?'),
+                ),
                 SizedBox(
                   height: MediaQuery.of(context).size.height * 0.03,
                 ),
                 ElevatedButton(
                   onPressed: () {
-                    register();
+                    login();
                   },
                   style: ElevatedButton.styleFrom(
                       backgroundColor: MyAppColors.primaryColor,
@@ -132,11 +141,13 @@ class _RegisterScreenState extends State<LoginScreen> {
                     ],
                   ),
                 ),
-                Text(
-                  'or',
-                  style:
-                      MyThemeData.lightModeStyle.textTheme.bodySmall!.copyWith(
-                    color: MyAppColors.blackColor,
+                Center(
+                  child: Text(
+                    'or',
+                    style: MyThemeData.lightModeStyle.textTheme.bodySmall!
+                        .copyWith(
+                      color: MyAppColors.blackColor,
+                    ),
                   ),
                 ),
                 Row(
@@ -191,7 +202,7 @@ class _RegisterScreenState extends State<LoginScreen> {
     );
   }
 
-  void register() async {
+  void login() async {
     if (_formKey.currentState?.validate() == true) {}
   }
 }
