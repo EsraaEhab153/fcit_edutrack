@@ -1,7 +1,7 @@
-import 'package:fci_edutrack/screens/camera_permission_screen.dart';
 import 'package:fci_edutrack/style/my_app_colors.dart';
 import 'package:flutter/material.dart';
 
+import '../auth/register_screen.dart';
 import '../modules/custom_button_widget.dart';
 
 class LoginWithUsScreen extends StatelessWidget {
@@ -25,7 +25,7 @@ class LoginWithUsScreen extends StatelessWidget {
           CustomButtonWidget(
               label: 'سجل معنا',
               buttonFunction: () {
-                Navigator.pushNamed(context, CameraPermissionScreen.routeName);
+                Navigator.pushNamed(context, RegisterScreen.routeName);
               }),
         ],
       ),

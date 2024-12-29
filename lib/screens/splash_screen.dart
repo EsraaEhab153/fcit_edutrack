@@ -24,7 +24,7 @@ class SplashScreen extends StatelessWidget {
                   width: double.infinity,
                   fit: BoxFit.cover),
               nextScreen: const ExplainScreens(),
-              duration: 6000,
+              duration: 3000,
               splashTransition: SplashTransition.fadeTransition,
               pageTransitionType: PageTransitionType.fade,
               splashIconSize: MediaQuery.of(context).size.height * 0.35,
