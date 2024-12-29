@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 
 import '../modules/custom_text_formfield.dart';
 import '../style/my_app_colors.dart';
+import 'login_screen.dart';
 
 class RegisterScreen extends StatefulWidget {
   static const String routeName = 'register_screen';
@@ -194,9 +195,12 @@ class _RegisterScreenState extends State<RegisterScreen> {
                       ),
                     ),
                     InkWell(
-                      onTap: () {},
+                      onTap: () {
+                        Navigator.pushReplacementNamed(
+                            context, LoginScreen.routeName);
+                      },
                       child: Text(
-                        'Login',
+                        ' Login',
                         style: MyThemeData.lightModeStyle.textTheme.bodySmall!
                             .copyWith(
                           fontSize: 12,
