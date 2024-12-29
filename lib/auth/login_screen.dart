@@ -118,17 +118,17 @@ class _RegisterScreenState extends State<LoginScreen> {
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      const Icon(Icons.add_card_outlined),
-                      SizedBox(
-                        width: MediaQuery.of(context).size.width * 0.007,
-                      ),
                       Text(
-                        'Create Account',
+                        'Login',
                         style: Theme.of(context)
                             .textTheme
                             .titleMedium!
                             .copyWith(color: MyAppColors.whiteColor),
                       ),
+                      SizedBox(
+                        width: MediaQuery.of(context).size.width * 0.007,
+                      ),
+                      const Icon(Icons.login),
                     ],
                   ),
                 ),
