@@ -2,7 +2,7 @@ import 'package:fci_edutrack/modules/custom_text_formfield.dart';
 import 'package:fci_edutrack/style/my_theme_data.dart';
 import 'package:flutter/material.dart';
 
-import '../style/my_app_colors.dart';
+import '../../style/my_app_colors.dart';
 
 class ForgetPassword extends StatelessWidget {
   static const String routeName = 'forget_password';
@@ -72,7 +72,8 @@ class ForgetPassword extends StatelessWidget {
                 ),
                 ElevatedButton(
                   onPressed: () {
-                    login();
+                    login(context);
+                    //##### edit this navigator later
                   },
                   style: ElevatedButton.styleFrom(
                       backgroundColor: MyAppColors.primaryColor,
@@ -107,7 +108,7 @@ class ForgetPassword extends StatelessWidget {
     );
   }
 
-  void login() async {
+  void login(BuildContext context) async {
     if (_formKey.currentState?.validate() == true) {}
   }
 }

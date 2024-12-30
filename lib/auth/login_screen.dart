@@ -1,5 +1,5 @@
 import 'package:fci_edutrack/auth/register_screen.dart';
-import 'package:fci_edutrack/screens/forget_password_screen.dart';
+import 'package:fci_edutrack/screens/password/forget_password_screen.dart';
 import 'package:fci_edutrack/style/my_theme_data.dart';
 import 'package:flutter/material.dart';
 

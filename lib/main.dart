@@ -3,7 +3,7 @@ import 'package:fci_edutrack/auth/login_screen.dart';
 import 'package:fci_edutrack/auth/register_screen.dart';
 import 'package:fci_edutrack/screens/camera_permission_screen.dart';
 import 'package:fci_edutrack/screens/explain_screens.dart';
-import 'package:fci_edutrack/screens/forget_password_screen.dart';
+import 'package:fci_edutrack/screens/password/forget_password_screen.dart';
 import 'package:fci_edutrack/screens/register_attendance.dart';
 import 'package:fci_edutrack/screens/splash_screen.dart';
 import 'package:flutter/material.dart';
