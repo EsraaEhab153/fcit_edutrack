@@ -5,6 +5,7 @@ import 'package:fci_edutrack/screens/camera_permission_screen.dart';
 import 'package:fci_edutrack/screens/explain_screens.dart';
 import 'package:fci_edutrack/screens/password/forget_password_screen.dart';
 import 'package:fci_edutrack/screens/password/pass_confirm_code_screen.dart';
+import 'package:fci_edutrack/screens/password/reset_password_screen.dart';
 import 'package:fci_edutrack/screens/register_attendance.dart';
 import 'package:fci_edutrack/screens/splash_screen.dart';
 import 'package:flutter/material.dart';
@@ -37,6 +38,7 @@ class MyApp extends StatelessWidget {
             const LoginOrRegisterScreen(),
         PasswordConfirmationCode.routeName: (context) =>
             const PasswordConfirmationCode(),
+        ResetPasswordScreen.routeName: (context) => ResetPasswordScreen()
       },
     );
   }
