@@ -4,10 +4,10 @@ import 'package:flutter/material.dart';
 import '../auth/register_screen.dart';
 import '../modules/custom_button_widget.dart';
 
-class LoginWithUsScreen extends StatelessWidget {
+class RegisterAttendanceScreen extends StatelessWidget {
   static const String routeName = 'home_screen';
 
-  const LoginWithUsScreen({super.key});
+  const RegisterAttendanceScreen({super.key});
 
   @override
   Widget build(BuildContext context) {

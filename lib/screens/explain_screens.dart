@@ -1,4 +1,4 @@
-import 'package:fci_edutrack/screens/login_with_us_scr.dart';
+import 'package:fci_edutrack/auth/login_or_register_screen.dart';
 import 'package:fci_edutrack/style/my_theme_data.dart';
 import 'package:flutter/material.dart';
 
@@ -72,7 +72,7 @@ class _ExplainScreensState extends State<ExplainScreens> {
                       onPressed: () {
                         if (_currentPage == 2) {
                           Navigator.pushReplacementNamed(
-                              context, LoginWithUsScreen.routeName);
+                              context, LoginOrRegisterScreen.routeName);
                         } else {
                           _controller.nextPage(
                             duration: const Duration(milliseconds: 300),
@@ -121,7 +121,7 @@ class _ExplainScreensState extends State<ExplainScreens> {
                       child: ElevatedButton(
                         onPressed: () {
                           Navigator.pushReplacementNamed(
-                              context, LoginWithUsScreen.routeName);
+                              context, LoginOrRegisterScreen.routeName);
                         },
                         style: ElevatedButton.styleFrom(
                           backgroundColor: MyAppColors.whiteColor,
