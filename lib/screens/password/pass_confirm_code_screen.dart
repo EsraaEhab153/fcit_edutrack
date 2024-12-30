@@ -1,5 +1,6 @@
 import 'package:fci_edutrack/modules/custom_button_widget.dart';
 import 'package:fci_edutrack/modules/custom_confirmation_cell.dart';
+import 'package:fci_edutrack/screens/password/reset_password_screen.dart';
 import 'package:fci_edutrack/style/my_theme_data.dart';
 import 'package:flutter/material.dart';
 
@@ -50,7 +51,9 @@ class PasswordConfirmationCode extends StatelessWidget {
             SizedBox(height: MediaQuery.of(context).size.height * 0.02),
             CustomButtonWidget(
               label: 'Confirm',
-              buttonFunction: () {},
+              buttonFunction: () {
+                Navigator.pushNamed(context, ResetPasswordScreen.routeName);
+              },
               buttonIcon: Icons.check_circle_outline,
             ),
             SizedBox(height: MediaQuery.of(context).size.height * 0.02),
