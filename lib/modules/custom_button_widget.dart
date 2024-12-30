@@ -1,3 +1,4 @@
+import 'package:fci_edutrack/style/my_theme_data.dart';
 import 'package:flutter/material.dart';
 
 import '../style/my_app_colors.dart';
@@ -30,6 +31,7 @@ class CustomButtonWidget extends StatelessWidget {
         ),
       ),
       child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
         children: [
           if (buttonIcon != null) ...[
             Icon(
@@ -40,10 +42,8 @@ class CustomButtonWidget extends StatelessWidget {
           ],
           Text(
             label,
-            style: TextStyle(
-              color: Colors.white,
-              fontSize: 16,
-            ),
+            style: MyThemeData.lightModeStyle.textTheme.bodySmall!
+                .copyWith(color: MyAppColors.whiteColor),
           ),
         ],
       ),

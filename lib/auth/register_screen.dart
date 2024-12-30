@@ -39,7 +39,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
             icon: Icon(
               Icons.arrow_circle_left,
               color: MyAppColors.primaryColor,
-              size: MediaQuery.of(context).size.height * 0.03,
+              size: MediaQuery.of(context).size.height * 0.04,
             )),
       ),
       body: Form(
