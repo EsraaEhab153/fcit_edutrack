@@ -10,8 +10,13 @@ class MyThemeData {
       fontWeight: FontWeight.bold,
       color: MyAppColors.darkBlueColor,
     ),
+    titleMedium: GoogleFonts.roboto(
+      fontSize: 21,
+      fontWeight: FontWeight.bold,
+      color: MyAppColors.darkBlueColor,
+    ),
     bodyMedium: GoogleFonts.poppins(
-      fontSize: 24,
+      fontSize: 20,
       fontWeight: FontWeight.bold,
       color: MyAppColors.blackColor,
     ),
