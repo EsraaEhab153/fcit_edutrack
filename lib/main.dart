@@ -3,6 +3,7 @@ import 'package:fci_edutrack/auth/login_screen.dart';
 import 'package:fci_edutrack/auth/register_screen.dart';
 import 'package:fci_edutrack/screens/camera_permission_screen.dart';
 import 'package:fci_edutrack/screens/explain_screens.dart';
+import 'package:fci_edutrack/screens/home_screen/my_bottom_nav_bar.dart';
 import 'package:fci_edutrack/screens/password/forget_password_screen.dart';
 import 'package:fci_edutrack/screens/password/pass_confirm_code_screen.dart';
 import 'package:fci_edutrack/screens/password/reset_password_screen.dart';
@@ -23,7 +24,8 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: "FCIT EduTrack",
       debugShowCheckedModeBanner: false,
-      initialRoute: SplashScreen.routeName,
+      //initialRoute: SplashScreen.routeName,
+      initialRoute: MyBottomNavBar.routeName,
       routes: {
         SplashScreen.routeName: (context) => const SplashScreen(),
         RegisterAttendanceScreen.routeName: (context) =>
@@ -38,7 +40,8 @@ class MyApp extends StatelessWidget {
             const LoginOrRegisterScreen(),
         PasswordConfirmationCode.routeName: (context) =>
             const PasswordConfirmationCode(),
-        ResetPasswordScreen.routeName: (context) => ResetPasswordScreen()
+        ResetPasswordScreen.routeName: (context) => ResetPasswordScreen(),
+        MyBottomNavBar.routeName: (context) => MyBottomNavBar()
       },
     );
   }
