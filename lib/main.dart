@@ -41,7 +41,7 @@ class MyApp extends StatelessWidget {
         PasswordConfirmationCode.routeName: (context) =>
             const PasswordConfirmationCode(),
         ResetPasswordScreen.routeName: (context) => ResetPasswordScreen(),
-        MyBottomNavBar.routeName: (context) => MyBottomNavBar()
+        MyBottomNavBar.routeName: (context) => const MyBottomNavBar()
       },
     );
   }

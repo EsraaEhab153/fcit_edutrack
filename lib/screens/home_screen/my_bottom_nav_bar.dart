@@ -1,6 +1,6 @@
 import 'package:fci_edutrack/screens/home_screen/courses_screen.dart';
 import 'package:fci_edutrack/screens/home_screen/home_screen.dart';
-import 'package:fci_edutrack/screens/home_screen/profile_screen.dart';
+import 'package:fci_edutrack/screens/home_screen/profiles/student_profile_screen.dart';
 import 'package:fci_edutrack/style/my_app_colors.dart';
 import 'package:flutter/material.dart';
 import 'package:google_nav_bar/google_nav_bar.dart';
@@ -8,9 +8,9 @@ import 'package:google_nav_bar/google_nav_bar.dart';
 import 'notifications_screen.dart';
 
 class MyBottomNavBar extends StatefulWidget {
-  static const String routeName = 'home_screen';
+  static const String routeName = 'bottom_nav_bar';
 
-  MyBottomNavBar({super.key});
+  const MyBottomNavBar({super.key});
 
   @override
   State<MyBottomNavBar> createState() => _MyBottomNavBarState();
@@ -71,6 +71,6 @@ class _MyBottomNavBarState extends State<MyBottomNavBar> {
     const HomeScreen(),
     const NotificationsScreen(),
     const CoursesScreen(),
-    const ProfileScreen()
+    const StudentProfileScreen()
   ];
 }

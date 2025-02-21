@@ -15,8 +15,13 @@ class MyThemeData {
       fontWeight: FontWeight.bold,
       color: MyAppColors.darkBlueColor,
     ),
-    bodyMedium: GoogleFonts.poppins(
+    bodyLarge: GoogleFonts.poppins(
       fontSize: 20,
+      fontWeight: FontWeight.bold,
+      color: MyAppColors.blackColor,
+    ),
+    bodyMedium: GoogleFonts.poppins(
+      fontSize: 12,
       fontWeight: FontWeight.bold,
       color: MyAppColors.blackColor,
     ),
