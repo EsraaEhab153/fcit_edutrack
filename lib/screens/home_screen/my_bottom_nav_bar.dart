@@ -1,11 +1,10 @@
+import 'package:fci_edutrack/screens/home_screen/QR_code/qr_scanner.dart';
 import 'package:fci_edutrack/screens/home_screen/courses_screen.dart';
 import 'package:fci_edutrack/screens/home_screen/home_screen.dart';
 import 'package:fci_edutrack/screens/home_screen/profiles/student_profile_screen.dart';
 import 'package:fci_edutrack/style/my_app_colors.dart';
 import 'package:flutter/material.dart';
 import 'package:google_nav_bar/google_nav_bar.dart';
-
-import 'notifications_screen.dart';
 
 class MyBottomNavBar extends StatefulWidget {
   static const String routeName = 'bottom_nav_bar';
@@ -46,8 +45,8 @@ class _MyBottomNavBarState extends State<MyBottomNavBar> {
                   text: 'Home',
                 ),
                 GButton(
-                  icon: Icons.notifications,
-                  text: 'Notification',
+                  icon: Icons.qr_code_2,
+                  text: 'Attendance',
                   textStyle: TextStyle(
                       fontSize: 12,
                       color: Colors.white,
@@ -69,7 +68,7 @@ class _MyBottomNavBarState extends State<MyBottomNavBar> {
 
   List<Widget> selectedScreen = [
     const HomeScreen(),
-    const NotificationsScreen(),
+    const QrCodeScanner(),
     const CoursesScreen(),
     const StudentProfileScreen()
   ];
