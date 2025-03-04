@@ -1,5 +1,6 @@
 import 'package:fci_edutrack/screens/home_screen/QR_code/qr_scanner.dart';
 import 'package:fci_edutrack/screens/home_screen/courses_screen.dart';
+import 'package:fci_edutrack/screens/home_screen/drawer/my_drawer.dart';
 import 'package:fci_edutrack/screens/home_screen/home_screen.dart';
 import 'package:fci_edutrack/screens/home_screen/profiles/student_profile_screen.dart';
 import 'package:fci_edutrack/style/my_app_colors.dart';
@@ -21,6 +22,12 @@ class _MyBottomNavBarState extends State<MyBottomNavBar> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      appBar: AppBar(
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        iconTheme: const IconThemeData(color: MyAppColors.primaryColor),
+      ),
+      drawer: const MyDrawer(),
       body: selectedScreen[selectedIndex],
       backgroundColor: MyAppColors.whiteColor,
       bottomNavigationBar: Container(

@@ -28,30 +28,32 @@ class _QrCodeScannerState extends State<QrCodeScanner> {
     return Scaffold(
       body: Padding(
         padding: EdgeInsets.all(MediaQuery.of(context).size.height * 0.04),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Text(
-              'Attendance registration',
-              style: MyThemeData.lightModeStyle.textTheme.titleMedium,
-            ),
-            SizedBox(
-              height: MediaQuery.of(context).size.height * 0.03,
-            ),
-            Icon(
-              Icons.qr_code_2,
-              size: MediaQuery.of(context).size.height * 0.3,
-            ),
-            SizedBox(
-              height: MediaQuery.of(context).size.height * 0.03,
-            ),
-            CustomButtonWidget(
-                label: 'Scan the QR Code',
-                buttonIcon: Icons.qr_code_2,
-                buttonFunction: () {
-                  scanQrCodeCheck();
-                })
-          ],
+        child: Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Text(
+                'Attendance registration',
+                style: MyThemeData.lightModeStyle.textTheme.titleMedium,
+              ),
+              SizedBox(
+                height: MediaQuery.of(context).size.height * 0.03,
+              ),
+              Icon(
+                Icons.qr_code_2,
+                size: MediaQuery.of(context).size.height * 0.3,
+              ),
+              SizedBox(
+                height: MediaQuery.of(context).size.height * 0.03,
+              ),
+              CustomButtonWidget(
+                  label: 'Scan the QR Code',
+                  buttonIcon: Icons.qr_code_2,
+                  buttonFunction: () {
+                    scanQrCodeCheck();
+                  })
+            ],
+          ),
         ),
       ),
     );

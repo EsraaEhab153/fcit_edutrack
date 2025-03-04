@@ -111,7 +111,8 @@ class ForgetPassword extends StatelessWidget {
 
   void login(BuildContext context) async {
     if (_formKey.currentState?.validate() == true) {
-      Navigator.pushNamed(context, PasswordConfirmationCode.routeName);
+      Navigator.pushReplacementNamed(
+          context, PasswordConfirmationCode.routeName);
     }
   }
 }

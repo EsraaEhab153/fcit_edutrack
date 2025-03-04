@@ -1,4 +1,5 @@
 import 'package:fci_edutrack/modules/custome_container.dart';
+import 'package:fci_edutrack/screens/home_screen/notifications_screen.dart';
 import 'package:fci_edutrack/style/my_theme_data.dart';
 import 'package:flutter/material.dart';
 
@@ -38,7 +39,9 @@ class StudentProfileScreen extends StatelessWidget {
             CustomContainer(
               label: 'Notifications',
               icon: Icons.notifications,
-              onContainerClick: () {},
+              onContainerClick: () {
+                Navigator.pushNamed(context, NotificationsScreen.routeName);
+              },
             ),
             CustomContainer(
               label: 'Help and Support',

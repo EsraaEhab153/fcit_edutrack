@@ -135,7 +135,8 @@ class _ExplainScreensState extends State<ExplainScreens> {
                         ),
                         child: Text(
                           'skip',
-                          style: MyThemeData.lightModeStyle.textTheme.bodySmall!
+                          style: MyThemeData
+                              .lightModeStyle.textTheme.bodyMedium!
                               .copyWith(
                                   color: MyAppColors.primaryColor,
                               fontWeight: FontWeight.w400),

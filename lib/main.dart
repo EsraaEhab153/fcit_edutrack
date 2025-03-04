@@ -1,9 +1,11 @@
 import 'package:fci_edutrack/auth/login_or_register_screen.dart';
 import 'package:fci_edutrack/auth/login_screen.dart';
 import 'package:fci_edutrack/auth/register_screen.dart';
+import 'package:fci_edutrack/screens/assignment/assignment_screen.dart';
 import 'package:fci_edutrack/screens/camera_permission_screen.dart';
 import 'package:fci_edutrack/screens/explain_screens.dart';
 import 'package:fci_edutrack/screens/home_screen/my_bottom_nav_bar.dart';
+import 'package:fci_edutrack/screens/home_screen/notifications_screen.dart';
 import 'package:fci_edutrack/screens/password/forget_password_screen.dart';
 import 'package:fci_edutrack/screens/password/pass_confirm_code_screen.dart';
 import 'package:fci_edutrack/screens/password/reset_password_screen.dart';
@@ -41,7 +43,9 @@ class MyApp extends StatelessWidget {
         PasswordConfirmationCode.routeName: (context) =>
             const PasswordConfirmationCode(),
         ResetPasswordScreen.routeName: (context) => ResetPasswordScreen(),
-        MyBottomNavBar.routeName: (context) => const MyBottomNavBar()
+        MyBottomNavBar.routeName: (context) => const MyBottomNavBar(),
+        NotificationsScreen.routeName: (context) => const NotificationsScreen(),
+        AssignmentScreen.routeName: (context) => const AssignmentScreen(),
       },
     );
   }
