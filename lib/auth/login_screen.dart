@@ -1,4 +1,5 @@
 import 'package:fci_edutrack/auth/register_screen.dart';
+import 'package:fci_edutrack/screens/home_screen/my_bottom_nav_bar.dart';
 import 'package:fci_edutrack/screens/password/forget_password_screen.dart';
 import 'package:fci_edutrack/style/my_theme_data.dart';
 import 'package:flutter/material.dart';
@@ -199,6 +200,8 @@ class _RegisterScreenState extends State<LoginScreen> {
   }
 
   void login() async {
-    if (_formKey.currentState?.validate() == true) {}
+    if (_formKey.currentState?.validate() == true) {
+      Navigator.pushReplacementNamed(context, MyBottomNavBar.routeName);
+    }
   }
 }

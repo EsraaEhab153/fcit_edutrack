@@ -27,7 +27,7 @@ class ExplainPageItem extends StatelessWidget {
           padding: const EdgeInsets.symmetric(horizontal: 20),
           child: Text(
             description,
-            style: MyThemeData.lightModeStyle.textTheme.bodySmall,
+            style: MyThemeData.lightModeStyle.textTheme.bodyMedium,
             textAlign: TextAlign.center,
           ),
         ),

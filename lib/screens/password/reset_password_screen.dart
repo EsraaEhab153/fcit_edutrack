@@ -1,3 +1,4 @@
+import 'package:fci_edutrack/auth/login_screen.dart';
 import 'package:fci_edutrack/style/my_theme_data.dart';
 import 'package:flutter/material.dart';
 
@@ -100,6 +101,8 @@ class ResetPasswordScreen extends StatelessWidget {
                       ElevatedButton(
                         onPressed: () {
                           updatePassword();
+                          Navigator.pushReplacementNamed(
+                              context, LoginScreen.routeName);
                         },
                         style: ElevatedButton.styleFrom(
                             backgroundColor: MyAppColors.primaryColor,

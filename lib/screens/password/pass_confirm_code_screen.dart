@@ -52,7 +52,8 @@ class PasswordConfirmationCode extends StatelessWidget {
             CustomButtonWidget(
               label: 'Confirm',
               buttonFunction: () {
-                Navigator.pushNamed(context, ResetPasswordScreen.routeName);
+                Navigator.pushReplacementNamed(
+                    context, ResetPasswordScreen.routeName);
               },
               buttonIcon: Icons.check_circle_outline,
             ),
