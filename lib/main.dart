@@ -1,6 +1,7 @@
 import 'package:fci_edutrack/auth/login_or_register_screen.dart';
 import 'package:fci_edutrack/auth/login_screen.dart';
 import 'package:fci_edutrack/auth/register_screen.dart';
+import 'package:fci_edutrack/screens/assignment/assignment_details.dart';
 import 'package:fci_edutrack/screens/assignment/assignment_screen.dart';
 import 'package:fci_edutrack/screens/camera_permission_screen.dart';
 import 'package:fci_edutrack/screens/explain_screens.dart';
@@ -12,8 +13,14 @@ import 'package:fci_edutrack/screens/password/reset_password_screen.dart';
 import 'package:fci_edutrack/screens/register_attendance.dart';
 import 'package:fci_edutrack/screens/splash_screen.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 void main() {
+  WidgetsFlutterBinding.ensureInitialized();
+  SystemChrome.setPreferredOrientations([
+    DeviceOrientation.portraitUp,
+    DeviceOrientation.portraitDown,
+  ]);
   runApp(const MyApp());
 }
 
@@ -46,6 +53,7 @@ class MyApp extends StatelessWidget {
         MyBottomNavBar.routeName: (context) => const MyBottomNavBar(),
         NotificationsScreen.routeName: (context) => const NotificationsScreen(),
         AssignmentScreen.routeName: (context) => const AssignmentScreen(),
+        AssignmentDetails.routeName: (context) => const AssignmentDetails(),
       },
     );
   }
