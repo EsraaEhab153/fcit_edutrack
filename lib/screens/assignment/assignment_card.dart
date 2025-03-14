@@ -1,3 +1,4 @@
+import 'package:fci_edutrack/screens/assignment/assignment_details.dart';
 import 'package:fci_edutrack/screens/assignment/assignment_model.dart';
 import 'package:fci_edutrack/style/my_app_colors.dart';
 import 'package:fci_edutrack/style/my_theme_data.dart';
@@ -76,7 +77,10 @@ class AssignmentCard extends StatelessWidget {
           ),
           if (assignments[index].status == 'pending')
             ElevatedButton(
-                onPressed: () {},
+                onPressed: () {
+                  Navigator.pushNamed(context, AssignmentDetails.routeName,
+                      arguments: assignments[index]);
+                },
                 style: ElevatedButton.styleFrom(
                   backgroundColor: MyAppColors.primaryColor,
                   padding: EdgeInsets.all(
