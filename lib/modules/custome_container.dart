@@ -1,7 +1,9 @@
+import 'package:fci_edutrack/themes/theme_provider.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 import '../style/my_app_colors.dart';
-import '../style/my_theme_data.dart';
+import '../themes/my_theme_data.dart';
 
 class CustomContainer extends StatelessWidget {
   final String label;
@@ -42,7 +44,9 @@ class CustomContainer extends StatelessWidget {
                 ),
                 Text(
                   label,
-                  style: MyThemeData.lightModeStyle.textTheme.bodyMedium,
+                  style: Provider.of<ThemeProvider>(context).isDark()
+                      ? MyThemeData.darkModeStyle.textTheme.bodyMedium
+                      : MyThemeData.lightModeStyle.textTheme.bodyMedium,
                 ),
               ],
             ),

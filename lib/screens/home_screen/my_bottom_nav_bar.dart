@@ -4,8 +4,10 @@ import 'package:fci_edutrack/screens/home_screen/drawer/my_drawer.dart';
 import 'package:fci_edutrack/screens/home_screen/home_screen.dart';
 import 'package:fci_edutrack/screens/home_screen/profiles/student_profile_screen.dart';
 import 'package:fci_edutrack/style/my_app_colors.dart';
+import 'package:fci_edutrack/themes/theme_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:google_nav_bar/google_nav_bar.dart';
+import 'package:provider/provider.dart';
 
 class MyBottomNavBar extends StatefulWidget {
   static const String routeName = 'bottom_nav_bar';
@@ -29,7 +31,9 @@ class _MyBottomNavBarState extends State<MyBottomNavBar> {
       ),
       drawer: const MyDrawer(),
       body: selectedScreen[selectedIndex],
-      backgroundColor: MyAppColors.whiteColor,
+      backgroundColor: Provider.of<ThemeProvider>(context).isDark()
+          ? MyAppColors.primaryDarkColor
+          : MyAppColors.whiteColor,
       bottomNavigationBar: Container(
         color: MyAppColors.primaryColor,
         child: Padding(
@@ -55,7 +59,7 @@ class _MyBottomNavBarState extends State<MyBottomNavBar> {
                   icon: Icons.qr_code_2,
                   text: 'Attendance',
                   textStyle: TextStyle(
-                      fontSize: 12,
+                      fontSize: 10,
                       color: Colors.white,
                       fontWeight: FontWeight.bold),
                 ),

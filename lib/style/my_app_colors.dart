@@ -9,4 +9,5 @@ class MyAppColors {
   static const Color babyBlueColor = Color(0x243a9cff);
   static const Color whiteColor = Color(0xffffffff);
   static const Color redColor = Color(0xffc80003);
+  static const Color primaryDarkColor = Color(0xff060E1E);
 }

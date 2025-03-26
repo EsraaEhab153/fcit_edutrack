@@ -1,5 +1,5 @@
 import 'package:fci_edutrack/auth/login_or_register_screen.dart';
-import 'package:fci_edutrack/style/my_theme_data.dart';
+import 'package:fci_edutrack/themes/my_theme_data.dart';
 import 'package:flutter/material.dart';
 
 import '../modules/explain_page_item.dart';

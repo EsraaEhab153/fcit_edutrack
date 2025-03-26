@@ -1,8 +1,10 @@
 import 'package:fci_edutrack/screens/assignment/assignment_details.dart';
 import 'package:fci_edutrack/screens/assignment/assignment_model.dart';
 import 'package:fci_edutrack/style/my_app_colors.dart';
-import 'package:fci_edutrack/style/my_theme_data.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+
+import '../../themes/theme_provider.dart';
 
 class AssignmentCard extends StatelessWidget {
   final int index;
@@ -15,7 +17,11 @@ class AssignmentCard extends StatelessWidget {
       padding: EdgeInsets.all(MediaQuery.of(context).size.width * 0.024),
       margin: EdgeInsets.all(MediaQuery.of(context).size.width * 0.03),
       decoration: BoxDecoration(
-          border: Border.all(color: Colors.grey.shade300, width: 2),
+          border: Border.all(
+              color: Provider.of<ThemeProvider>(context).isDark()
+                  ? Colors.blue.shade800
+                  : Colors.grey.shade300,
+              width: 2),
           borderRadius: BorderRadius.circular(15)),
       width: double.infinity,
       height: MediaQuery.of(context).size.height * 0.3,
@@ -31,14 +37,17 @@ class AssignmentCard extends StatelessWidget {
                 borderRadius: BorderRadius.circular(20)),
             child: Text(
               assignments[index].subjectName,
-              style: MyThemeData.lightModeStyle.textTheme.titleSmall!.copyWith(
+              style: Theme.of(context).textTheme.titleSmall!.copyWith(
                   color: MyAppColors.whiteColor, fontWeight: FontWeight.bold),
             ),
           ),
           //topic name
           Text(
             assignments[index].topicName,
-            style: MyThemeData.lightModeStyle.textTheme.bodyMedium,
+            style: Theme.of(context).textTheme.bodyMedium!.copyWith(
+                color: Provider.of<ThemeProvider>(context).isDark()
+                    ? MyAppColors.lightBlueColor
+                    : MyAppColors.blackColor),
           ),
           // assign date
           Row(
@@ -49,7 +58,7 @@ class AssignmentCard extends StatelessWidget {
               ),
               Text(
                 assignments[index].assignDate,
-                style: MyThemeData.lightModeStyle.textTheme.bodyMedium,
+                style: Theme.of(context).textTheme.bodyMedium,
               ),
             ],
           ),
@@ -60,7 +69,7 @@ class AssignmentCard extends StatelessWidget {
               const Text('last date'),
               Text(
                 assignments[index].lastDate,
-                style: MyThemeData.lightModeStyle.textTheme.bodyMedium,
+                style: Theme.of(context).textTheme.bodyMedium,
               ),
             ],
           ),
@@ -71,7 +80,7 @@ class AssignmentCard extends StatelessWidget {
               const Text('status'),
               Text(
                 assignments[index].status,
-                style: MyThemeData.lightModeStyle.textTheme.bodyMedium,
+                style: Theme.of(context).textTheme.bodyMedium,
               ),
             ],
           ),

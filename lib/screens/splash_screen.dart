@@ -1,7 +1,7 @@
 import 'package:animated_splash_screen/animated_splash_screen.dart';
 import 'package:fci_edutrack/screens/explain_screens.dart';
 import 'package:fci_edutrack/style/my_app_colors.dart';
-import 'package:fci_edutrack/style/my_theme_data.dart';
+import 'package:fci_edutrack/themes/my_theme_data.dart';
 import 'package:flutter/material.dart';
 import 'package:lottie/lottie.dart';
 import 'package:page_transition/page_transition.dart';

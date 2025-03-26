@@ -1,5 +1,7 @@
 import 'package:fci_edutrack/style/my_app_colors.dart';
+import 'package:fci_edutrack/themes/theme_provider.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 typedef Validator = String? Function(String?);
 
@@ -52,16 +54,25 @@ class CustomTextFormField extends StatelessWidget {
               borderRadius: BorderRadius.circular(
                   MediaQuery.of(context).size.width * 0.022),
               borderSide: const BorderSide(color: MyAppColors.redColor)),
-          prefixIcon: Icon(preIcon),
+          prefixIcon: Icon(
+            preIcon,
+            color: Provider.of<ThemeProvider>(context).isDark()
+                ? MyAppColors.lightBlueColor
+                : MyAppColors.blackColor,
+          ),
           suffixIcon: IconButton(
             onPressed: () {},
             icon: Icon(sufIcon),
+            color: Provider.of<ThemeProvider>(context).isDark()
+                ? MyAppColors.lightBlueColor
+                : MyAppColors.blackColor,
           ),
         ),
         controller: controller,
         keyboardType: keyboardType,
         validator: validator,
         obscureText: obscureText,
+        style: Theme.of(context).textTheme.bodyMedium,
       ),
     );
   }

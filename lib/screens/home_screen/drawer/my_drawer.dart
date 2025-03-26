@@ -1,7 +1,10 @@
 import 'package:fci_edutrack/screens/assignment/assignment_screen.dart';
 import 'package:fci_edutrack/style/my_app_colors.dart';
+import 'package:fci_edutrack/themes/theme_provider.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
+import '../../settings_screen.dart';
 import 'drawer_tile.dart';
 
 class MyDrawer extends StatelessWidget {
@@ -10,7 +13,9 @@ class MyDrawer extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Drawer(
-      backgroundColor: MyAppColors.whiteColor,
+      backgroundColor: Provider.of<ThemeProvider>(context).isDark()
+          ? MyAppColors.primaryDarkColor
+          : MyAppColors.whiteColor,
       child: Padding(
         padding: EdgeInsets.symmetric(
           vertical: MediaQuery.of(context).size.width * 0.2,
@@ -24,8 +29,10 @@ class MyDrawer extends StatelessWidget {
               color: MyAppColors.primaryColor,
               size: MediaQuery.of(context).size.width * 0.26,
             ),
-            const Divider(
-              color: MyAppColors.blackColor,
+            Divider(
+              color: Provider.of<ThemeProvider>(context).isDark()
+                  ? MyAppColors.whiteColor
+                  : MyAppColors.blackColor,
               thickness: 1.25,
             ),
             // home tile
@@ -56,7 +63,7 @@ class MyDrawer extends StatelessWidget {
                 icon: Icons.settings,
                 onTap: () {
                   Navigator.pop(context);
-                  //Navigator.pushNamed(context, Settings.routeName);
+                  Navigator.pushNamed(context, SettingsScreen.routeName);
                 }),
             const Spacer(),
             // logout

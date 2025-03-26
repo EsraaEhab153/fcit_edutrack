@@ -1,4 +1,4 @@
-import 'package:fci_edutrack/style/my_theme_data.dart';
+import 'package:fci_edutrack/themes/my_theme_data.dart';
 import 'package:flutter/material.dart';
 
 import '../style/my_app_colors.dart';
