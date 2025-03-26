@@ -1,6 +1,6 @@
 import 'package:fci_edutrack/modules/custome_container.dart';
 import 'package:fci_edutrack/style/my_app_colors.dart';
-import 'package:fci_edutrack/style/my_theme_data.dart';
+import 'package:fci_edutrack/themes/my_theme_data.dart';
 import 'package:flutter/material.dart';
 
 class DoctorProfileScreen extends StatelessWidget {

@@ -1,6 +1,6 @@
 import 'package:fci_edutrack/modules/custom_text_formfield.dart';
 import 'package:fci_edutrack/screens/password/pass_confirm_code_screen.dart';
-import 'package:fci_edutrack/style/my_theme_data.dart';
+import 'package:fci_edutrack/themes/my_theme_data.dart';
 import 'package:flutter/material.dart';
 
 import '../../style/my_app_colors.dart';

@@ -1,10 +1,12 @@
 import 'package:fci_edutrack/screens/assignment/assignment_model.dart';
+import 'package:fci_edutrack/themes/theme_provider.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:open_file/open_file.dart';
+import 'package:provider/provider.dart';
 
 import '../../style/my_app_colors.dart';
-import '../../style/my_theme_data.dart';
+import '../../themes/my_theme_data.dart';
 
 class AssignmentDetails extends StatefulWidget {
   static const String routeName = 'assignment_details';
@@ -26,15 +28,22 @@ class _AssignmentDetailsState extends State<AssignmentDetails> {
 
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: MyAppColors.primaryColor,
         title: Text(
           assignment.subjectName,
-          style: MyThemeData.lightModeStyle.textTheme.titleMedium!.copyWith(
-            color: MyAppColors.whiteColor,
+          style: MyThemeData.lightModeStyle.textTheme.titleMedium!
+              .copyWith(color: MyAppColors.whiteColor),
+        ),
+        elevation: 0,
+        centerTitle: true,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.only(
+            bottomLeft:
+                Radius.circular(MediaQuery.of(context).size.width * 0.1),
+            bottomRight:
+                Radius.circular(MediaQuery.of(context).size.width * 0.1),
           ),
         ),
-        centerTitle: true,
-        elevation: 0,
+        backgroundColor: MyAppColors.primaryColor,
         leading: IconButton(
           onPressed: () {
             Navigator.pop(context);
@@ -68,7 +77,10 @@ class _AssignmentDetailsState extends State<AssignmentDetails> {
             // Topic name
             Text(
               assignment.topicName,
-              style: MyThemeData.lightModeStyle.textTheme.bodyMedium,
+              style: Theme.of(context)
+                  .textTheme
+                  .bodyMedium!
+                  .copyWith(color: MyAppColors.lightBlueColor),
             ),
             SizedBox(
               height: MediaQuery.of(context).size.height * 0.02,
@@ -77,10 +89,13 @@ class _AssignmentDetailsState extends State<AssignmentDetails> {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                const Text('assign date'),
+                Text(
+                  'assign date',
+                  style: Theme.of(context).textTheme.bodyMedium,
+                ),
                 Text(
                   assignment.assignDate,
-                  style: MyThemeData.lightModeStyle.textTheme.bodyMedium,
+                  style: Theme.of(context).textTheme.bodyMedium,
                 ),
               ],
             ),
@@ -91,10 +106,13 @@ class _AssignmentDetailsState extends State<AssignmentDetails> {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                const Text('last date'),
+                Text(
+                  'last date',
+                  style: Theme.of(context).textTheme.bodyMedium,
+                ),
                 Text(
                   assignment.lastDate,
-                  style: MyThemeData.lightModeStyle.textTheme.bodyMedium,
+                  style: Theme.of(context).textTheme.bodyMedium,
                 ),
               ],
             ),
@@ -105,10 +123,13 @@ class _AssignmentDetailsState extends State<AssignmentDetails> {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                const Text('status'),
+                Text(
+                  'status',
+                  style: Theme.of(context).textTheme.bodyMedium,
+                ),
                 Text(
                   assignment.status,
-                  style: MyThemeData.lightModeStyle.textTheme.bodyMedium,
+                  style: Theme.of(context).textTheme.bodyMedium,
                 ),
               ],
             ),
@@ -139,11 +160,10 @@ class _AssignmentDetailsState extends State<AssignmentDetails> {
                           overflow: TextOverflow.ellipsis,
                           // Adds "..." when text is too long
                           maxLines: 1,
-                          style: MyThemeData
-                              .lightModeStyle.textTheme.bodyMedium!
-                              .copyWith(
-                            color: Colors.white,
-                          ),
+                          style:
+                              Theme.of(context).textTheme.bodyMedium!.copyWith(
+                                    color: Colors.white,
+                                  ),
                         ),
                       ),
                       Row(
@@ -204,8 +224,17 @@ class _AssignmentDetailsState extends State<AssignmentDetails> {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text("Delete File"),
-        content: const Text("Are you sure you want to delete this file?"),
+        backgroundColor: Provider.of<ThemeProvider>(context).isDark()
+            ? MyAppColors.primaryDarkColor
+            : MyAppColors.whiteColor,
+        title: Text(
+          "Delete File",
+          style: Theme.of(context).textTheme.bodyMedium,
+        ),
+        content: Text(
+          "Are you sure you want to delete this file?",
+          style: Theme.of(context).textTheme.bodyMedium,
+        ),
         actions: [
           TextButton(
             onPressed: () {

@@ -1,14 +1,20 @@
 import 'package:fci_edutrack/modules/custome_container.dart';
 import 'package:fci_edutrack/screens/home_screen/notifications_screen.dart';
-import 'package:fci_edutrack/style/my_theme_data.dart';
+import 'package:fci_edutrack/screens/settings_screen.dart';
+import 'package:fci_edutrack/style/my_app_colors.dart';
+import 'package:fci_edutrack/themes/my_theme_data.dart';
+import 'package:fci_edutrack/themes/theme_provider.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 class StudentProfileScreen extends StatelessWidget {
   const StudentProfileScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
+    bool isDark = Provider.of<ThemeProvider>(context).isDark();
     return Container(
+      color: isDark ? MyAppColors.primaryDarkColor : MyAppColors.whiteColor,
       padding: EdgeInsets.all(MediaQuery.of(context).size.height * 0.04),
       child: SingleChildScrollView(
         child: Column(
@@ -26,7 +32,9 @@ class StudentProfileScreen extends StatelessWidget {
             ),
             Text(
               'Mariam Mohamed',
-              style: MyThemeData.lightModeStyle.textTheme.bodySmall,
+              style: isDark
+                  ? MyThemeData.darkModeStyle.textTheme.bodySmall
+                  : MyThemeData.lightModeStyle.textTheme.bodySmall,
             ),
             SizedBox(
               height: MediaQuery.of(context).size.height * 0.06,
@@ -51,7 +59,9 @@ class StudentProfileScreen extends StatelessWidget {
             CustomContainer(
               label: 'Settings',
               icon: Icons.settings,
-              onContainerClick: () {},
+              onContainerClick: () {
+                Navigator.pushNamed(context, SettingsScreen.routeName);
+              },
             ),
             CustomContainer(
               label: 'Log Out',

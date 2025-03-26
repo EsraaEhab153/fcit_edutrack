@@ -1,8 +1,9 @@
+import 'package:fci_edutrack/themes/theme_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:provider/provider.dart';
 
 import '../style/my_app_colors.dart';
-import '../style/my_theme_data.dart';
 
 class CustomConfirmationCell extends StatelessWidget {
   const CustomConfirmationCell({super.key});
@@ -19,16 +20,25 @@ class CustomConfirmationCell extends StatelessWidget {
             FocusScope.of(context).nextFocus();
           }
         },
-        style: MyThemeData.lightModeStyle.textTheme.bodyMedium,
+        style: Theme.of(context).textTheme.bodyMedium,
         keyboardType: TextInputType.number,
         textAlign: TextAlign.center,
         decoration: InputDecoration(
-            border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(
-                    MediaQuery.of(context).size.width * 0.025),
-                borderSide: BorderSide(
-                    color: MyAppColors.primaryColor,
-                    width: MediaQuery.of(context).size.width * 0.001))),
+          border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(
+                  MediaQuery.of(context).size.width * 0.025),
+              borderSide: BorderSide(
+                  color: MyAppColors.primaryColor,
+                  width: MediaQuery.of(context).size.width * 0.001)),
+          enabledBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(
+                  MediaQuery.of(context).size.width * 0.025),
+              borderSide: BorderSide(
+                  color: Provider.of<ThemeProvider>(context).isDark()
+                      ? MyAppColors.lightBlueColor
+                      : MyAppColors.primaryColor,
+                  width: MediaQuery.of(context).size.width * 0.002)),
+        ),
         inputFormatters: [
           LengthLimitingTextInputFormatter(1),
           FilteringTextInputFormatter.digitsOnly,

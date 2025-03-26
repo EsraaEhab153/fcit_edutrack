@@ -1,11 +1,13 @@
 import 'package:fci_edutrack/auth/register_screen.dart';
 import 'package:fci_edutrack/screens/home_screen/my_bottom_nav_bar.dart';
 import 'package:fci_edutrack/screens/password/forget_password_screen.dart';
-import 'package:fci_edutrack/style/my_theme_data.dart';
+import 'package:fci_edutrack/themes/my_theme_data.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 import '../modules/custom_text_formfield.dart';
 import '../style/my_app_colors.dart';
+import '../themes/theme_provider.dart';
 
 class LoginScreen extends StatefulWidget {
   static const String routeName = 'login_screen';
@@ -17,7 +19,6 @@ class LoginScreen extends StatefulWidget {
 }
 
 class _RegisterScreenState extends State<LoginScreen> {
-
   TextEditingController passwordController = TextEditingController();
   TextEditingController emailController = TextEditingController();
 
@@ -25,8 +26,10 @@ class _RegisterScreenState extends State<LoginScreen> {
 
   @override
   Widget build(BuildContext context) {
+    bool isdDark = Provider.of<ThemeProvider>(context).isDark();
     return Scaffold(
-      backgroundColor: MyAppColors.whiteColor,
+      backgroundColor:
+          isdDark ? MyAppColors.primaryDarkColor : MyAppColors.whiteColor,
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
@@ -51,19 +54,22 @@ class _RegisterScreenState extends State<LoginScreen> {
               children: [
                 Text(
                   'هيا بنا نبدا',
-                  style:
-                      MyThemeData.lightModeStyle.textTheme.titleLarge!.copyWith(
-                    color: MyAppColors.blackColor,
-                  ),
+                  style: Theme.of(context).textTheme.titleLarge!.copyWith(
+                        color: isdDark
+                            ? MyAppColors.whiteColor
+                            : MyAppColors.blackColor,
+                      ),
                 ),
                 Text(
                   'قم بالتسجيل لحضور سريع دون الحاجة الي قوائم ورقية',
                   textAlign: TextAlign.center,
-                  style: MyThemeData.lightModeStyle.textTheme.bodyMedium!
-                      .copyWith(color: MyAppColors.darkBlueColor),
+                  style: Theme.of(context)
+                      .textTheme
+                      .bodyMedium!
+                      .copyWith(color: MyAppColors.lightBlueColor),
                 ),
                 SizedBox(
-                  height: MediaQuery.of(context).size.height * 0.1,
+                  height: MediaQuery.of(context).size.height * 0.06,
                 ),
                 CustomTextFormField(
                   label: 'Email',

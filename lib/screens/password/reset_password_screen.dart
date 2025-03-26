@@ -1,5 +1,4 @@
 import 'package:fci_edutrack/auth/login_screen.dart';
-import 'package:fci_edutrack/style/my_theme_data.dart';
 import 'package:flutter/material.dart';
 
 import '../../modules/custom_text_formfield.dart';
@@ -36,7 +35,7 @@ class ResetPasswordScreen extends StatelessWidget {
             children: [
               Text(
                 'Reset Password',
-                style: MyThemeData.lightModeStyle.textTheme.bodyMedium,
+                style: Theme.of(context).textTheme.bodyMedium,
               ),
               SizedBox(
                 height: MediaQuery.of(context).size.height * 0.02,
@@ -48,8 +47,8 @@ class ResetPasswordScreen extends StatelessWidget {
               ),
               Text(
                 'Set a New Password',
-                style: MyThemeData.lightModeStyle.textTheme.bodySmall!.copyWith(
-                  fontWeight: FontWeight.w300,
+                style: Theme.of(context).textTheme.bodySmall!.copyWith(
+                      fontWeight: FontWeight.w300,
                 ),
               ),
               Form(

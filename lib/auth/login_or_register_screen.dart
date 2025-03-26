@@ -14,20 +14,20 @@ class LoginOrRegisterScreen extends StatelessWidget {
     return Scaffold(
       body: Padding(
         padding: EdgeInsets.symmetric(
-          vertical: MediaQuery.of(context).size.height * 0.03,
+          vertical: MediaQuery.of(context).size.height * 0.04,
         ),
         child: Column(
           children: [
             Expanded(
               child: Image.asset(
-                'assets/images/login_or_register_logo.png',
+                'assets/images/login_logo.png',
                 width: double.infinity,
-                height: MediaQuery.of(context).size.height * 0.44,
+                height: double.infinity,
                 fit: BoxFit.fill,
               ),
             ),
             SizedBox(
-              height: MediaQuery.of(context).size.height * 0.066,
+              height: MediaQuery.of(context).size.height * 0.02,
             ),
             Expanded(
                 child: Column(
@@ -53,7 +53,7 @@ class LoginOrRegisterScreen extends StatelessWidget {
                         'Login',
                         style: Theme.of(context)
                             .textTheme
-                            .titleMedium!
+                            .bodyMedium!
                             .copyWith(color: MyAppColors.whiteColor),
                       ),
                       SizedBox(
@@ -87,7 +87,7 @@ class LoginOrRegisterScreen extends StatelessWidget {
                         'Create Account',
                         style: Theme.of(context)
                             .textTheme
-                            .titleMedium!
+                            .bodyMedium!
                             .copyWith(color: MyAppColors.whiteColor),
                       ),
                       SizedBox(

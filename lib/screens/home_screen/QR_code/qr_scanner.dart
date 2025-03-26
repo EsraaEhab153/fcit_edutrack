@@ -1,8 +1,11 @@
 import 'package:fci_edutrack/modules/custom_button_widget.dart';
 import 'package:fci_edutrack/screens/home_screen/QR_code/qr_code_functions.dart';
 import 'package:fci_edutrack/style/my_app_colors.dart';
-import 'package:fci_edutrack/style/my_theme_data.dart';
+import 'package:fci_edutrack/themes/my_theme_data.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+
+import '../../../themes/theme_provider.dart';
 
 class QrCodeScanner extends StatefulWidget {
   const QrCodeScanner({super.key});
@@ -34,13 +37,17 @@ class _QrCodeScannerState extends State<QrCodeScanner> {
             children: [
               Text(
                 'Attendance registration',
-                style: MyThemeData.lightModeStyle.textTheme.titleMedium,
+                style: MyThemeData.lightModeStyle.textTheme.titleMedium!
+                    .copyWith(color: MyAppColors.primaryColor),
               ),
               SizedBox(
                 height: MediaQuery.of(context).size.height * 0.03,
               ),
               Icon(
                 Icons.qr_code_2,
+                color: Provider.of<ThemeProvider>(context).isDark()
+                    ? MyAppColors.whiteColor
+                    : MyAppColors.blackColor,
                 size: MediaQuery.of(context).size.height * 0.3,
               ),
               SizedBox(
@@ -64,9 +71,12 @@ class _QrCodeScannerState extends State<QrCodeScanner> {
         context: context,
         builder: (context) {
           return AlertDialog(
+            backgroundColor: Provider.of<ThemeProvider>(context).isDark()
+                ? MyAppColors.primaryDarkColor
+                : MyAppColors.whiteColor,
             title: Text(
               'Scanned Successfully',
-              style: MyThemeData.lightModeStyle.textTheme.titleSmall,
+              style: Theme.of(context).textTheme.bodyMedium,
             ),
             icon: Icon(
               Icons.check_circle,
@@ -78,7 +88,9 @@ class _QrCodeScannerState extends State<QrCodeScanner> {
                 onPressed: () => Navigator.pop(context),
                 child: Text(
                   'OK',
-                  style: MyThemeData.lightModeStyle.textTheme.bodyMedium!
+                  style: Theme.of(context)
+                      .textTheme
+                      .bodyMedium!
                       .copyWith(color: MyAppColors.primaryColor),
                 ),
               ),
