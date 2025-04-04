@@ -1,4 +1,5 @@
 import 'package:fci_edutrack/auth/register_screen.dart';
+import 'package:fci_edutrack/providers/auth_provider.dart';
 import 'package:fci_edutrack/screens/home_screen/my_bottom_nav_bar.dart';
 import 'package:fci_edutrack/screens/password/forget_password_screen.dart';
 import 'package:fci_edutrack/themes/my_theme_data.dart';
@@ -20,13 +21,16 @@ class LoginScreen extends StatefulWidget {
 
 class _RegisterScreenState extends State<LoginScreen> {
   TextEditingController passwordController = TextEditingController();
-  TextEditingController emailController = TextEditingController();
+  TextEditingController usernameController = TextEditingController();
 
   final _formKey = GlobalKey<FormState>();
+  String? _errorMessage;
 
   @override
   Widget build(BuildContext context) {
     bool isdDark = Provider.of<ThemeProvider>(context).isDark();
+    bool isLoading = Provider.of<AuthProvider>(context).isLoading;
+
     return Scaffold(
       backgroundColor:
           isdDark ? MyAppColors.primaryDarkColor : MyAppColors.whiteColor,
@@ -71,20 +75,35 @@ class _RegisterScreenState extends State<LoginScreen> {
                 SizedBox(
                   height: MediaQuery.of(context).size.height * 0.06,
                 ),
+                if (_errorMessage != null)
+                  Container(
+                    padding: const EdgeInsets.all(10),
+                    margin: const EdgeInsets.only(bottom: 10),
+                    decoration: BoxDecoration(
+                      color: Colors.red.shade50,
+                      borderRadius: BorderRadius.circular(5),
+                      border: Border.all(color: Colors.red.shade200),
+                    ),
+                    child: Row(
+                      children: [
+                        const Icon(Icons.error_outline, color: Colors.red),
+                        const SizedBox(width: 10),
+                        Expanded(
+                          child: Text(
+                            _errorMessage!,
+                            style: const TextStyle(color: Colors.red),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
                 CustomTextFormField(
-                  label: 'Email',
-                  preIcon: Icons.email_outlined,
-                  controller: emailController,
-                  keyboardType: TextInputType.emailAddress,
+                  label: 'Username',
+                  preIcon: Icons.person_outline,
+                  controller: usernameController,
                   validator: (text) {
                     if (text == null || text.trim().isEmpty) {
-                      return 'Please Enter Email';
-                    }
-                    final bool emailValid = RegExp(
-                            r"^[a-zA-Z0-9.a-zA-Z0-9.!#$%&'*+-/=?^_`{|}~]+@[a-zA-Z0-9]+\.[a-zA-Z]+")
-                        .hasMatch(text);
-                    if (!emailValid) {
-                      return 'Please Enter Valid Email';
+                      return 'Please Enter Username';
                     }
                     return null;
                   },
@@ -116,9 +135,7 @@ class _RegisterScreenState extends State<LoginScreen> {
                   height: MediaQuery.of(context).size.height * 0.03,
                 ),
                 ElevatedButton(
-                  onPressed: () {
-                    login();
-                  },
+                  onPressed: isLoading ? null : login,
                   style: ElevatedButton.styleFrom(
                       backgroundColor: MyAppColors.primaryColor,
                       padding: EdgeInsets.symmetric(
@@ -131,7 +148,7 @@ class _RegisterScreenState extends State<LoginScreen> {
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       Text(
-                        'Login',
+                        isLoading ? 'Logging in...' : 'Login',
                         style: Theme.of(context)
                             .textTheme
                             .titleMedium!
@@ -140,7 +157,16 @@ class _RegisterScreenState extends State<LoginScreen> {
                       SizedBox(
                         width: MediaQuery.of(context).size.width * 0.007,
                       ),
-                      const Icon(Icons.login),
+                      isLoading
+                          ? const SizedBox(
+                              width: 20,
+                              height: 20,
+                              child: CircularProgressIndicator(
+                                color: Colors.white,
+                                strokeWidth: 2,
+                              ),
+                            )
+                          : const Icon(Icons.login),
                     ],
                   ),
                 ),
@@ -206,8 +232,26 @@ class _RegisterScreenState extends State<LoginScreen> {
   }
 
   void login() async {
+    setState(() {
+      _errorMessage = null;
+    });
+
     if (_formKey.currentState?.validate() == true) {
-      Navigator.pushReplacementNamed(context, MyBottomNavBar.routeName);
+      final authProvider = Provider.of<AuthProvider>(context, listen: false);
+
+      final success = await authProvider.login(
+        usernameController.text.trim(),
+        passwordController.text,
+      );
+
+      if (success) {
+        if (!mounted) return;
+        Navigator.pushReplacementNamed(context, MyBottomNavBar.routeName);
+      } else {
+        setState(() {
+          _errorMessage = "Invalid username or password. Please try again.";
+        });
+      }
     }
   }
 }

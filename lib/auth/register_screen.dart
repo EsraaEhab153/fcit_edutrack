@@ -1,9 +1,13 @@
+import 'package:fci_edutrack/auth/login_screen.dart';
+import 'package:fci_edutrack/providers/auth_provider.dart';
+import 'package:fci_edutrack/screens/password/pass_confirm_code_screen.dart';
 import 'package:fci_edutrack/themes/my_theme_data.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 import '../modules/custom_text_formfield.dart';
 import '../style/my_app_colors.dart';
-import 'login_screen.dart';
+import '../themes/theme_provider.dart';
 
 class RegisterScreen extends StatefulWidget {
   static const String routeName = 'register_screen';
@@ -15,20 +19,23 @@ class RegisterScreen extends StatefulWidget {
 }
 
 class _RegisterScreenState extends State<RegisterScreen> {
-  TextEditingController nameController = TextEditingController();
-
   TextEditingController passwordController = TextEditingController();
-
-  TextEditingController confirmPasswordController = TextEditingController();
-
+  TextEditingController usernameController = TextEditingController();
+  TextEditingController fullNameController = TextEditingController();
   TextEditingController emailController = TextEditingController();
 
   final _formKey = GlobalKey<FormState>();
+  String? _errorMessage;
+  String? _successMessage;
 
   @override
   Widget build(BuildContext context) {
+    bool isdDark = Provider.of<ThemeProvider>(context).isDark();
+    bool isLoading = Provider.of<AuthProvider>(context).isLoading;
+
     return Scaffold(
-      backgroundColor: MyAppColors.whiteColor,
+      backgroundColor:
+          isdDark ? MyAppColors.primaryDarkColor : MyAppColors.whiteColor,
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
@@ -49,30 +56,93 @@ class _RegisterScreenState extends State<RegisterScreen> {
             padding: EdgeInsets.symmetric(
                 horizontal: MediaQuery.of(context).size.width * 0.03),
             child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
                   'هيا بنا نبدا',
-                  style:
-                      MyThemeData.lightModeStyle.textTheme.titleLarge!.copyWith(
-                    color: MyAppColors.blackColor,
-                  ),
+                  style: Theme.of(context).textTheme.titleLarge!.copyWith(
+                        color: isdDark
+                            ? MyAppColors.whiteColor
+                            : MyAppColors.blackColor,
+                      ),
                 ),
                 Text(
                   'قم بالتسجيل لحضور سريع دون الحاجة الي قوائم ورقية',
                   textAlign: TextAlign.center,
-                  style: MyThemeData.lightModeStyle.textTheme.bodyMedium!
-                      .copyWith(color: MyAppColors.darkBlueColor),
+                  style: Theme.of(context)
+                      .textTheme
+                      .bodyMedium!
+                      .copyWith(color: MyAppColors.lightBlueColor),
                 ),
                 SizedBox(
-                  height: MediaQuery.of(context).size.height * 0.1,
+                  height: MediaQuery.of(context).size.height * 0.06,
                 ),
+                if (_errorMessage != null)
+                  Container(
+                    padding: const EdgeInsets.all(10),
+                    margin: const EdgeInsets.only(bottom: 10),
+                    decoration: BoxDecoration(
+                      color: Colors.red.shade50,
+                      borderRadius: BorderRadius.circular(5),
+                      border: Border.all(color: Colors.red.shade200),
+                    ),
+                    child: Row(
+                      children: [
+                        const Icon(Icons.error_outline, color: Colors.red),
+                        const SizedBox(width: 10),
+                        Expanded(
+                          child: Text(
+                            _errorMessage!,
+                            style: const TextStyle(color: Colors.red),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                if (_successMessage != null)
+                  Container(
+                    padding: const EdgeInsets.all(10),
+                    margin: const EdgeInsets.only(bottom: 10),
+                    decoration: BoxDecoration(
+                      color: Colors.green.shade50,
+                      borderRadius: BorderRadius.circular(5),
+                      border: Border.all(color: Colors.green.shade200),
+                    ),
+                    child: Row(
+                      children: [
+                        const Icon(Icons.check_circle_outline,
+                            color: Colors.green),
+                        const SizedBox(width: 10),
+                        Expanded(
+                          child: Text(
+                            _successMessage!,
+                            style: const TextStyle(color: Colors.green),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
                 CustomTextFormField(
-                  label: 'User Name',
-                  preIcon: Icons.person_2_outlined,
-                  controller: nameController,
+                  label: 'Full Name',
+                  preIcon: Icons.person_outline,
+                  controller: fullNameController,
                   validator: (text) {
                     if (text == null || text.trim().isEmpty) {
-                      return 'Please Enter User Name';
+                      return 'Please Enter Full Name';
+                    }
+                    return null;
+                  },
+                ),
+                CustomTextFormField(
+                  label: 'Username',
+                  preIcon: Icons.account_circle_outlined,
+                  controller: usernameController,
+                  validator: (text) {
+                    if (text == null || text.trim().isEmpty) {
+                      return 'Please Enter Username';
+                    }
+                    if (text.contains(' ')) {
+                      return 'Username cannot contain spaces';
                     }
                     return null;
                   },
@@ -111,29 +181,11 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   },
                   obscureText: true,
                 ),
-                CustomTextFormField(
-                  label: 'Confirm Password',
-                  preIcon: Icons.vpn_key_outlined,
-                  sufIcon: Icons.visibility_off_outlined,
-                  controller: confirmPasswordController,
-                  validator: (text) {
-                    if (text == null || text.trim().isEmpty) {
-                      return 'Please Enter Confirm Password';
-                    }
-                    if (text != passwordController.text) {
-                      return "The Confirm password doesn't match Password";
-                    }
-                    return null;
-                  },
-                  obscureText: true,
-                ),
                 SizedBox(
                   height: MediaQuery.of(context).size.height * 0.03,
                 ),
                 ElevatedButton(
-                  onPressed: () {
-                    register();
-                  },
+                  onPressed: isLoading ? null : register,
                   style: ElevatedButton.styleFrom(
                       backgroundColor: MyAppColors.primaryColor,
                       padding: EdgeInsets.symmetric(
@@ -145,25 +197,36 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      const Icon(Icons.add_card_outlined),
-                      SizedBox(
-                        width: MediaQuery.of(context).size.width * 0.007,
-                      ),
                       Text(
-                        'Create Account',
+                        isLoading ? 'Registering...' : 'Register',
                         style: Theme.of(context)
                             .textTheme
                             .titleMedium!
                             .copyWith(color: MyAppColors.whiteColor),
                       ),
+                      SizedBox(
+                        width: MediaQuery.of(context).size.width * 0.007,
+                      ),
+                      isLoading
+                          ? const SizedBox(
+                              width: 20,
+                              height: 20,
+                              child: CircularProgressIndicator(
+                                color: Colors.white,
+                                strokeWidth: 2,
+                              ),
+                            )
+                          : const Icon(Icons.app_registration),
                     ],
                   ),
                 ),
-                Text(
-                  'or',
-                  style:
-                      MyThemeData.lightModeStyle.textTheme.bodySmall!.copyWith(
-                    color: MyAppColors.blackColor,
+                Center(
+                  child: Text(
+                    'or',
+                    style: MyThemeData.lightModeStyle.textTheme.bodySmall!
+                        .copyWith(
+                      color: MyAppColors.blackColor,
+                    ),
                   ),
                 ),
                 Row(
@@ -171,7 +234,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   children: [
                     Image.asset(
                       'assets/images/google_logo.png',
-                      width: MediaQuery.of(context).size.width * 0.06,
+                      width: MediaQuery.of(context).size.width * 0.05,
                       fit: BoxFit.fill,
                     ),
                     SizedBox(
@@ -179,7 +242,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     ),
                     Image.asset(
                       'assets/images/facebook_logo.png',
-                      width: MediaQuery.of(context).size.width * 0.06,
+                      width: MediaQuery.of(context).size.width * 0.05,
                       fit: BoxFit.fill,
                     ),
                   ],
@@ -188,7 +251,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     Text(
-                      'already have an account?',
+                      "Already have an account?",
                       style: MyThemeData.lightModeStyle.textTheme.bodySmall!
                           .copyWith(
                         fontSize: 12,
@@ -219,6 +282,43 @@ class _RegisterScreenState extends State<RegisterScreen> {
   }
 
   void register() async {
-    if (_formKey.currentState?.validate() == true) {}
+    setState(() {
+      _errorMessage = null;
+      _successMessage = null;
+    });
+
+    if (_formKey.currentState?.validate() == true) {
+      final authProvider = Provider.of<AuthProvider>(context, listen: false);
+
+      final response = await authProvider.register(
+        usernameController.text.trim(),
+        passwordController.text,
+        fullNameController.text.trim(),
+        emailController.text.trim(),
+      );
+
+      if (response['success']) {
+        setState(() {
+          _successMessage =
+              "Registration successful! Please check your email for verification code.";
+        });
+
+        if (!mounted) return;
+        // Navigate to email verification screen
+        Navigator.pushNamed(
+          context,
+          PasswordConfirmationCode.routeName,
+          arguments: {
+            'email': emailController.text.trim(),
+            'isForVerification': true,
+          },
+        );
+      } else {
+        setState(() {
+          _errorMessage =
+              response['message'] ?? "Registration failed. Please try again.";
+        });
+      }
+    }
   }
 }

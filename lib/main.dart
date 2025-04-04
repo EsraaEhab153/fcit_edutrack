@@ -1,6 +1,9 @@
 import 'package:fci_edutrack/auth/login_or_register_screen.dart';
 import 'package:fci_edutrack/auth/login_screen.dart';
 import 'package:fci_edutrack/auth/register_screen.dart';
+import 'package:fci_edutrack/providers/attendance_provider.dart';
+import 'package:fci_edutrack/providers/auth_provider.dart';
+import 'package:fci_edutrack/providers/course_provider.dart';
 import 'package:fci_edutrack/screens/assignment/assignment_details.dart';
 import 'package:fci_edutrack/screens/assignment/assignment_screen.dart';
 import 'package:fci_edutrack/screens/camera_permission_screen.dart';
@@ -17,6 +20,7 @@ import 'package:fci_edutrack/themes/theme_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
+import 'package:fci_edutrack/screens/attendance_history_screen.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
@@ -27,12 +31,35 @@ void main() {
   runApp(MultiProvider(providers: [
     ChangeNotifierProvider(
       create: (context) => ThemeProvider(),
-    )
+    ),
+    ChangeNotifierProvider(
+      create: (context) => AuthProvider(),
+    ),
+    ChangeNotifierProvider(
+      create: (context) => CourseProvider(),
+    ),
+    ChangeNotifierProvider(
+      create: (context) => AttendanceProvider(),
+    ),
   ], child: const MyApp()));
 }
 
-class MyApp extends StatelessWidget {
+class MyApp extends StatefulWidget {
   const MyApp({super.key});
+
+  @override
+  State<MyApp> createState() => _MyAppState();
+}
+
+class _MyAppState extends State<MyApp> {
+  @override
+  void initState() {
+    super.initState();
+    // Initialize the auth provider
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      Provider.of<AuthProvider>(context, listen: false).initialize();
+    });
+  }
 
   // This widget is the root of your application.
   @override
@@ -63,6 +90,7 @@ class MyApp extends StatelessWidget {
         AssignmentScreen.routeName: (context) => const AssignmentScreen(),
         AssignmentDetails.routeName: (context) => const AssignmentDetails(),
         SettingsScreen.routeName: (context) => const SettingsScreen(),
+        'attendance_history': (context) => AttendanceHistoryScreen(),
       },
     );
   }
