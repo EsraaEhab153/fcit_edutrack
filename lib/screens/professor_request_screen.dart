@@ -33,7 +33,12 @@ class _ProfessorRequestScreenState extends State<ProfessorRequestScreen> {
   // Method to pick image from gallery
   Future<void> _pickImage() async {
     final ImagePicker picker = ImagePicker();
-    final XFile? image = await picker.pickImage(source: ImageSource.gallery);
+    final XFile? image = await picker.pickImage(
+      source: ImageSource.gallery,
+      imageQuality: 70, // Reduce image quality for smaller file size
+      maxWidth: 800, // Limit image width
+      maxHeight: 800, // Limit image height
+    );
 
     if (image != null) {
       setState(() {
@@ -57,6 +62,11 @@ class _ProfessorRequestScreenState extends State<ProfessorRequestScreen> {
     try {
       final apiService = ApiService();
       print("Uploading image: ${_idImage!.path}");
+
+      // Check file extension to help debug content type issues
+      String fileExtension = _idImage!.path.split('.').last.toLowerCase();
+      print("File extension: $fileExtension");
+
       final response = await apiService.uploadFile(_idImage!);
       print("Upload response: $response");
 

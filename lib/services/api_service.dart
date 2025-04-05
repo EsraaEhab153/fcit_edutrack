@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:io';
 import 'package:http/http.dart' as http;
+import 'package:http_parser/http_parser.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../config.dart';
 
@@ -333,17 +334,53 @@ class ApiService {
   // Upload file
   Future<dynamic> uploadFile(File file) async {
     try {
-      // No token required for file uploads in professor request flow
       print("Uploading file to ${Config.publicFileUploadUrl}");
       print("File path: ${file.path}");
+
+      // Determine content type based on file extension
+      String extension = file.path.split('.').last.toLowerCase();
+      String contentType;
+
+      switch (extension) {
+        case 'jpg':
+        case 'jpeg':
+          contentType = 'image/jpeg';
+          break;
+        case 'png':
+          contentType = 'image/png';
+          break;
+        case 'pdf':
+          contentType = 'application/pdf';
+          break;
+        case 'doc':
+          contentType = 'application/msword';
+          break;
+        case 'docx':
+          contentType =
+              'application/vnd.openxmlformats-officedocument.wordprocessingml.document';
+          break;
+        default:
+          contentType = 'image/jpeg'; // Default to jpeg if unknown
+      }
+
+      print("Determined content type: $contentType for extension: $extension");
 
       var request =
           http.MultipartRequest('POST', Uri.parse(Config.publicFileUploadUrl));
 
-      // Don't set Authorization header
-      request.files.add(await http.MultipartFile.fromPath('file', file.path));
+      // Add the file with explicit content type
+      final multipartFile = await http.MultipartFile.fromPath(
+        'file',
+        file.path,
+        contentType: MediaType.parse(contentType),
+      );
 
+      request.files.add(multipartFile);
+
+      print(
+          "Created multipart request with file: ${multipartFile.filename}, contentType: ${multipartFile.contentType}");
       print("Sending file upload request...");
+
       var streamedResponse = await request.send();
       var response = await http.Response.fromStream(streamedResponse);
 
