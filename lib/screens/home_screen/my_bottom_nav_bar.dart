@@ -94,10 +94,16 @@ class _MyBottomNavBarState extends State<MyBottomNavBar> {
           iconTheme: const IconThemeData(color: MyAppColors.primaryColor),
           title: isAdmin
               ? const Text('Admin Dashboard',
-                  style: TextStyle(color: MyAppColors.primaryColor))
+                  style: TextStyle(
+                      fontSize: 22,
+                      fontWeight: FontWeight.bold,
+                      color: MyAppColors.primaryColor))
               : isProfessor
                   ? const Text('Professor Dashboard',
-                      style: TextStyle(color: MyAppColors.primaryColor))
+                      style: TextStyle(
+                          fontSize: 20,
+                          fontWeight: FontWeight.bold,
+                          color: MyAppColors.primaryColor))
                   : null,
         ),
         drawer: const MyDrawer(),

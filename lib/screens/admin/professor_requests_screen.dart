@@ -112,6 +112,8 @@ class _ProfessorRequestsScreenState extends State<ProfessorRequestsScreen> {
         title: Text(
           'Professor Requests',
           style: TextStyle(
+            fontSize: 22,
+            fontWeight: FontWeight.bold,
             color: isDark ? MyAppColors.whiteColor : MyAppColors.blackColor,
           ),
         ),

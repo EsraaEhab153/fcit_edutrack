@@ -1,6 +1,7 @@
 class Config {
   // Base URL for the backend API
-  static const String baseUrl = 'https://edutrack-backend-orms.onrender.com';
+  static const String baseUrl =
+      'https://edutrack-backend-orms.onrender.com/api';
 
   // Authentication endpoints
   static const String registerUrl = '$baseUrl/api/auth/register';

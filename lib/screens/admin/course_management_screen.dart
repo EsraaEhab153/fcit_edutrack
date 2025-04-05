@@ -281,6 +281,8 @@ class _CourseManagementScreenState extends State<CourseManagementScreen> {
         title: Text(
           'Course Management',
           style: TextStyle(
+            fontSize: 22,
+            fontWeight: FontWeight.bold,
             color: isDark ? MyAppColors.whiteColor : MyAppColors.blackColor,
           ),
         ),

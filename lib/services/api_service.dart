@@ -421,13 +421,21 @@ class ApiService {
   Future<dynamic> getPendingProfessorRequests() async {
     try {
       final token = await _getToken();
+      print(
+          "Getting pending professor requests from: ${Config.professorRequestUrl}");
+      print("Token: ${token != null ? "Valid token present" : "No token"}");
+
       final response = await http.get(
-        Uri.parse('${Config.professorRequestUrl}/pending'),
+        Uri.parse(Config.professorRequestUrl),
         headers: _headers(token: token),
       );
 
+      print("Response status: ${response.statusCode}");
+      print("Response body: ${response.body}");
+
       return jsonDecode(response.body);
     } catch (e) {
+      print("Error fetching professor requests: $e");
       return {'success': false, 'message': e.toString()};
     }
   }
@@ -457,6 +465,7 @@ class ApiService {
       final token = await _getToken();
 
       print("Creating course with data: $courseData");
+      print("Using URL: ${Config.coursesUrl}");
 
       final response = await http.post(
         Uri.parse(Config.coursesUrl),
@@ -481,6 +490,7 @@ class ApiService {
       final token = await _getToken();
 
       print("Updating course $courseId with data: $courseData");
+      print("Using URL: ${Config.coursesUrl}/$courseId");
 
       final response = await http.put(
         Uri.parse('${Config.coursesUrl}/$courseId'),
@@ -504,6 +514,7 @@ class ApiService {
       final token = await _getToken();
 
       print("Deleting course $courseId");
+      print("Using URL: ${Config.coursesUrl}/$courseId");
 
       final response = await http.delete(
         Uri.parse('${Config.coursesUrl}/$courseId'),
@@ -511,8 +522,6 @@ class ApiService {
       );
 
       print("Delete course response status: ${response.statusCode}");
-      print("Response body: ${response.body}");
-
       if (response.statusCode == 204 || response.body.isEmpty) {
         return {'success': true, 'message': 'Course deleted successfully'};
       }
