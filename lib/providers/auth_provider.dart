@@ -15,6 +15,14 @@ class AuthProvider extends ChangeNotifier {
   User? get currentUser => _currentUser;
   bool get isLoggedIn => _token != null;
 
+  // Check if current user has admin role
+  Future<bool> isAdmin() async {
+    if (_currentUser == null) {
+      await initialize();
+    }
+    return _currentUser?.role == 'ADMIN';
+  }
+
   // Initialize the provider
   Future<void> initialize() async {
     _isLoading = true;
@@ -35,15 +43,30 @@ class AuthProvider extends ChangeNotifier {
           // Extract user info from token
           final decodedToken = JwtDecoder.decode(token);
 
+          // Debug the token data
+          print("Token data: ${decodedToken.toString()}");
+
+          // Try different possible key names for the user ID
+          String? userId = decodedToken['sub'] ??
+              decodedToken['id'] ??
+              decodedToken['userId'] ??
+              decodedToken['user_id'];
+
+          if (userId == null || userId.isEmpty) {
+            print("Warning: Could not extract user ID from token");
+          }
+
           // Create user from token data
           _currentUser = User(
-            id: decodedToken['sub'] ?? '',
+            id: userId ?? '',
             username: decodedToken['username'] ?? '',
             fullName: decodedToken['fullName'] ?? '',
             email: decodedToken['email'] ?? '',
             role: decodedToken['role'],
             emailVerified: true, // If they have a token, they're verified
           );
+
+          print("Initialized user with ID: ${_currentUser?.id}");
         }
       }
     } catch (e) {
@@ -66,13 +89,30 @@ class AuthProvider extends ChangeNotifier {
       if (response['success'] && response['data']['token'] != null) {
         _token = response['data']['token'];
 
+        // Decode the token to extract user ID
+        final decodedToken = JwtDecoder.decode(_token!);
+
+        // Try different possible key names for the user ID
+        String? userId = decodedToken['sub'] ??
+            decodedToken['id'] ??
+            decodedToken['userId'] ??
+            decodedToken['user_id'] ??
+            response['data']['id'] ??
+            response['data']['userId'];
+
+        if (userId == null || userId.isEmpty) {
+          print("Warning: Could not extract user ID from token or response");
+        } else {
+          print("Login successful, extracted user ID: $userId");
+        }
+
         // Extract user details from response
         _currentUser = User(
-          id: '', // ID might not be in response, can be extracted from token
+          id: userId ?? '', // Use extracted ID
           username: response['data']['username'] ?? '',
           fullName: response['data']['fullName'] ?? '',
           email: response['data']['email'] ?? '',
-          role: null, // Role might be in token
+          role: decodedToken['role'], // Get role from token
           emailVerified: true, // If login successful, assume verified
         );
 
@@ -150,15 +190,95 @@ class AuthProvider extends ChangeNotifier {
     _isLoading = true;
     notifyListeners();
 
+    print("AuthProvider: logout() called");
+
     try {
+      print("AuthProvider: clearing token from API service");
       await _apiService.clearToken();
+
+      print("AuthProvider: setting token and current user to null");
       _token = null;
       _currentUser = null;
+
+      print("AuthProvider: logout completed successfully");
     } catch (e) {
-      print('Logout error: $e');
+      print('AuthProvider: Logout error: $e');
+      // Even if there's an error, we should still clear local state
+      _token = null;
+      _currentUser = null;
     } finally {
       _isLoading = false;
       notifyListeners();
+      print("AuthProvider: notified listeners of logout");
+    }
+  }
+
+  // Login with email
+  Future<bool> loginWithEmail(String email, String password) async {
+    _isLoading = true;
+    notifyListeners();
+
+    try {
+      final response = await _apiService.loginWithEmail(email, password);
+
+      if (response['success'] && response['data']['token'] != null) {
+        _token = response['data']['token'];
+
+        // Decode the token to extract user ID
+        final decodedToken = JwtDecoder.decode(_token!);
+
+        // Try different possible key names for the user ID
+        String? userId = decodedToken['sub'] ??
+            decodedToken['id'] ??
+            decodedToken['userId'] ??
+            decodedToken['user_id'] ??
+            response['data']['id'] ??
+            response['data']['userId'];
+
+        if (userId == null || userId.isEmpty) {
+          print("Warning: Could not extract user ID from token or response");
+        } else {
+          print("Login successful, extracted user ID: $userId");
+        }
+
+        // Extract user details from response
+        _currentUser = User(
+          id: userId ?? '', // Use extracted ID
+          username: response['data']['username'] ?? '',
+          fullName: response['data']['fullName'] ?? '',
+          email: response['data']['email'] ?? '',
+          role: decodedToken['role'], // Get role from token
+          emailVerified: true, // If login successful, assume verified
+        );
+
+        return true;
+      } else {
+        return false;
+      }
+    } catch (e) {
+      print('Login with email error: $e');
+      return false;
+    } finally {
+      _isLoading = false;
+      notifyListeners();
+    }
+  }
+
+  // Check if a string is an email
+  bool isEmail(String input) {
+    // Simple email regex pattern
+    final emailRegex = RegExp(r'^[^@]+@[^@]+\.[^@]+');
+    return emailRegex.hasMatch(input);
+  }
+
+  // Smart login - determine if input is username or email
+  Future<bool> smartLogin(String usernameOrEmail, String password) async {
+    if (isEmail(usernameOrEmail)) {
+      print("Login attempt with email: $usernameOrEmail");
+      return loginWithEmail(usernameOrEmail, password);
+    } else {
+      print("Login attempt with username: $usernameOrEmail");
+      return login(usernameOrEmail, password);
     }
   }
 }

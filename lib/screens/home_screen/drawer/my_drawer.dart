@@ -3,6 +3,9 @@ import 'package:fci_edutrack/style/my_app_colors.dart';
 import 'package:fci_edutrack/themes/theme_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:fci_edutrack/providers/auth_provider.dart';
+import 'package:fci_edutrack/auth/login_screen.dart';
+import 'package:fci_edutrack/screens/admin/professor_requests_screen.dart';
 
 import '../../settings_screen.dart';
 import 'drawer_tile.dart';
@@ -65,10 +68,91 @@ class MyDrawer extends StatelessWidget {
                   Navigator.pop(context);
                   Navigator.pushNamed(context, SettingsScreen.routeName);
                 }),
+
+            // Admin section - only show for admin users
+            FutureBuilder<bool>(
+              future:
+                  Provider.of<AuthProvider>(context, listen: false).isAdmin(),
+              builder: (context, snapshot) {
+                if (snapshot.hasData && snapshot.data == true) {
+                  return Column(
+                    children: [
+                      Divider(
+                        color: Provider.of<ThemeProvider>(context).isDark()
+                            ? MyAppColors.whiteColor
+                            : MyAppColors.blackColor,
+                        thickness: 1.25,
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.symmetric(vertical: 8.0),
+                        child: Row(
+                          children: [
+                            Text(
+                              'A D M I N',
+                              style: TextStyle(
+                                color: MyAppColors.primaryColor,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      // Professor requests for admin
+                      MyDrawerTile(
+                        title: 'P R O F E S S O R  R E Q U E S T S',
+                        icon: Icons.person_add,
+                        onTap: () {
+                          Navigator.pop(context);
+                          Navigator.pushNamed(
+                            context,
+                            ProfessorRequestsScreen.routeName,
+                          );
+                        },
+                      ),
+                    ],
+                  );
+                }
+                return const SizedBox.shrink();
+              },
+            ),
+
             const Spacer(),
             // logout
             MyDrawerTile(
-                title: 'L O G O U T', icon: Icons.logout, onTap: () {}),
+                title: 'L O G O U T',
+                icon: Icons.logout,
+                onTap: () async {
+                  Navigator.pop(context); // Close drawer first
+
+                  // Show confirmation dialog
+                  final shouldLogout = await showDialog<bool>(
+                    context: context,
+                    builder: (context) => AlertDialog(
+                      title: const Text('Log Out'),
+                      content: const Text('Are you sure you want to log out?'),
+                      actions: [
+                        TextButton(
+                          onPressed: () => Navigator.of(context).pop(false),
+                          child: const Text('Cancel'),
+                        ),
+                        TextButton(
+                          onPressed: () => Navigator.of(context).pop(true),
+                          child: const Text('Log Out'),
+                        ),
+                      ],
+                    ),
+                  );
+
+                  if (shouldLogout == true) {
+                    final authProvider =
+                        Provider.of<AuthProvider>(context, listen: false);
+                    await authProvider.logout();
+                    if (context.mounted) {
+                      Navigator.of(context).pushNamedAndRemoveUntil(
+                          LoginScreen.routeName, (route) => false);
+                    }
+                  }
+                }),
           ],
         ),
       ),

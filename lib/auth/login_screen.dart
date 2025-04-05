@@ -21,7 +21,7 @@ class LoginScreen extends StatefulWidget {
 
 class _RegisterScreenState extends State<LoginScreen> {
   TextEditingController passwordController = TextEditingController();
-  TextEditingController usernameController = TextEditingController();
+  TextEditingController usernameOrEmailController = TextEditingController();
 
   final _formKey = GlobalKey<FormState>();
   String? _errorMessage;
@@ -98,12 +98,12 @@ class _RegisterScreenState extends State<LoginScreen> {
                     ),
                   ),
                 CustomTextFormField(
-                  label: 'Username',
+                  label: 'Username or Email',
                   preIcon: Icons.person_outline,
-                  controller: usernameController,
+                  controller: usernameOrEmailController,
                   validator: (text) {
                     if (text == null || text.trim().isEmpty) {
-                      return 'Please Enter Username';
+                      return 'Please Enter Username or Email';
                     }
                     return null;
                   },
@@ -239,8 +239,8 @@ class _RegisterScreenState extends State<LoginScreen> {
     if (_formKey.currentState?.validate() == true) {
       final authProvider = Provider.of<AuthProvider>(context, listen: false);
 
-      final success = await authProvider.login(
-        usernameController.text.trim(),
+      final success = await authProvider.smartLogin(
+        usernameOrEmailController.text.trim(),
         passwordController.text,
       );
 

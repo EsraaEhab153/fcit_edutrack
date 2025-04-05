@@ -97,8 +97,8 @@ class StudentProfileScreen extends StatelessWidget {
                 if (shouldLogout == true) {
                   await authProvider.logout();
                   if (!context.mounted) return;
-                  Navigator.of(context)
-                      .pushReplacementNamed(LoginScreen.routeName);
+                  Navigator.of(context).pushNamedAndRemoveUntil(
+                      LoginScreen.routeName, (route) => false);
                 }
               },
             ),

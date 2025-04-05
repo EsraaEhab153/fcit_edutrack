@@ -1,6 +1,7 @@
 import 'package:fci_edutrack/models/course_model.dart';
 import 'package:fci_edutrack/providers/attendance_provider.dart';
 import 'package:fci_edutrack/providers/course_provider.dart';
+import 'package:fci_edutrack/screens/home_screen/my_bottom_nav_bar.dart';
 import 'package:fci_edutrack/style/my_app_colors.dart';
 import 'package:fci_edutrack/themes/theme_provider.dart';
 import 'package:flutter/material.dart';
@@ -22,7 +23,8 @@ class _QrCodeScannerState extends State<QrCodeScanner> {
     super.initState();
     // Fetch enrolled courses when screen loads
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      Provider.of<CourseProvider>(context, listen: false).fetchCurrentCourses();
+      Provider.of<CourseProvider>(context, listen: false)
+          .fetchEnrolledCourses();
     });
   }
 
@@ -37,9 +39,11 @@ class _QrCodeScannerState extends State<QrCodeScanner> {
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
+        automaticallyImplyLeading: false,
         title: Text(
           'Record Attendance',
           style: TextStyle(
+            fontSize: 20,
             color: isDark ? MyAppColors.whiteColor : MyAppColors.blackColor,
           ),
         ),
@@ -50,7 +54,7 @@ class _QrCodeScannerState extends State<QrCodeScanner> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              'Your Enrolled Courses',
+              'Current Courses in Schedule',
               style: TextStyle(
                 fontSize: 18,
                 fontWeight: FontWeight.bold,
@@ -117,7 +121,7 @@ class _QrCodeScannerState extends State<QrCodeScanner> {
             Expanded(
               child: courseProvider.isLoading
                   ? const Center(child: CircularProgressIndicator())
-                  : courseProvider.currentCourses.isEmpty
+                  : courseProvider.enrolledCourses.isEmpty
                       ? Center(
                           child: Column(
                             mainAxisAlignment: MainAxisAlignment.center,
@@ -129,7 +133,7 @@ class _QrCodeScannerState extends State<QrCodeScanner> {
                               ),
                               const SizedBox(height: 16),
                               Text(
-                                'You are not enrolled in any courses yet',
+                                'No classes taking place right now',
                                 style: TextStyle(color: Colors.grey),
                                 textAlign: TextAlign.center,
                               ),
@@ -137,7 +141,12 @@ class _QrCodeScannerState extends State<QrCodeScanner> {
                               ElevatedButton(
                                 onPressed: () {
                                   // Switch to the courses tab
-                                  DefaultTabController.of(context).animateTo(2);
+                                  final navBarState =
+                                      MyBottomNavBar.of(context);
+                                  if (navBarState != null) {
+                                    navBarState.changeTab(
+                                        2); // Index 2 for Courses tab
+                                  }
                                 },
                                 style: ElevatedButton.styleFrom(
                                   backgroundColor: MyAppColors.primaryColor,
@@ -150,9 +159,10 @@ class _QrCodeScannerState extends State<QrCodeScanner> {
                           ),
                         )
                       : ListView.builder(
-                          itemCount: courseProvider.currentCourses.length,
+                          itemCount: courseProvider.enrolledCourses.length,
                           itemBuilder: (context, index) {
-                            final course = courseProvider.currentCourses[index];
+                            final course =
+                                courseProvider.enrolledCourses[index];
                             return CourseAttendanceCard(
                               course: course,
                               onRecordAttendance: () =>
@@ -217,6 +227,7 @@ class CourseAttendanceCard extends StatelessWidget {
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(10),
       ),
+      color: isDark ? MyAppColors.darkCardColor : Colors.white,
       child: InkWell(
         onTap: onRecordAttendance,
         borderRadius: BorderRadius.circular(10),

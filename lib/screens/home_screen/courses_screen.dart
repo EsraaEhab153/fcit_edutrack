@@ -24,7 +24,8 @@ class _CoursesScreenState extends State<CoursesScreen>
     // Fetch courses when screen loads
     WidgetsBinding.instance.addPostFrameCallback((_) {
       Provider.of<CourseProvider>(context, listen: false).fetchCourses();
-      Provider.of<CourseProvider>(context, listen: false).fetchCurrentCourses();
+      Provider.of<CourseProvider>(context, listen: false)
+          .fetchEnrolledCourses();
     });
   }
 
@@ -74,7 +75,7 @@ class _CoursesScreenState extends State<CoursesScreen>
           // My Courses Tab
           courseProvider.isLoading
               ? const Center(child: CircularProgressIndicator())
-              : _buildCoursesList(courseProvider.currentCourses, false),
+              : _buildCoursesList(courseProvider.enrolledCourses, false),
         ],
       ),
       floatingActionButton: _tabController.index == 0
@@ -92,6 +93,8 @@ class _CoursesScreenState extends State<CoursesScreen>
   }
 
   Widget _buildCoursesList(List<Course> courses, bool showEnrollButton) {
+    final isDark = Provider.of<ThemeProvider>(context).isDark();
+
     if (courses.isEmpty) {
       return Center(
         child: Column(
@@ -124,28 +127,48 @@ class _CoursesScreenState extends State<CoursesScreen>
         return Card(
           elevation: 2,
           margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 4),
+          color: isDark ? MyAppColors.darkCardColor : Colors.white,
           child: ListTile(
             contentPadding: const EdgeInsets.all(16),
             title: Text(
               course.courseName,
-              style: const TextStyle(
+              style: TextStyle(
                 fontWeight: FontWeight.bold,
                 fontSize: 18,
+                color: isDark ? Colors.white : Colors.black87,
               ),
             ),
             subtitle: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 const SizedBox(height: 8),
-                Text('Code: ${course.courseCode}'),
+                Text(
+                  'Code: ${course.courseCode}',
+                  style: TextStyle(
+                    color: isDark ? Colors.grey.shade300 : Colors.grey.shade700,
+                  ),
+                ),
                 const SizedBox(height: 4),
-                Text('Time: ${course.startTime} - ${course.endTime}'),
+                Text(
+                  'Time: ${course.startTime} - ${course.endTime}',
+                  style: TextStyle(
+                    color: isDark ? Colors.grey.shade300 : Colors.grey.shade700,
+                  ),
+                ),
                 const SizedBox(height: 4),
-                Text('Days: ${course.days.join(', ')}'),
+                Text(
+                  'Days: ${course.days.join(', ')}',
+                  style: TextStyle(
+                    color: isDark ? Colors.grey.shade300 : Colors.grey.shade700,
+                  ),
+                ),
                 const SizedBox(height: 8),
                 Text(
                   course.description,
-                  style: const TextStyle(fontSize: 14),
+                  style: TextStyle(
+                    fontSize: 14,
+                    color: isDark ? Colors.grey.shade300 : Colors.grey.shade700,
+                  ),
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,
                 ),

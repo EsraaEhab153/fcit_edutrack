@@ -10,4 +10,6 @@ class MyAppColors {
   static const Color whiteColor = Color(0xffffffff);
   static const Color redColor = Color(0xffc80003);
   static const Color primaryDarkColor = Color(0xff060E1E);
+  static const Color darkCardColor = Color(0xff0F1A2E);
+  static const Color secondaryDarkColor = Color(0xff111827);
 }

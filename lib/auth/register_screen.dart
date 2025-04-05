@@ -273,6 +273,35 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     ),
                   ],
                 ),
+                SizedBox(height: 20),
+                // Professor account request row
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Text(
+                      "Need a professor account?",
+                      style: MyThemeData.lightModeStyle.textTheme.bodySmall!
+                          .copyWith(
+                        fontSize: 12,
+                      ),
+                    ),
+                    InkWell(
+                      onTap: () {
+                        Navigator.pushNamed(
+                            context, 'professor_request_screen');
+                      },
+                      child: Text(
+                        ' Request access',
+                        style: MyThemeData.lightModeStyle.textTheme.bodySmall!
+                            .copyWith(
+                          fontSize: 12,
+                          color: MyAppColors.primaryColor,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+                SizedBox(height: 20),
               ],
             ),
           ),

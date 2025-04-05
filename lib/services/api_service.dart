@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:io';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 import '../config.dart';
@@ -92,6 +93,27 @@ class ApiService {
     return responseData;
   }
 
+  // Login with email
+  Future<Map<String, dynamic>> loginWithEmail(
+      String email, String password) async {
+    final response = await http.post(
+      Uri.parse(Config.loginUrl),
+      headers: _headers(),
+      body: jsonEncode({
+        'email': email,
+        'password': password,
+      }),
+    );
+
+    final responseData = jsonDecode(response.body);
+
+    if (responseData['success'] && responseData['data']['token'] != null) {
+      await saveToken(responseData['data']['token']);
+    }
+
+    return responseData;
+  }
+
   // Get all courses
   Future<Map<String, dynamic>> getCourses() async {
     final token = await _getToken();
@@ -108,8 +130,50 @@ class ApiService {
   Future<Map<String, dynamic>> getCurrentCourses() async {
     final token = await _getToken();
 
+    print("Getting current courses from URL: ${Config.currentCoursesUrl}");
+    print(
+        "Using authorization token: ${token != null ? 'Valid token' : 'No token'}");
+
     final response = await http.get(
       Uri.parse(Config.currentCoursesUrl),
+      headers: _headers(token: token),
+    );
+
+    print("Current courses response status: ${response.statusCode}");
+    if (response.statusCode != 200) {
+      print("Error response body: ${response.body}");
+    }
+
+    return jsonDecode(response.body);
+  }
+
+  // Get enrolled courses
+  Future<Map<String, dynamic>> getEnrolledCourses() async {
+    final token = await _getToken();
+
+    print("Getting enrolled courses from URL: ${Config.enrolledCoursesUrl}");
+    print(
+        "Using authorization token: ${token != null ? 'Valid token' : 'No token'}");
+
+    final response = await http.get(
+      Uri.parse(Config.enrolledCoursesUrl),
+      headers: _headers(token: token),
+    );
+
+    print("Enrolled courses response status: ${response.statusCode}");
+    if (response.statusCode != 200) {
+      print("Error response body: ${response.body}");
+    }
+
+    return jsonDecode(response.body);
+  }
+
+  // Create sample courses
+  Future<Map<String, dynamic>> createSampleCourses() async {
+    final token = await _getToken();
+
+    final response = await http.post(
+      Uri.parse(Config.sampleCoursesUrl),
       headers: _headers(token: token),
     );
 
@@ -151,10 +215,66 @@ class ApiService {
       String userId, int courseId) async {
     final token = await _getToken();
 
+    // If userId is empty or null, return an error
+    if (userId.isEmpty) {
+      print('Error: Cannot fetch attendance with empty user ID');
+      return {
+        'success': false,
+        'message': 'User ID is required to fetch attendance',
+      };
+    }
+
     final response = await http.get(
       Uri.parse('${Config.getUserAttendanceUrl}/$userId/course/$courseId'),
       headers: _headers(token: token),
     );
+
+    return jsonDecode(response.body);
+  }
+
+  // Get user attendance by username for a course
+  Future<Map<String, dynamic>> getUserAttendanceByUsername(
+      String username, int courseId) async {
+    final token = await _getToken();
+
+    // If username is empty or null, return an error
+    if (username.isEmpty) {
+      print('Error: Cannot fetch attendance with empty username');
+      return {
+        'success': false,
+        'message': 'Username is required to fetch attendance',
+      };
+    }
+
+    print("Getting attendance by username: $username for course: $courseId");
+    final response = await http.get(
+      Uri.parse(
+          '${Config.getUserAttendanceByUsernameUrl}/$username/course/$courseId'),
+      headers: _headers(token: token),
+    );
+
+    print("Response status: ${response.statusCode}");
+    if (response.statusCode != 200) {
+      print("Error response: ${response.body}");
+    }
+
+    return jsonDecode(response.body);
+  }
+
+  // Get current user's attendance for a course
+  Future<Map<String, dynamic>> getCurrentUserAttendance(int courseId) async {
+    final token = await _getToken();
+
+    print("Getting attendance for current user for course: $courseId");
+    final response = await http.get(
+      Uri.parse('${Config.getCurrentUserAttendanceUrl}/course/$courseId'),
+      headers: _headers(token: token),
+    );
+
+    print("Response status: ${response.statusCode}");
+    if (response.statusCode != 200) {
+      print("Error response: ${response.body}");
+    }
 
     return jsonDecode(response.body);
   }
@@ -181,5 +301,86 @@ class ApiService {
     );
 
     return jsonDecode(response.body);
+  }
+
+  // Submit professor request
+  Future<dynamic> submitProfessorRequest(
+    String fullName,
+    String email,
+    String department,
+    String idImageUrl,
+    String additionalInfo,
+  ) async {
+    try {
+      final token = await _getToken();
+      final response = await http.post(
+        Uri.parse(Config.professorRequestUrl),
+        headers: _headers(token: token),
+        body: jsonEncode({
+          'fullName': fullName,
+          'email': email,
+          'department': department,
+          'idImageUrl': idImageUrl,
+          'additionalInfo': additionalInfo,
+        }),
+      );
+      return jsonDecode(response.body);
+    } catch (e) {
+      return {'success': false, 'message': e.toString()};
+    }
+  }
+
+  // Upload file
+  Future<dynamic> uploadFile(File file) async {
+    try {
+      final token = await _getToken();
+
+      var request =
+          http.MultipartRequest('POST', Uri.parse(Config.fileUploadUrl));
+
+      request.headers['Authorization'] = 'Bearer $token';
+      request.files.add(await http.MultipartFile.fromPath('file', file.path));
+
+      var streamedResponse = await request.send();
+      var response = await http.Response.fromStream(streamedResponse);
+
+      return jsonDecode(response.body);
+    } catch (e) {
+      return {'success': false, 'message': e.toString()};
+    }
+  }
+
+  // Get pending professor requests (admin only)
+  Future<dynamic> getPendingProfessorRequests() async {
+    try {
+      final token = await _getToken();
+      final response = await http.get(
+        Uri.parse('${Config.professorRequestUrl}/pending'),
+        headers: _headers(token: token),
+      );
+
+      return jsonDecode(response.body);
+    } catch (e) {
+      return {'success': false, 'message': e.toString()};
+    }
+  }
+
+  // Review professor request (admin only)
+  Future<dynamic> reviewProfessorRequest(
+      String requestId, bool isApproved) async {
+    try {
+      final token = await _getToken();
+      final response = await http.put(
+        Uri.parse('${Config.professorRequestUrl}/$requestId/review'),
+        headers: _headers(token: token),
+        body: jsonEncode({
+          'approved': isApproved,
+        }),
+      );
+
+      return jsonDecode(response.body);
+    } catch (e) {
+      return {'success': false, 'message': e.toString()};
+    }
   }
 }

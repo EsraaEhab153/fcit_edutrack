@@ -6,11 +6,13 @@ class CourseProvider extends ChangeNotifier {
   bool _isLoading = false;
   List<Course> _courses = [];
   List<Course> _currentCourses = [];
+  List<Course> _enrolledCourses = [];
   final ApiService _apiService = ApiService();
 
   bool get isLoading => _isLoading;
   List<Course> get courses => _courses;
   List<Course> get currentCourses => _currentCourses;
+  List<Course> get enrolledCourses => _enrolledCourses;
 
   // Fetch all courses
   Future<void> fetchCourses() async {
@@ -25,6 +27,14 @@ class CourseProvider extends ChangeNotifier {
         _courses = coursesData
             .map((courseJson) => Course.fromJson(courseJson))
             .toList();
+
+        // If no courses were found, try to create sample courses
+        if (_courses.isEmpty) {
+          await createSampleCourses();
+          // Fetch courses again after creating samples
+          await fetchCourses();
+          return;
+        }
       }
     } catch (e) {
       print('Error fetching courses: $e');
@@ -40,16 +50,60 @@ class CourseProvider extends ChangeNotifier {
     notifyListeners();
 
     try {
+      print("Fetching current/enrolled courses for the user");
       final response = await _apiService.getCurrentCourses();
+      print("Current courses API response: ${response['success']}");
 
       if (response['success'] && response['data'] != null) {
         final List<dynamic> coursesData = response['data'];
+        print("Received ${coursesData.length} current courses");
+
         _currentCourses = coursesData
             .map((courseJson) => Course.fromJson(courseJson))
             .toList();
+
+        print("Mapped current courses: ${_currentCourses.length} courses");
+        if (_currentCourses.isEmpty) {
+          print("Warning: No current courses found for the user");
+        }
+      } else {
+        print("Failed to fetch current courses: ${response['message']}");
       }
     } catch (e) {
       print('Error fetching current courses: $e');
+    } finally {
+      _isLoading = false;
+      notifyListeners();
+    }
+  }
+
+  // Fetch enrolled courses
+  Future<void> fetchEnrolledCourses() async {
+    _isLoading = true;
+    notifyListeners();
+
+    try {
+      print("Fetching enrolled courses for the user");
+      final response = await _apiService.getEnrolledCourses();
+      print("Enrolled courses API response: ${response['success']}");
+
+      if (response['success'] && response['data'] != null) {
+        final List<dynamic> coursesData = response['data'];
+        print("Received ${coursesData.length} enrolled courses");
+
+        _enrolledCourses = coursesData
+            .map((courseJson) => Course.fromJson(courseJson))
+            .toList();
+
+        print("Mapped enrolled courses: ${_enrolledCourses.length} courses");
+        if (_enrolledCourses.isEmpty) {
+          print("Warning: No enrolled courses found for the user");
+        }
+      } else {
+        print("Failed to fetch enrolled courses: ${response['message']}");
+      }
+    } catch (e) {
+      print('Error fetching enrolled courses: $e');
     } finally {
       _isLoading = false;
       notifyListeners();
@@ -66,7 +120,7 @@ class CourseProvider extends ChangeNotifier {
 
       if (response['success']) {
         // Refresh the courses list
-        await fetchCurrentCourses();
+        await fetchEnrolledCourses();
       }
 
       return response;
@@ -79,6 +133,15 @@ class CourseProvider extends ChangeNotifier {
     } finally {
       _isLoading = false;
       notifyListeners();
+    }
+  }
+
+  // Create sample courses
+  Future<void> createSampleCourses() async {
+    try {
+      await _apiService.createSampleCourses();
+    } catch (e) {
+      print('Error creating sample courses: $e');
     }
   }
 }
