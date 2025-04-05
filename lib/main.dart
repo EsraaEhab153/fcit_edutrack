@@ -24,6 +24,8 @@ import 'package:provider/provider.dart';
 import 'package:fci_edutrack/screens/attendance_history_screen.dart';
 import 'package:fci_edutrack/screens/admin/professor_requests_screen.dart';
 import 'package:fci_edutrack/screens/admin/course_management_screen.dart';
+import 'package:fci_edutrack/screens/professor/quiz_management_screen.dart';
+import 'package:fci_edutrack/screens/professor/attendance_recording_screen.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
@@ -94,11 +96,16 @@ class _MyAppState extends State<MyApp> {
         AssignmentDetails.routeName: (context) => const AssignmentDetails(),
         SettingsScreen.routeName: (context) => const SettingsScreen(),
         'attendance_history': (context) => AttendanceHistoryScreen(),
-        'professor_request_screen': (context) => const ProfessorRequestScreen(),
+        ProfessorRequestScreen.routeName: (context) =>
+            const ProfessorRequestScreen(),
         ProfessorRequestsScreen.routeName: (context) =>
             const ProfessorRequestsScreen(),
         CourseManagementScreen.routeName: (context) =>
             const CourseManagementScreen(),
+        QuizManagementScreen.routeName: (context) =>
+            const QuizManagementScreen(),
+        AttendanceRecordingScreen.routeName: (context) =>
+            const AttendanceRecordingScreen(),
       },
     );
   }

@@ -7,6 +7,8 @@ import 'package:fci_edutrack/providers/auth_provider.dart';
 import 'package:fci_edutrack/auth/login_screen.dart';
 import 'package:fci_edutrack/screens/admin/professor_requests_screen.dart';
 import 'package:fci_edutrack/screens/admin/course_management_screen.dart';
+import 'package:fci_edutrack/screens/professor/quiz_management_screen.dart';
+import 'package:fci_edutrack/screens/professor/attendance_recording_screen.dart';
 
 import '../../settings_screen.dart';
 import 'drawer_tile.dart';
@@ -159,25 +161,39 @@ class MyDrawer extends StatelessWidget {
                       ),
                       // Create Quiz
                       MyDrawerTile(
-                        title: 'C R E A T E  Q U I Z',
+                        title: 'M A N A G E  Q U I Z Z E S',
                         icon: Icons.quiz,
                         onTap: () {
                           Navigator.pop(context);
                           Navigator.pushNamed(
                             context,
-                            'create_quiz',
+                            QuizManagementScreen.routeName,
                           );
                         },
                       ),
-                      // Create Assignment
+                      // Record Class Attendance
                       MyDrawerTile(
-                        title: 'C R E A T E  A S S I G N M E N T',
-                        icon: Icons.assignment,
+                        title: 'R E C O R D  A T T E N D A N C E',
+                        icon: Icons.class_,
                         onTap: () {
                           Navigator.pop(context);
                           Navigator.pushNamed(
                             context,
-                            'create_assignment',
+                            AttendanceRecordingScreen.routeName,
+                          );
+                        },
+                      ),
+                      // Manage Assignments
+                      MyDrawerTile(
+                        title: 'M A N A G E  A S S I G N M E N T S',
+                        icon: Icons.assignment,
+                        onTap: () {
+                          Navigator.pop(context);
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                              content:
+                                  Text('Assignment management coming soon!'),
+                            ),
                           );
                         },
                       ),

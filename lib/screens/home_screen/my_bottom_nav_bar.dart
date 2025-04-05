@@ -11,6 +11,8 @@ import 'package:provider/provider.dart';
 import 'package:fci_edutrack/providers/auth_provider.dart';
 import 'package:fci_edutrack/screens/admin/professor_requests_screen.dart';
 import 'package:fci_edutrack/screens/admin/course_management_screen.dart';
+import 'package:fci_edutrack/screens/professor/quiz_management_screen.dart';
+import 'package:fci_edutrack/screens/professor/attendance_recording_screen.dart';
 
 class MyBottomNavBar extends StatefulWidget {
   static const String routeName = 'bottom_nav_bar';
@@ -163,8 +165,8 @@ class _MyBottomNavBarState extends State<MyBottomNavBar> {
           text: 'Home',
         ),
         GButton(
-          icon: Icons.qr_code_2,
-          text: 'Attendance',
+          icon: Icons.class_,
+          text: 'Classes',
         ),
         GButton(
           icon: Icons.quiz,
@@ -208,10 +210,8 @@ class _MyBottomNavBarState extends State<MyBottomNavBar> {
     } else if (isProfessor) {
       return [
         const HomeScreen(),
-        const QrCodeScanner(),
-        const Center(
-            child: Text('Create & Manage Quizzes',
-                style: TextStyle(fontSize: 18))),
+        const AttendanceRecordingScreen(),
+        const QuizManagementScreen(),
         const StudentProfileScreen(),
       ];
     } else {
