@@ -25,6 +25,7 @@ class _RegisterScreenState extends State<LoginScreen> {
 
   final _formKey = GlobalKey<FormState>();
   String? _errorMessage;
+  bool _isLoading = false;
 
   @override
   Widget build(BuildContext context) {
@@ -135,7 +136,7 @@ class _RegisterScreenState extends State<LoginScreen> {
                   height: MediaQuery.of(context).size.height * 0.03,
                 ),
                 ElevatedButton(
-                  onPressed: isLoading ? null : login,
+                  onPressed: isLoading ? null : _loginUser,
                   style: ElevatedButton.styleFrom(
                       backgroundColor: MyAppColors.primaryColor,
                       padding: EdgeInsets.symmetric(
@@ -231,26 +232,49 @@ class _RegisterScreenState extends State<LoginScreen> {
     );
   }
 
-  void login() async {
-    setState(() {
-      _errorMessage = null;
-    });
+  Future<void> _loginUser() async {
+    if (_formKey.currentState!.validate()) {
+      setState(() {
+        _isLoading = true;
+      });
 
-    if (_formKey.currentState?.validate() == true) {
-      final authProvider = Provider.of<AuthProvider>(context, listen: false);
+      print(
+          "Login attempt with username/email: ${usernameOrEmailController.text}");
 
-      final success = await authProvider.smartLogin(
-        usernameOrEmailController.text.trim(),
-        passwordController.text,
-      );
+      try {
+        final authProvider = Provider.of<AuthProvider>(context, listen: false);
+        bool success = await authProvider.smartLogin(
+          usernameOrEmailController.text.trim(),
+          passwordController.text,
+        );
 
-      if (success) {
-        if (!mounted) return;
-        Navigator.pushReplacementNamed(context, MyBottomNavBar.routeName);
-      } else {
-        setState(() {
-          _errorMessage = "Invalid username or password. Please try again.";
-        });
+        if (success) {
+          print("Login successful, checking role...");
+          // Check role to determine where to navigate
+          bool isAdmin = await authProvider.isAdmin();
+          bool isProfessor = await authProvider.isProfessor();
+          print(
+              "User role check - isAdmin: $isAdmin, isProfessor: $isProfessor");
+
+          if (mounted) {
+            Navigator.of(context).pushNamedAndRemoveUntil(
+                MyBottomNavBar.routeName, (route) => false);
+          }
+        } else {
+          if (mounted) {
+            setState(() {
+              _errorMessage = 'Invalid username or password';
+              _isLoading = false;
+            });
+          }
+        }
+      } catch (e) {
+        if (mounted) {
+          setState(() {
+            _errorMessage = 'An error occurred: ${e.toString()}';
+            _isLoading = false;
+          });
+        }
       }
     }
   }

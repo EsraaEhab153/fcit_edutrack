@@ -312,10 +312,10 @@ class ApiService {
     String additionalInfo,
   ) async {
     try {
-      final token = await _getToken();
+      // No token needed for professor requests
       final response = await http.post(
         Uri.parse(Config.professorRequestUrl),
-        headers: _headers(token: token),
+        headers: _headers(), // No token
         body: jsonEncode({
           'fullName': fullName,
           'email': email,
@@ -333,19 +333,49 @@ class ApiService {
   // Upload file
   Future<dynamic> uploadFile(File file) async {
     try {
-      final token = await _getToken();
+      // No token required for file uploads in professor request flow
+      print("Uploading file to ${Config.publicFileUploadUrl}");
+      print("File path: ${file.path}");
 
       var request =
-          http.MultipartRequest('POST', Uri.parse(Config.fileUploadUrl));
+          http.MultipartRequest('POST', Uri.parse(Config.publicFileUploadUrl));
 
-      request.headers['Authorization'] = 'Bearer $token';
+      // Don't set Authorization header
       request.files.add(await http.MultipartFile.fromPath('file', file.path));
 
+      print("Sending file upload request...");
       var streamedResponse = await request.send();
       var response = await http.Response.fromStream(streamedResponse);
 
-      return jsonDecode(response.body);
+      print("File upload response status: ${response.statusCode}");
+      print("Response body: ${response.body}");
+
+      if (response.statusCode == 200 || response.statusCode == 201) {
+        if (response.body.isEmpty) {
+          print("Warning: Empty response body");
+          return {'success': false, 'message': 'Empty response from server'};
+        }
+
+        try {
+          return jsonDecode(response.body);
+        } catch (parseError) {
+          print("Error parsing JSON response: $parseError");
+          print("Response body was: '${response.body}'");
+          return {
+            'success': false,
+            'message': 'Failed to parse server response',
+            'details': parseError.toString()
+          };
+        }
+      } else {
+        return {
+          'success': false,
+          'message': 'Server returned status code ${response.statusCode}',
+          'details': response.body
+        };
+      }
     } catch (e) {
+      print("Exception in file upload: $e");
       return {'success': false, 'message': e.toString()};
     }
   }
@@ -380,6 +410,79 @@ class ApiService {
 
       return jsonDecode(response.body);
     } catch (e) {
+      return {'success': false, 'message': e.toString()};
+    }
+  }
+
+  // Create a new course (admin only)
+  Future<dynamic> createCourse(Map<String, dynamic> courseData) async {
+    try {
+      final token = await _getToken();
+
+      print("Creating course with data: $courseData");
+
+      final response = await http.post(
+        Uri.parse(Config.coursesUrl),
+        headers: _headers(token: token),
+        body: jsonEncode(courseData),
+      );
+
+      print("Create course response status: ${response.statusCode}");
+      print("Response body: ${response.body}");
+
+      return jsonDecode(response.body);
+    } catch (e) {
+      print("Error creating course: $e");
+      return {'success': false, 'message': e.toString()};
+    }
+  }
+
+  // Update an existing course (admin only)
+  Future<dynamic> updateCourse(
+      int courseId, Map<String, dynamic> courseData) async {
+    try {
+      final token = await _getToken();
+
+      print("Updating course $courseId with data: $courseData");
+
+      final response = await http.put(
+        Uri.parse('${Config.coursesUrl}/$courseId'),
+        headers: _headers(token: token),
+        body: jsonEncode(courseData),
+      );
+
+      print("Update course response status: ${response.statusCode}");
+      print("Response body: ${response.body}");
+
+      return jsonDecode(response.body);
+    } catch (e) {
+      print("Error updating course: $e");
+      return {'success': false, 'message': e.toString()};
+    }
+  }
+
+  // Delete a course (admin only)
+  Future<dynamic> deleteCourse(int courseId) async {
+    try {
+      final token = await _getToken();
+
+      print("Deleting course $courseId");
+
+      final response = await http.delete(
+        Uri.parse('${Config.coursesUrl}/$courseId'),
+        headers: _headers(token: token),
+      );
+
+      print("Delete course response status: ${response.statusCode}");
+      print("Response body: ${response.body}");
+
+      if (response.statusCode == 204 || response.body.isEmpty) {
+        return {'success': true, 'message': 'Course deleted successfully'};
+      }
+
+      return jsonDecode(response.body);
+    } catch (e) {
+      print("Error deleting course: $e");
       return {'success': false, 'message': e.toString()};
     }
   }

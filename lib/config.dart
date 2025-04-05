@@ -1,7 +1,6 @@
 class Config {
   // Base URL for the backend API
-  static const String baseUrl =
-      'https://edutrack-backend-orms.onrender.com/api';
+  static const String baseUrl = 'https://edutrack-backend-orms.onrender.com';
 
   // Authentication endpoints
   static const String registerUrl = '$baseUrl/api/auth/register';
@@ -31,6 +30,7 @@ class Config {
 
   // File upload endpoint
   static const String fileUploadUrl = '$baseUrl/api/upload';
+  static const String publicFileUploadUrl = '$baseUrl/api/upload/public';
 
   // Professor request endpoint
   static const String professorRequestUrl = '$baseUrl/api/professor-requests';

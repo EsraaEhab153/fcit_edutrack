@@ -6,6 +6,7 @@ import 'package:provider/provider.dart';
 import 'package:fci_edutrack/providers/auth_provider.dart';
 import 'package:fci_edutrack/auth/login_screen.dart';
 import 'package:fci_edutrack/screens/admin/professor_requests_screen.dart';
+import 'package:fci_edutrack/screens/admin/course_management_screen.dart';
 
 import '../../settings_screen.dart';
 import 'drawer_tile.dart';
@@ -106,6 +107,77 @@ class MyDrawer extends StatelessWidget {
                           Navigator.pushNamed(
                             context,
                             ProfessorRequestsScreen.routeName,
+                          );
+                        },
+                      ),
+                      // Course management for admin
+                      MyDrawerTile(
+                        title: 'C O U R S E  M A N A G E M E N T',
+                        icon: Icons.school,
+                        onTap: () {
+                          Navigator.pop(context);
+                          Navigator.pushNamed(
+                            context,
+                            CourseManagementScreen.routeName,
+                          );
+                        },
+                      ),
+                    ],
+                  );
+                }
+                return const SizedBox.shrink();
+              },
+            ),
+
+            // Professor section - only show for professors
+            FutureBuilder<bool>(
+              future: Provider.of<AuthProvider>(context, listen: false)
+                  .isProfessor(),
+              builder: (context, snapshot) {
+                if (snapshot.hasData && snapshot.data == true) {
+                  return Column(
+                    children: [
+                      Divider(
+                        color: Provider.of<ThemeProvider>(context).isDark()
+                            ? MyAppColors.whiteColor
+                            : MyAppColors.blackColor,
+                        thickness: 1.25,
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.symmetric(vertical: 8.0),
+                        child: Row(
+                          children: [
+                            Text(
+                              'P R O F E S S O R',
+                              style: TextStyle(
+                                color: MyAppColors.primaryColor,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      // Create Quiz
+                      MyDrawerTile(
+                        title: 'C R E A T E  Q U I Z',
+                        icon: Icons.quiz,
+                        onTap: () {
+                          Navigator.pop(context);
+                          Navigator.pushNamed(
+                            context,
+                            'create_quiz',
+                          );
+                        },
+                      ),
+                      // Create Assignment
+                      MyDrawerTile(
+                        title: 'C R E A T E  A S S I G N M E N T',
+                        icon: Icons.assignment,
+                        onTap: () {
+                          Navigator.pop(context);
+                          Navigator.pushNamed(
+                            context,
+                            'create_assignment',
                           );
                         },
                       ),

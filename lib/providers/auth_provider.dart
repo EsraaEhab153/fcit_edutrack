@@ -20,8 +20,32 @@ class AuthProvider extends ChangeNotifier {
     if (_currentUser == null) {
       await initialize();
     }
-    return _currentUser?.role == 'ADMIN';
+    print("Checking if user is admin. User role: ${_currentUser?.role}");
+    return _currentUser?.role?.toUpperCase() == 'ADMIN';
   }
+
+  // Check if current user has professor role
+  Future<bool> isProfessor() async {
+    if (_currentUser == null) {
+      await initialize();
+    }
+    print("Checking if user is professor. User role: ${_currentUser?.role}");
+    return _currentUser?.role?.toUpperCase() == 'PROFESSOR';
+  }
+
+  // Check if current user has student role
+  Future<bool> isStudent() async {
+    if (_currentUser == null) {
+      await initialize();
+    }
+    print("Checking if user is student. User role: ${_currentUser?.role}");
+    // Default to student if no role specified
+    return _currentUser?.role == null ||
+        _currentUser?.role?.toUpperCase() == 'STUDENT';
+  }
+
+  // Get user role
+  String? get userRole => _currentUser?.role;
 
   // Initialize the provider
   Future<void> initialize() async {
@@ -56,17 +80,38 @@ class AuthProvider extends ChangeNotifier {
             print("Warning: Could not extract user ID from token");
           }
 
+          // Look for role in different possible fields
+          String? userRole = decodedToken['role'] ??
+              decodedToken['authorities']?.toString() ??
+              decodedToken['scope']?.toString() ??
+              decodedToken['roles']?.toString();
+
+          if (userRole != null) {
+            // Check for Spring Security format like "[ROLE_ADMIN]" or "ROLE_ADMIN"
+            if (userRole.contains('ADMIN')) {
+              userRole = 'ADMIN';
+            } else if (userRole.contains('PROFESSOR')) {
+              userRole = 'PROFESSOR';
+            } else if (userRole.contains('STUDENT')) {
+              userRole = 'STUDENT';
+            }
+            print("Extracted role from token: $userRole");
+          } else {
+            print("Warning: Could not extract role from token");
+          }
+
           // Create user from token data
           _currentUser = User(
             id: userId ?? '',
             username: decodedToken['username'] ?? '',
-            fullName: decodedToken['fullName'] ?? '',
+            fullName: decodedToken['fullName'] ?? decodedToken['name'] ?? '',
             email: decodedToken['email'] ?? '',
-            role: decodedToken['role'],
+            role: userRole,
             emailVerified: true, // If they have a token, they're verified
           );
 
-          print("Initialized user with ID: ${_currentUser?.id}");
+          print(
+              "Initialized user with ID: ${_currentUser?.id} and role: ${_currentUser?.role}");
         }
       }
     } catch (e) {
@@ -91,6 +136,7 @@ class AuthProvider extends ChangeNotifier {
 
         // Decode the token to extract user ID
         final decodedToken = JwtDecoder.decode(_token!);
+        print("Full decoded token: $decodedToken");
 
         // Try different possible key names for the user ID
         String? userId = decodedToken['sub'] ??
@@ -106,16 +152,38 @@ class AuthProvider extends ChangeNotifier {
           print("Login successful, extracted user ID: $userId");
         }
 
+        // Extract role from token
+        String? userRole = decodedToken['role'] ??
+            decodedToken['authorities']?.toString() ??
+            decodedToken['scope']?.toString() ??
+            decodedToken['roles']?.toString();
+
+        if (userRole != null) {
+          // Check for Spring Security format like "[ROLE_ADMIN]" or "ROLE_ADMIN"
+          if (userRole.contains('ADMIN')) {
+            userRole = 'ADMIN';
+          } else if (userRole.contains('PROFESSOR')) {
+            userRole = 'PROFESSOR';
+          } else if (userRole.contains('STUDENT')) {
+            userRole = 'STUDENT';
+          }
+          print("Extracted role from token: $userRole");
+        } else {
+          print("No role found in token, checking response data...");
+          userRole = response['data']['role'];
+        }
+
         // Extract user details from response
         _currentUser = User(
           id: userId ?? '', // Use extracted ID
           username: response['data']['username'] ?? '',
           fullName: response['data']['fullName'] ?? '',
           email: response['data']['email'] ?? '',
-          role: decodedToken['role'], // Get role from token
+          role: userRole, // Get role from token or response
           emailVerified: true, // If login successful, assume verified
         );
 
+        print("User logged in with role: ${_currentUser?.role}");
         return true;
       } else {
         return false;

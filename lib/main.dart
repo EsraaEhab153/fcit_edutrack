@@ -23,6 +23,7 @@ import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import 'package:fci_edutrack/screens/attendance_history_screen.dart';
 import 'package:fci_edutrack/screens/admin/professor_requests_screen.dart';
+import 'package:fci_edutrack/screens/admin/course_management_screen.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
@@ -96,6 +97,8 @@ class _MyAppState extends State<MyApp> {
         'professor_request_screen': (context) => const ProfessorRequestScreen(),
         ProfessorRequestsScreen.routeName: (context) =>
             const ProfessorRequestsScreen(),
+        CourseManagementScreen.routeName: (context) =>
+            const CourseManagementScreen(),
       },
     );
   }

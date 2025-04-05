@@ -56,22 +56,27 @@ class _ProfessorRequestScreenState extends State<ProfessorRequestScreen> {
 
     try {
       final apiService = ApiService();
+      print("Uploading image: ${_idImage!.path}");
       final response = await apiService.uploadFile(_idImage!);
+      print("Upload response: $response");
 
-      if (response['success'] && response['data'] != null) {
+      if (response['success'] == true && response['data'] != null) {
         _uploadedImageUrl = response['data']['fileUrl'];
         setState(() {
           _successMessage = "ID image uploaded successfully";
         });
+        print("Image uploaded successfully: $_uploadedImageUrl");
       } else {
         setState(() {
           _errorMessage = response['message'] ?? "Failed to upload image";
         });
+        print("Failed to upload image: $_errorMessage");
       }
     } catch (e) {
       setState(() {
         _errorMessage = "Failed to upload image: ${e.toString()}";
       });
+      print("Exception during image upload: $e");
     } finally {
       setState(() {
         _isLoading = false;
@@ -148,6 +153,8 @@ class _ProfessorRequestScreenState extends State<ProfessorRequestScreen> {
         title: Text(
           'Professor Access Request',
           style: TextStyle(
+            fontSize: 20,
+            fontWeight: FontWeight.bold,
             color: isDark ? MyAppColors.whiteColor : MyAppColors.blackColor,
           ),
         ),
@@ -263,6 +270,50 @@ class _ProfessorRequestScreenState extends State<ProfessorRequestScreen> {
                     return null;
                   },
                 ),
+                const SizedBox(height: 15),
+                Text(
+                  'Additional Information',
+                  style: TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                    color: isDark
+                        ? MyAppColors.whiteColor
+                        : MyAppColors.blackColor,
+                  ),
+                ),
+                const SizedBox(height: 8),
+                TextFormField(
+                  controller: _additionalInfoController,
+                  decoration: InputDecoration(
+                    hintText:
+                        'Provide any additional information that may help with your request',
+                    prefixIcon: const Icon(Icons.description),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    enabledBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(10),
+                      borderSide: BorderSide(
+                        color: isDark
+                            ? Colors.grey.shade700
+                            : Colors.grey.shade300,
+                      ),
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(10),
+                      borderSide: BorderSide(
+                        color: MyAppColors.primaryColor,
+                      ),
+                    ),
+                    filled: true,
+                    fillColor:
+                        isDark ? Colors.grey.shade800 : Colors.grey.shade100,
+                  ),
+                  maxLines: 3,
+                  validator: (value) {
+                    return null; // Optional field
+                  },
+                ),
                 const SizedBox(height: 16),
                 Text(
                   'ID Image/Document',
@@ -314,25 +365,6 @@ class _ProfessorRequestScreenState extends State<ProfessorRequestScreen> {
                             ],
                           ),
                         ),
-                ),
-                const SizedBox(height: 16),
-                Padding(
-                  padding:
-                      EdgeInsets.all(MediaQuery.of(context).size.height * 0.01),
-                  child: TextFormField(
-                    controller: _additionalInfoController,
-                    decoration: InputDecoration(
-                      labelText: 'Additional Information',
-                      prefixIcon: const Icon(Icons.info),
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                    ),
-                    maxLines: 3,
-                    validator: (value) {
-                      return null; // Optional field
-                    },
-                  ),
                 ),
                 const SizedBox(height: 32),
                 SizedBox(

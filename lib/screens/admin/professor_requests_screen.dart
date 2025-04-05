@@ -34,22 +34,27 @@ class _ProfessorRequestsScreenState extends State<ProfessorRequestsScreen> {
     });
 
     try {
+      print("Fetching pending professor requests...");
       final response = await _apiService.getPendingProfessorRequests();
+      print("Pending requests response: $response");
 
       if (response['success'] && response['data'] != null) {
         setState(() {
           _requests = response['data'];
         });
+        print("Found ${_requests.length} pending requests");
       } else {
         setState(() {
           _errorMessage =
               response['message'] ?? "Failed to fetch pending requests";
         });
+        print("Failed to fetch pending requests: $_errorMessage");
       }
     } catch (e) {
       setState(() {
         _errorMessage = "Error: ${e.toString()}";
       });
+      print("Exception fetching pending requests: $e");
     } finally {
       setState(() {
         _isLoading = false;

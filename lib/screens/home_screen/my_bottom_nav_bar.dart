@@ -8,6 +8,9 @@ import 'package:fci_edutrack/themes/theme_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:google_nav_bar/google_nav_bar.dart';
 import 'package:provider/provider.dart';
+import 'package:fci_edutrack/providers/auth_provider.dart';
+import 'package:fci_edutrack/screens/admin/professor_requests_screen.dart';
+import 'package:fci_edutrack/screens/admin/course_management_screen.dart';
 
 class MyBottomNavBar extends StatefulWidget {
   static const String routeName = 'bottom_nav_bar';
@@ -26,6 +29,36 @@ class MyBottomNavBar extends StatefulWidget {
 class _MyBottomNavBarState extends State<MyBottomNavBar> {
   int selectedIndex = 0;
   DateTime? lastBackPressTime;
+  bool isAdmin = false;
+  bool isProfessor = false;
+  bool isLoading = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _checkUserRole();
+  }
+
+  Future<void> _checkUserRole() async {
+    setState(() {
+      isLoading = true;
+    });
+
+    try {
+      final authProvider = Provider.of<AuthProvider>(context, listen: false);
+      isAdmin = await authProvider.isAdmin();
+      isProfessor = await authProvider.isProfessor();
+
+      print(
+          "MyBottomNavBar - User Roles: Admin=$isAdmin, Professor=$isProfessor");
+    } catch (e) {
+      print("Error checking user role: $e");
+    } finally {
+      setState(() {
+        isLoading = false;
+      });
+    }
+  }
 
   // Method to change the selected tab
   void changeTab(int index) {
@@ -59,9 +92,18 @@ class _MyBottomNavBarState extends State<MyBottomNavBar> {
           backgroundColor: Colors.transparent,
           elevation: 0,
           iconTheme: const IconThemeData(color: MyAppColors.primaryColor),
+          title: isAdmin
+              ? const Text('Admin Dashboard',
+                  style: TextStyle(color: MyAppColors.primaryColor))
+              : isProfessor
+                  ? const Text('Professor Dashboard',
+                      style: TextStyle(color: MyAppColors.primaryColor))
+                  : null,
         ),
         drawer: const MyDrawer(),
-        body: selectedScreen[selectedIndex],
+        body: isLoading
+            ? const Center(child: CircularProgressIndicator())
+            : _getScreens()[selectedIndex],
         backgroundColor: Provider.of<ThemeProvider>(context).isDark()
             ? MyAppColors.primaryDarkColor
             : MyAppColors.whiteColor,
@@ -81,38 +123,98 @@ class _MyBottomNavBarState extends State<MyBottomNavBar> {
                 activeColor: Colors.white,
                 gap: 8,
                 tabBackgroundColor: MyAppColors.secondaryBlueColor,
-                tabs: const [
-                  GButton(
-                    icon: Icons.home,
-                    text: 'Home',
-                  ),
-                  GButton(
-                    icon: Icons.qr_code_2,
-                    text: 'Attendance',
-                    textStyle: TextStyle(
-                        fontSize: 10,
-                        color: Colors.white,
-                        fontWeight: FontWeight.bold),
-                  ),
-                  GButton(
-                    icon: Icons.school,
-                    text: 'Courses',
-                  ),
-                  GButton(
-                    icon: Icons.person,
-                    text: 'Profile',
-                  ),
-                ]),
+                tabs: _getNavTabs()),
           ),
         ),
       ),
     );
   }
 
-  List<Widget> selectedScreen = [
-    const HomeScreen(),
-    const QrCodeScanner(),
-    const CoursesScreen(),
-    const StudentProfileScreen()
-  ];
+  List<GButton> _getNavTabs() {
+    if (isAdmin) {
+      return const [
+        GButton(
+          icon: Icons.dashboard,
+          text: 'Dashboard',
+        ),
+        GButton(
+          icon: Icons.person_add,
+          text: 'Requests',
+        ),
+        GButton(
+          icon: Icons.school,
+          text: 'Courses',
+        ),
+        GButton(
+          icon: Icons.person,
+          text: 'Profile',
+        ),
+      ];
+    } else if (isProfessor) {
+      return const [
+        GButton(
+          icon: Icons.home,
+          text: 'Home',
+        ),
+        GButton(
+          icon: Icons.qr_code_2,
+          text: 'Attendance',
+        ),
+        GButton(
+          icon: Icons.quiz,
+          text: 'Quizzes',
+        ),
+        GButton(
+          icon: Icons.person,
+          text: 'Profile',
+        ),
+      ];
+    } else {
+      return const [
+        GButton(
+          icon: Icons.home,
+          text: 'Home',
+        ),
+        GButton(
+          icon: Icons.qr_code_2,
+          text: 'Attendance',
+        ),
+        GButton(
+          icon: Icons.school,
+          text: 'Courses',
+        ),
+        GButton(
+          icon: Icons.person,
+          text: 'Profile',
+        ),
+      ];
+    }
+  }
+
+  List<Widget> _getScreens() {
+    if (isAdmin) {
+      return [
+        const HomeScreen(),
+        const ProfessorRequestsScreen(),
+        const CourseManagementScreen(),
+        const StudentProfileScreen(),
+      ];
+    } else if (isProfessor) {
+      return [
+        const HomeScreen(),
+        const QrCodeScanner(),
+        const Center(
+            child: Text('Create & Manage Quizzes',
+                style: TextStyle(fontSize: 18))),
+        const StudentProfileScreen(),
+      ];
+    } else {
+      return [
+        const HomeScreen(),
+        const QrCodeScanner(),
+        const CoursesScreen(),
+        const StudentProfileScreen(),
+      ];
+    }
+  }
 }
