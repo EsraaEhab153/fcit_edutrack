@@ -441,20 +441,34 @@ class ApiService {
   }
 
   // Review professor request (admin only)
-  Future<dynamic> reviewProfessorRequest(
-      String requestId, bool isApproved) async {
+  Future<dynamic> reviewProfessorRequest(String requestId, bool isApproved,
+      {String? rejectionReason}) async {
     try {
       final token = await _getToken();
+
+      print("Reviewing professor request: ID=$requestId, approved=$isApproved");
+      print("Using URL: ${Config.professorRequestUrl}/$requestId/review");
+
+      final payload = {
+        'approved': isApproved,
+        'reviewedBy': 'admin',
+        'rejectionReason': rejectionReason,
+      };
+
+      print("Request payload: $payload");
+
       final response = await http.put(
         Uri.parse('${Config.professorRequestUrl}/$requestId/review'),
         headers: _headers(token: token),
-        body: jsonEncode({
-          'approved': isApproved,
-        }),
+        body: jsonEncode(payload),
       );
+
+      print("Review request response status: ${response.statusCode}");
+      print("Response body: ${response.body}");
 
       return jsonDecode(response.body);
     } catch (e) {
+      print("Error reviewing professor request: $e");
       return {'success': false, 'message': e.toString()};
     }
   }

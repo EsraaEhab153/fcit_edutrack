@@ -62,15 +62,20 @@ class _ProfessorRequestsScreenState extends State<ProfessorRequestsScreen> {
     }
   }
 
-  Future<void> _reviewRequest(String requestId, bool isApproved) async {
+  Future<void> _reviewRequest(String requestId, bool isApproved,
+      {String? rejectionReason}) async {
     setState(() {
       _isLoading = true;
       _errorMessage = null;
     });
 
     try {
-      final response =
-          await _apiService.reviewProfessorRequest(requestId, isApproved);
+      print(
+          "Attempting to review request $requestId with approval=$isApproved");
+      final response = await _apiService.reviewProfessorRequest(
+          requestId, isApproved,
+          rejectionReason: rejectionReason);
+      print("Review response: $response");
 
       if (response['success']) {
         // Refresh the list after successful review
@@ -90,12 +95,28 @@ class _ProfessorRequestsScreenState extends State<ProfessorRequestsScreen> {
           _errorMessage = response['message'] ?? "Failed to review request";
           _isLoading = false;
         });
+
+        // Show error message
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(_errorMessage!),
+            backgroundColor: Colors.red,
+          ),
+        );
       }
     } catch (e) {
       setState(() {
         _errorMessage = "Error: ${e.toString()}";
         _isLoading = false;
       });
+
+      // Show error message
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(_errorMessage!),
+          backgroundColor: Colors.red,
+        ),
+      );
     }
   }
 
@@ -195,6 +216,15 @@ class _ProfessorRequestsScreenState extends State<ProfessorRequestsScreen> {
   }
 
   Widget _buildRequestCard(dynamic request, bool isDark) {
+    // Fix the image URL if needed
+    String imageUrl = request['idImageUrl'] ?? '';
+    if (imageUrl.isNotEmpty && !imageUrl.startsWith('http')) {
+      // Add the base URL for relative paths
+      imageUrl = 'https://edutrack-backend-orms.onrender.com${imageUrl}';
+    }
+
+    print("ID Image URL: $imageUrl"); // Debug the image URL
+
     return Card(
       elevation: 2,
       margin: const EdgeInsets.only(bottom: 16),
@@ -298,7 +328,7 @@ class _ProfessorRequestsScreenState extends State<ProfessorRequestsScreen> {
                 ),
               ),
             ],
-            if (request['idImageUrl'] != null) ...[
+            if (imageUrl.isNotEmpty) ...[
               const SizedBox(height: 12),
               Text(
                 'ID Verification:',
@@ -312,7 +342,7 @@ class _ProfessorRequestsScreenState extends State<ProfessorRequestsScreen> {
               ClipRRect(
                 borderRadius: BorderRadius.circular(8),
                 child: CachedNetworkImage(
-                  imageUrl: request['idImageUrl'],
+                  imageUrl: imageUrl,
                   height: 120,
                   width: double.infinity,
                   fit: BoxFit.cover,
@@ -322,14 +352,34 @@ class _ProfessorRequestsScreenState extends State<ProfessorRequestsScreen> {
                     color: isDark ? Colors.grey.shade800 : Colors.grey.shade200,
                     child: const Center(child: CircularProgressIndicator()),
                   ),
-                  errorWidget: (context, url, error) => Container(
-                    height: 120,
-                    width: double.infinity,
-                    color: isDark ? Colors.grey.shade800 : Colors.grey.shade200,
-                    child: const Center(
-                      child: Icon(Icons.broken_image, size: 40),
-                    ),
-                  ),
+                  errorWidget: (context, url, error) {
+                    print("Error loading image: $url - $error");
+                    return Container(
+                      height: 120,
+                      width: double.infinity,
+                      color:
+                          isDark ? Colors.grey.shade800 : Colors.grey.shade200,
+                      child: Center(
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            const Icon(Icons.broken_image, size: 40),
+                            const SizedBox(height: 8),
+                            Text(
+                              'Failed to load image: $error',
+                              style: TextStyle(
+                                color: isDark
+                                    ? Colors.grey.shade300
+                                    : Colors.grey.shade700,
+                                fontSize: 12,
+                              ),
+                              textAlign: TextAlign.center,
+                            ),
+                          ],
+                        ),
+                      ),
+                    );
+                  },
                 ),
               ),
             ],
@@ -338,7 +388,7 @@ class _ProfessorRequestsScreenState extends State<ProfessorRequestsScreen> {
               children: [
                 Expanded(
                   child: OutlinedButton(
-                    onPressed: () => _reviewRequest(request['id'], false),
+                    onPressed: () => _showRejectDialog(request['id']),
                     style: OutlinedButton.styleFrom(
                       foregroundColor: Colors.red,
                       side: const BorderSide(color: Colors.red),
@@ -350,7 +400,35 @@ class _ProfessorRequestsScreenState extends State<ProfessorRequestsScreen> {
                 const SizedBox(width: 16),
                 Expanded(
                   child: ElevatedButton(
-                    onPressed: () => _reviewRequest(request['id'], true),
+                    onPressed: () {
+                      // Show confirmation dialog
+                      showDialog(
+                        context: context,
+                        builder: (context) => AlertDialog(
+                          title: const Text('Approve Request'),
+                          content: const Text(
+                            'Are you sure you want to approve this professor request? '
+                            'This will create a new professor account with access to the system.',
+                          ),
+                          actions: [
+                            TextButton(
+                              onPressed: () => Navigator.pop(context),
+                              child: const Text('Cancel'),
+                            ),
+                            ElevatedButton(
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: MyAppColors.primaryColor,
+                              ),
+                              onPressed: () {
+                                Navigator.pop(context);
+                                _reviewRequest(request['id'], true);
+                              },
+                              child: const Text('Approve'),
+                            ),
+                          ],
+                        ),
+                      );
+                    },
                     style: ElevatedButton.styleFrom(
                       backgroundColor: MyAppColors.primaryColor,
                       foregroundColor: Colors.white,
@@ -363,6 +441,55 @@ class _ProfessorRequestsScreenState extends State<ProfessorRequestsScreen> {
             ),
           ],
         ),
+      ),
+    );
+  }
+
+  void _showRejectDialog(String requestId) {
+    final TextEditingController reasonController = TextEditingController();
+
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Reject Request'),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const Text(
+              'Are you sure you want to reject this professor request?',
+              style: TextStyle(fontSize: 16),
+            ),
+            const SizedBox(height: 16),
+            TextField(
+              controller: reasonController,
+              decoration: const InputDecoration(
+                labelText: 'Reason for rejection (optional)',
+                hintText: 'Enter reason for rejection',
+                border: OutlineInputBorder(),
+              ),
+              maxLines: 3,
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Cancel'),
+          ),
+          ElevatedButton(
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.red,
+            ),
+            onPressed: () {
+              Navigator.pop(context);
+              _reviewRequest(requestId, false,
+                  rejectionReason: reasonController.text.isNotEmpty
+                      ? reasonController.text
+                      : null);
+            },
+            child: const Text('Reject'),
+          ),
+        ],
       ),
     );
   }

@@ -267,7 +267,7 @@ class _AttendanceRecordingScreenState extends State<AttendanceRecordingScreen> {
               const SizedBox(width: 8),
               Expanded(
                 child: Text(
-                  'Recording a class helps track the total number of classes for attendance calculations. Students can scan the QR code during class to mark their attendance.',
+                  'Recording a class helps track the total number of classes for attendance calculations. Students will receive a 6-digit code to mark their attendance.',
                   style: TextStyle(
                     color: Colors.grey[600],
                     fontSize: 14,
@@ -286,7 +286,7 @@ class _AttendanceRecordingScreenState extends State<AttendanceRecordingScreen> {
               ),
               onPressed: _recordClass,
               child: const Text(
-                'Record Class & Generate QR Code',
+                'Record Class & Generate Verification Code',
                 style: TextStyle(fontSize: 16),
               ),
             ),
@@ -324,7 +324,11 @@ class _AttendanceRecordingScreenState extends State<AttendanceRecordingScreen> {
     Future.delayed(const Duration(seconds: 2), () {
       Navigator.pop(context); // Close loading dialog
 
-      // Show success dialog with QR code
+      // Generate a random 6-digit code
+      final verificationCode =
+          (100000 + DateTime.now().millisecondsSinceEpoch % 900000).toString();
+
+      // Show success dialog with verification code
       showDialog(
         context: context,
         builder: (context) => AlertDialog(
@@ -333,21 +337,49 @@ class _AttendanceRecordingScreenState extends State<AttendanceRecordingScreen> {
             mainAxisSize: MainAxisSize.min,
             children: [
               const Text(
-                'QR Code for Student Attendance',
+                'Verification Code for Student Attendance',
                 style: TextStyle(fontWeight: FontWeight.bold),
               ),
               const SizedBox(height: 16),
               Container(
                 width: 200,
-                height: 200,
-                color: Colors.grey[300],
-                child: const Center(
-                  child: Icon(Icons.qr_code, size: 150),
+                padding:
+                    const EdgeInsets.symmetric(vertical: 20, horizontal: 16),
+                decoration: BoxDecoration(
+                  color: Colors.grey.shade100,
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(color: MyAppColors.primaryColor, width: 2),
+                ),
+                child: Center(
+                  child: Text(
+                    verificationCode,
+                    style: const TextStyle(
+                      fontSize: 32,
+                      fontWeight: FontWeight.bold,
+                      letterSpacing: 4,
+                      color: MyAppColors.primaryColor,
+                    ),
+                  ),
                 ),
               ),
               const SizedBox(height: 16),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  const Icon(Icons.timer, color: Colors.orange),
+                  const SizedBox(width: 8),
+                  Text(
+                    'Valid for 15 minutes',
+                    style: TextStyle(
+                      color: Colors.grey[700],
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 16),
               const Text(
-                'Students can scan this QR code to mark their attendance for this class',
+                'Students must enter this code to record their attendance for this class',
                 textAlign: TextAlign.center,
               ),
             ],
