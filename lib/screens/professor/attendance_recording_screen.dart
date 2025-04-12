@@ -74,6 +74,7 @@ class _AttendanceRecordingScreenState extends State<AttendanceRecordingScreen> {
         title: const Text(
           'Record Attendance',
           style: TextStyle(
+            fontSize: 20,
             color: MyAppColors.primaryColor,
             fontWeight: FontWeight.bold,
           ),

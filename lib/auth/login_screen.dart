@@ -1,7 +1,9 @@
 import 'package:fci_edutrack/auth/register_screen.dart';
 import 'package:fci_edutrack/providers/auth_provider.dart';
-import 'package:fci_edutrack/screens/home_screen/my_bottom_nav_bar.dart';
+import 'package:fci_edutrack/screens/admin/admin_home_screen.dart'; // Added import
+import 'package:fci_edutrack/screens/home_screen/my_bottom_nav_bar.dart'; // Student Home
 import 'package:fci_edutrack/screens/password/forget_password_screen.dart';
+import 'package:fci_edutrack/screens/professor/professor_home_screen.dart'; // Added import
 import 'package:fci_edutrack/themes/my_theme_data.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -250,15 +252,24 @@ class _RegisterScreenState extends State<LoginScreen> {
 
         if (success) {
           print("Login successful, checking role...");
-          // Check role to determine where to navigate
-          bool isAdmin = await authProvider.isAdmin();
-          bool isProfessor = await authProvider.isProfessor();
-          print(
-              "User role check - isAdmin: $isAdmin, isProfessor: $isProfessor");
+          // Get the role directly from the provider after successful login
+          final userRole = authProvider.userRole?.toUpperCase();
+          print("User role after login: $userRole");
 
           if (mounted) {
-            Navigator.of(context).pushNamedAndRemoveUntil(
-                MyBottomNavBar.routeName, (route) => false);
+            // Navigate based on role
+            String routeName;
+            if (userRole == 'ADMIN') {
+              routeName = AdminHomeScreen.routeName;
+            } else if (userRole == 'PROFESSOR') {
+              routeName = ProfessorHomeScreen.routeName;
+            } else {
+              // Default to Student
+              routeName = MyBottomNavBar.routeName;
+            }
+            print("Navigating to route: $routeName");
+            Navigator.of(context)
+                .pushNamedAndRemoveUntil(routeName, (route) => false);
           }
         } else {
           if (mounted) {

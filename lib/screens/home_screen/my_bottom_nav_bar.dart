@@ -12,7 +12,10 @@ import 'package:fci_edutrack/providers/auth_provider.dart';
 import 'package:fci_edutrack/screens/admin/professor_requests_screen.dart';
 import 'package:fci_edutrack/screens/admin/course_management_screen.dart';
 import 'package:fci_edutrack/screens/professor/quiz_management_screen.dart';
-import 'package:fci_edutrack/screens/professor/attendance_recording_screen.dart';
+// import 'package:fci_edutrack/screens/professor/attendance_recording_screen.dart'; // Will create a new one
+import 'package:fci_edutrack/screens/register_attendance.dart'; // Import student attendance screen
+import 'package:fci_edutrack/screens/assignment/assignment_screen.dart'; // Import assignment screen
+import 'package:fci_edutrack/screens/professor/professor_attendance_management.dart'; // Import new professor attendance screen (will create)
 
 class MyBottomNavBar extends StatefulWidget {
   static const String routeName = 'bottom_nav_bar';
@@ -31,36 +34,18 @@ class MyBottomNavBar extends StatefulWidget {
 class _MyBottomNavBarState extends State<MyBottomNavBar> {
   int selectedIndex = 0;
   DateTime? lastBackPressTime;
-  bool isAdmin = false;
-  bool isProfessor = false;
-  bool isLoading = true;
+  // Remove internal state variables for role, read directly from provider in build
+  // bool isAdmin = false;
+  // bool isProfessor = false;
+  // bool isLoading = true; // Loading state might still be useful if fetching data here
 
-  @override
-  void initState() {
-    super.initState();
-    _checkUserRole();
-  }
+  // @override
+  // void initState() {
+  //   super.initState();
+  //   // _checkUserRole(); // Don't check role here anymore
+  // }
 
-  Future<void> _checkUserRole() async {
-    setState(() {
-      isLoading = true;
-    });
-
-    try {
-      final authProvider = Provider.of<AuthProvider>(context, listen: false);
-      isAdmin = await authProvider.isAdmin();
-      isProfessor = await authProvider.isProfessor();
-
-      print(
-          "MyBottomNavBar - User Roles: Admin=$isAdmin, Professor=$isProfessor");
-    } catch (e) {
-      print("Error checking user role: $e");
-    } finally {
-      setState(() {
-        isLoading = false;
-      });
-    }
-  }
+  // Future<void> _checkUserRole() async { ... } // Remove this method
 
   // Method to change the selected tab
   void changeTab(int index) {
@@ -71,6 +56,15 @@ class _MyBottomNavBarState extends State<MyBottomNavBar> {
 
   @override
   Widget build(BuildContext context) {
+    // Read role directly from provider inside build
+    final authProvider = Provider.of<AuthProvider>(context);
+    // Use getters from AuthProvider which now correctly compare roles
+    final bool isAdmin = authProvider.currentUser?.role?.toUpperCase() ==
+        'ADMIN'; // Use normalized role
+    final bool isProfessor = authProvider.currentUser?.role?.toUpperCase() ==
+        'PROFESSOR'; // Use normalized role
+    // Determine if still loading auth info
+    final bool isLoading = authProvider.isLoading;
     return WillPopScope(
       onWillPop: () async {
         // Handle back button press with double-back to exit behavior
@@ -106,12 +100,15 @@ class _MyBottomNavBarState extends State<MyBottomNavBar> {
                           fontSize: 20,
                           fontWeight: FontWeight.bold,
                           color: MyAppColors.primaryColor))
-                  : null,
+                  : null, // Title based on role
         ),
         drawer: const MyDrawer(),
         body: isLoading
-            ? const Center(child: CircularProgressIndicator())
-            : _getScreens()[selectedIndex],
+            ? const Center(
+                child:
+                    CircularProgressIndicator()) // Show loading if auth is loading
+            : _getScreens(isAdmin, isProfessor)[
+                selectedIndex], // Pass roles to getScreens
         backgroundColor: Provider.of<ThemeProvider>(context).isDark()
             ? MyAppColors.primaryDarkColor
             : MyAppColors.whiteColor,
@@ -131,14 +128,16 @@ class _MyBottomNavBarState extends State<MyBottomNavBar> {
                 activeColor: Colors.white,
                 gap: 8,
                 tabBackgroundColor: MyAppColors.secondaryBlueColor,
-                tabs: _getNavTabs()),
+                tabs: _getNavTabs(
+                    isAdmin, isProfessor)), // Pass roles to getNavTabs
           ),
         ),
       ),
     );
   }
 
-  List<GButton> _getNavTabs() {
+  List<GButton> _getNavTabs(bool isAdmin, bool isProfessor) {
+    // Accept roles as parameters
     if (isAdmin) {
       return const [
         GButton(
@@ -159,21 +158,26 @@ class _MyBottomNavBarState extends State<MyBottomNavBar> {
         ),
       ];
     } else if (isProfessor) {
+      // Updated Tabs for Professor
       return const [
         GButton(
-          icon: Icons.home,
-          text: 'Home',
+          icon: Icons.school_outlined, // Or Icons.home_work_outlined
+          text: 'Courses', // For enrollment/viewing
         ),
         GButton(
-          icon: Icons.class_,
-          text: 'Classes',
+          icon: Icons.timer_outlined, // Or Icons.how_to_reg_outlined
+          text: 'Attendance', // Manage Sessions & View History
         ),
         GButton(
-          icon: Icons.quiz,
+          icon: Icons.quiz_outlined,
           text: 'Quizzes',
         ),
         GButton(
-          icon: Icons.person,
+          icon: Icons.assignment_outlined,
+          text: 'Assignments',
+        ),
+        GButton(
+          icon: Icons.person_outline,
           text: 'Profile',
         ),
       ];
@@ -184,7 +188,7 @@ class _MyBottomNavBarState extends State<MyBottomNavBar> {
           text: 'Home',
         ),
         GButton(
-          icon: Icons.qr_code_2,
+          icon: Icons.pin_outlined, // Changed icon to reflect code entry
           text: 'Attendance',
         ),
         GButton(
@@ -199,7 +203,8 @@ class _MyBottomNavBarState extends State<MyBottomNavBar> {
     }
   }
 
-  List<Widget> _getScreens() {
+  List<Widget> _getScreens(bool isAdmin, bool isProfessor) {
+    // Accept roles as parameters
     if (isAdmin) {
       return [
         const HomeScreen(),
@@ -208,16 +213,18 @@ class _MyBottomNavBarState extends State<MyBottomNavBar> {
         const StudentProfileScreen(),
       ];
     } else if (isProfessor) {
+      // Updated Screens for Professor
       return [
-        const HomeScreen(),
-        const AttendanceRecordingScreen(),
-        const QuizManagementScreen(),
-        const StudentProfileScreen(),
+        const CoursesScreen(), // Reuse for viewing/enrolling
+        const ProfessorAttendanceManagementScreen(), // New screen for session mgmt (Create this next)
+        const QuizManagementScreen(), // Existing placeholder
+        const AssignmentScreen(), // Existing placeholder
+        const StudentProfileScreen(), // Reuse student profile for now
       ];
     } else {
       return [
         const HomeScreen(),
-        const QrCodeScanner(),
+        const RegisterAttendanceScreen(), // Use the updated code entry screen
         const CoursesScreen(),
         const StudentProfileScreen(),
       ];

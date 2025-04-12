@@ -21,7 +21,8 @@ class AuthProvider extends ChangeNotifier {
       await initialize();
     }
     print("Checking if user is admin. User role: ${_currentUser?.role}");
-    return _currentUser?.role?.toUpperCase() == 'ADMIN';
+    // Compare against the full role string from the backend/JWT
+    return _currentUser?.role?.toUpperCase() == 'ADMIN'; // Use normalized role
   }
 
   // Check if current user has professor role
@@ -30,7 +31,9 @@ class AuthProvider extends ChangeNotifier {
       await initialize();
     }
     print("Checking if user is professor. User role: ${_currentUser?.role}");
-    return _currentUser?.role?.toUpperCase() == 'PROFESSOR';
+    // Compare against the full role string from the backend/JWT
+    return _currentUser?.role?.toUpperCase() ==
+        'PROFESSOR'; // Use normalized role
   }
 
   // Check if current user has student role
@@ -41,7 +44,7 @@ class AuthProvider extends ChangeNotifier {
     print("Checking if user is student. User role: ${_currentUser?.role}");
     // Default to student if no role specified
     return _currentUser?.role == null ||
-        _currentUser?.role?.toUpperCase() == 'STUDENT';
+        _currentUser?.role?.toUpperCase() == 'STUDENT'; // Use normalized role
   }
 
   // Get user role
@@ -49,8 +52,9 @@ class AuthProvider extends ChangeNotifier {
 
   // Initialize the provider
   Future<void> initialize() async {
+    // Set loading state initially, but notify at the end
     _isLoading = true;
-    notifyListeners();
+    // notifyListeners(); // Removed intermediate notify
 
     try {
       final prefs = await SharedPreferences.getInstance();
@@ -95,9 +99,11 @@ class AuthProvider extends ChangeNotifier {
             } else if (userRole.contains('STUDENT')) {
               userRole = 'STUDENT';
             }
-            print("Extracted role from token: $userRole");
+            print(
+                "AuthProvider (initialize): Extracted role from token: $userRole"); // Added Log
           } else {
-            print("Warning: Could not extract role from token");
+            print(
+                "AuthProvider (initialize): Warning: Could not extract role from token"); // Added Log
           }
 
           // Create user from token data
@@ -115,18 +121,22 @@ class AuthProvider extends ChangeNotifier {
         }
       }
     } catch (e) {
-      // Handle error
+      // Handle error - ensure state is cleared on error too
       print('Error initializing auth: $e');
+      _token = null;
+      _currentUser = null;
     } finally {
-      _isLoading = false;
-      notifyListeners();
+      _isLoading = false; // Set final loading state
+      notifyListeners(); // Notify once at the end
     }
   }
 
   // Login user
   Future<bool> login(String username, String password) async {
+    // Set loading state initially, but notify at the end
     _isLoading = true;
-    notifyListeners();
+    // notifyListeners(); // Removed intermediate notify
+    bool success = false; // Track success locally
 
     try {
       final response = await _apiService.login(username, password);
@@ -153,24 +163,33 @@ class AuthProvider extends ChangeNotifier {
         }
 
         // Extract role from token
-        String? userRole = decodedToken['role'] ??
+        String? rawRole = decodedToken['role'] ??
             decodedToken['authorities']?.toString() ??
             decodedToken['scope']?.toString() ??
             decodedToken['roles']?.toString();
 
-        if (userRole != null) {
-          // Check for Spring Security format like "[ROLE_ADMIN]" or "ROLE_ADMIN"
-          if (userRole.contains('ADMIN')) {
-            userRole = 'ADMIN';
-          } else if (userRole.contains('PROFESSOR')) {
-            userRole = 'PROFESSOR';
-          } else if (userRole.contains('STUDENT')) {
-            userRole = 'STUDENT';
+        String? normalizedRole; // Variable for the normalized role
+
+        if (rawRole != null) {
+          // Perform normalization
+          if (rawRole.contains('ADMIN')) {
+            normalizedRole = 'ADMIN';
+          } else if (rawRole.contains('PROFESSOR')) {
+            normalizedRole = 'PROFESSOR';
+          } else if (rawRole.contains('STUDENT')) {
+            normalizedRole = 'STUDENT';
+          } else {
+            normalizedRole = rawRole; // Keep original if no match
           }
-          print("Extracted role from token: $userRole");
+          print(
+              "AuthProvider (login): Extracted raw role: $rawRole, Normalized to: $normalizedRole");
         } else {
-          print("No role found in token, checking response data...");
-          userRole = response['data']['role'];
+          print(
+              "AuthProvider (login): No role found in token, checking response data...");
+          normalizedRole = response['data'][
+              'role']; // Use response role directly (assuming it's already simple)
+          print(
+              "AuthProvider (login): Role from response data: $normalizedRole");
         }
 
         // Extract user details from response
@@ -179,29 +198,36 @@ class AuthProvider extends ChangeNotifier {
           username: response['data']['username'] ?? '',
           fullName: response['data']['fullName'] ?? '',
           email: response['data']['email'] ?? '',
-          role: userRole, // Get role from token or response
+          role: normalizedRole, // Assign the CORRECTLY normalized role
           emailVerified: true, // If login successful, assume verified
         );
 
         print("User logged in with role: ${_currentUser?.role}");
-        return true;
+        success = true; // Mark as successful
       } else {
-        return false;
+        // Ensure state is cleared on failed login attempt
+        _token = null;
+        _currentUser = null;
+        success = false;
       }
     } catch (e) {
       print('Login error: $e');
-      return false;
+      _token = null; // Clear state on error
+      _currentUser = null;
+      success = false;
     } finally {
-      _isLoading = false;
-      notifyListeners();
+      _isLoading = false; // Set final loading state
+      notifyListeners(); // Notify once at the end
+      return success; // Return the result
     }
   }
 
   // Register user
   Future<Map<String, dynamic>> register(
       String username, String password, String fullName, String email) async {
+    // Set loading state initially, but notify at the end
     _isLoading = true;
-    notifyListeners();
+    // notifyListeners(); // Removed intermediate notify
 
     try {
       final response =
@@ -214,15 +240,17 @@ class AuthProvider extends ChangeNotifier {
         'message': 'Network error, please try again later',
       };
     } finally {
-      _isLoading = false;
-      notifyListeners();
+      _isLoading = false; // Set final loading state
+      notifyListeners(); // Notify once at the end
     }
   }
 
   // Verify email
   Future<bool> verifyEmail(String email, String code) async {
+    // Set loading state initially, but notify at the end
     _isLoading = true;
-    notifyListeners();
+    // notifyListeners(); // Removed intermediate notify
+    bool success = false; // Track success locally
 
     try {
       final response = await _apiService.verifyEmail(email, code);
@@ -240,25 +268,29 @@ class AuthProvider extends ChangeNotifier {
           emailVerified: true,
         );
 
-        return true;
+        success = true;
       } else {
-        return false;
+        _token = null; // Clear state on failure
+        _currentUser = null;
+        success = false;
       }
     } catch (e) {
       print('Email verification error: $e');
-      return false;
+      _token = null; // Clear state on error
+      _currentUser = null;
+      success = false;
     } finally {
-      _isLoading = false;
-      notifyListeners();
+      _isLoading = false; // Set final loading state
+      notifyListeners(); // Notify once at the end
+      return success; // Return the result
     }
   }
 
   // Logout
   Future<void> logout() async {
+    // Set loading state initially, but notify at the end
     _isLoading = true;
-    notifyListeners();
-
-    print("AuthProvider: logout() called");
+    // notifyListeners(); // Removed intermediate notify
 
     try {
       print("AuthProvider: clearing token from API service");
@@ -275,16 +307,21 @@ class AuthProvider extends ChangeNotifier {
       _token = null;
       _currentUser = null;
     } finally {
-      _isLoading = false;
-      notifyListeners();
+      _isLoading = false; // Set final loading state
+      // Ensure state is definitely null before notifying
+      _token = null;
+      _currentUser = null;
       print("AuthProvider: notified listeners of logout");
+      notifyListeners(); // Notify once at the end
     }
   }
 
   // Login with email
   Future<bool> loginWithEmail(String email, String password) async {
+    // Set loading state initially, but notify at the end
     _isLoading = true;
-    notifyListeners();
+    // notifyListeners(); // Removed intermediate notify
+    bool success = false; // Track success locally
 
     try {
       final response = await _apiService.loginWithEmail(email, password);
@@ -309,26 +346,62 @@ class AuthProvider extends ChangeNotifier {
           print("Login successful, extracted user ID: $userId");
         }
 
-        // Extract user details from response
+        // Extract role from token
+        String? rawRole = decodedToken['role'] ??
+            decodedToken['authorities']?.toString() ??
+            decodedToken['scope']?.toString() ??
+            decodedToken['roles']?.toString();
+
+        String? normalizedRole; // Variable for the normalized role
+
+        if (rawRole != null) {
+          // Perform normalization
+          if (rawRole.contains('ADMIN')) {
+            normalizedRole = 'ADMIN';
+          } else if (rawRole.contains('PROFESSOR')) {
+            normalizedRole = 'PROFESSOR';
+          } else if (rawRole.contains('STUDENT')) {
+            normalizedRole = 'STUDENT';
+          } else {
+            normalizedRole = rawRole; // Keep original if no match
+          }
+          print(
+              "AuthProvider (loginWithEmail): Extracted raw role: $rawRole, Normalized to: $normalizedRole");
+        } else {
+          print(
+              "AuthProvider (loginWithEmail): No role found in token, checking response data...");
+          normalizedRole =
+              response['data']['role']; // Use response role directly
+          print(
+              "AuthProvider (loginWithEmail): Role from response data: $normalizedRole");
+        }
+
+        // Extract user details from response, using the NORMALIZED role
         _currentUser = User(
-          id: userId ?? '', // Use extracted ID
+          id: userId ?? '',
           username: response['data']['username'] ?? '',
           fullName: response['data']['fullName'] ?? '',
           email: response['data']['email'] ?? '',
-          role: decodedToken['role'], // Get role from token
+          role: normalizedRole, // Assign the CORRECTLY normalized role
           emailVerified: true, // If login successful, assume verified
         );
+        print("User logged in with email, role: ${_currentUser?.role}");
 
-        return true;
+        success = true;
       } else {
-        return false;
+        _token = null; // Clear state on failure
+        _currentUser = null;
+        success = false;
       }
     } catch (e) {
       print('Login with email error: $e');
-      return false;
+      _token = null; // Clear state on error
+      _currentUser = null;
+      success = false;
     } finally {
-      _isLoading = false;
-      notifyListeners();
+      _isLoading = false; // Set final loading state
+      notifyListeners(); // Notify once at the end
+      return success; // Return the result
     }
   }
 

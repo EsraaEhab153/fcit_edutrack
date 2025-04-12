@@ -23,7 +23,7 @@ class AttendanceProvider extends ChangeNotifier {
     try {
       // Since wifi verification is disabled, we'll use a standard method
       final response =
-          await _apiService.recordAttendance(courseId, "MANUAL", "MANUAL");
+          await _apiService.recordAttendance(courseId, "MANUAL");
 
       if (response['success'] && response['data'] != null) {
         // Add the new attendance record to the list for this course
@@ -42,6 +42,36 @@ class AttendanceProvider extends ChangeNotifier {
       return {
         'success': false,
         'message': 'Network error, please try again later',
+      };
+    } finally {
+      _isLoading = false;
+      notifyListeners();
+    }
+  }
+
+  // Record attendance using verification code
+  Future<Map<String, dynamic>> recordAttendanceWithCode(
+      int courseId, String verificationCode) async {
+    _isLoading = true;
+    notifyListeners();
+
+    try {
+      final response =
+          await _apiService.recordAttendance(courseId, verificationCode);
+
+      // Optionally update local state if needed, though fetching might be simpler
+      // if (response['success'] && response['data'] != null) {
+      //   final newAttendance = Attendance.fromJson(response['data']);
+      //   _attendanceRecordsByCourse[courseId] ??= [];
+      //   _attendanceRecordsByCourse[courseId]!.add(newAttendance);
+      // }
+
+      return response;
+    } catch (e) {
+      print('Error recording attendance with code: $e');
+      return {
+        'success': false,
+        'message': 'Network error or failed to record attendance.',
       };
     } finally {
       _isLoading = false;

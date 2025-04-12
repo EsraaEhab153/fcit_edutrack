@@ -50,8 +50,10 @@ class CourseProvider extends ChangeNotifier {
     notifyListeners();
 
     try {
-      print("Fetching current/enrolled courses for the user");
-      final response = await _apiService.getCurrentCourses();
+      print(
+          "Fetching current courses (based on schedule - potentially deprecated)");
+      final response = await _apiService
+          .getCurrentCourses(); // Keep this for now if needed elsewhere
       print("Current courses API response: ${response['success']}");
 
       if (response['success'] && response['data'] != null) {
@@ -104,10 +106,22 @@ class CourseProvider extends ChangeNotifier {
       }
     } catch (e) {
       print('Error fetching enrolled courses: $e');
+      _enrolledCourses = []; // Ensure list is empty on error
     } finally {
       _isLoading = false;
       notifyListeners();
     }
+  }
+
+  // Method to specifically fetch enrolled courses if not already loaded
+  Future<void> ensureEnrolledCoursesFetched() async {
+    // Avoid fetching if already loaded and not loading
+    if (_enrolledCourses.isNotEmpty || _isLoading) {
+      print("Skipping fetch for enrolled courses (already loaded or loading).");
+      return;
+    }
+    print("ensureEnrolledCoursesFetched: Fetching enrolled courses...");
+    await fetchEnrolledCourses(); // Call the existing fetch method
   }
 
   // Enroll in a course

@@ -235,10 +235,9 @@ class MyDrawer extends StatelessWidget {
                     final authProvider =
                         Provider.of<AuthProvider>(context, listen: false);
                     await authProvider.logout();
-                    if (context.mounted) {
-                      Navigator.of(context).pushNamedAndRemoveUntil(
-                          LoginScreen.routeName, (route) => false);
-                    }
+                    // No explicit navigation needed here.
+                    // AuthWrapper will handle navigating to LoginScreen
+                    // when it detects the user is logged out after logout() completes.
                   }
                 }),
           ],

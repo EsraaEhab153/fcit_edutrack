@@ -195,16 +195,19 @@ class ApiService {
 
   // Record attendance
   Future<Map<String, dynamic>> recordAttendance(
-      int courseId, String networkIdentifier, String verificationMethod) async {
+      int courseId, String verificationCode) async { // Changed parameters
     final token = await _getToken();
+
+    print("Recording attendance for course $courseId with code $verificationCode"); // Added log
 
     final response = await http.post(
       Uri.parse(Config.recordAttendanceUrl),
       headers: _headers(token: token),
       body: jsonEncode({
         'courseId': courseId,
-        'networkIdentifier': networkIdentifier,
-        'verificationMethod': verificationMethod,
+        'verificationCode': verificationCode, // Send verification code
+        // 'networkIdentifier': networkIdentifier, // Removed
+        // 'verificationMethod': verificationMethod, // Removed
       }),
     );
 
