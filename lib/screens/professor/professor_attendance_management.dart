@@ -1,7 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../providers/auth_provider.dart'; // For potential future use
-// Import other necessary providers and services later
+import '../../models/course_model.dart'; // Import Course model
+import '../../providers/course_provider.dart'; // Import CourseProvider
+import 'attendance_recording_screen.dart'; // Import the target screen
+import '../../style/my_app_colors.dart'; // Import colors
+// TODO: Import the screen containing the main course list if needed for "Browse Courses"
 
 class ProfessorAttendanceManagementScreen extends StatefulWidget {
   const ProfessorAttendanceManagementScreen({super.key});
@@ -13,180 +17,151 @@ class ProfessorAttendanceManagementScreen extends StatefulWidget {
 
 class _ProfessorAttendanceManagementScreenState
     extends State<ProfessorAttendanceManagementScreen> {
-  // TODO: Implement state variables for course selection, expiry time, active sessions list, etc.
-  bool _isLoading = false;
-  String? _errorMessage;
-  String? _successMessage;
+  // Removed local loading/error/success states, will rely on Provider
+  // bool _isLoading = false;
+  // String? _errorMessage;
+  // String? _successMessage;
 
   @override
   void initState() {
     super.initState();
-    // TODO: Fetch professor's courses or active sessions initially if needed
-  }
-
-  // TODO: Implement method to create a new attendance session (call API)
-  Future<void> _createSession() async {
-    setState(() {
-      _isLoading = true;
-      _errorMessage = null;
-      _successMessage = null;
+    // Fetch enrolled courses when the screen initializes
+    // Use addPostFrameCallback to ensure context is available
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _fetchEnrolledCourses();
     });
-    // Placeholder - Replace with actual API call using selected course and expiry
-    await Future.delayed(const Duration(seconds: 1));
-    print("Placeholder: Create Session logic goes here.");
-    setState(() {
-      _isLoading = false;
-      _successMessage = "Session created successfully (Placeholder)";
-    });
-    // Handle errors appropriately
   }
 
-  // TODO: Implement method to fetch active sessions (call API)
-  Future<void> _fetchActiveSessions() async {
-    setState(() => _isLoading = true);
-    // Placeholder
-    await Future.delayed(const Duration(seconds: 1));
-    print("Placeholder: Fetch active sessions logic.");
-    setState(() => _isLoading = false);
+  Future<void> _fetchEnrolledCourses() async {
+    // Access provider without listening here, Consumer will handle updates
+    final courseProvider =
+        Provider.of<CourseProvider>(context, listen: false); // Corrected type
+    // Use the specific method to fetch enrolled courses
+    await courseProvider.fetchEnrolledCourses();
+    // Error handling can be done within the provider or shown via SnackBar if needed
   }
 
-  // TODO: Implement method to view session attendees (navigate or show dialog)
-  void _viewAttendees(int sessionId) {
-    print("Placeholder: View attendees for session $sessionId");
-    // Navigate to a new screen or show a dialog with attendee list
-  }
-
-  // TODO: Implement method to download spreadsheet (call API)
-  void _downloadSpreadsheet(int courseId) {
-    print("Placeholder: Download spreadsheet for course $courseId");
-    // Call API service, handle byte stream response for download
-  }
+  // Removed placeholder methods for create/fetch/view/download as they are not needed here
 
   @override
   Widget build(BuildContext context) {
-    // TODO: Build the UI for managing attendance sessions
+    // Use Consumer to listen for changes in CourseProvider
     return Scaffold(
       // AppBar might be handled by MyBottomNavBar, or add one here if needed
-      body: RefreshIndicator(
-        onRefresh: _fetchActiveSessions, // Example refresh action
-        child: ListView(
-          padding: const EdgeInsets.all(16.0),
-          children: [
-            // Section to Create New Session
-            _buildCreateSessionCard(),
-            const SizedBox(height: 20),
-            // Section to View Active Sessions
-            _buildActiveSessionsList(),
-            const SizedBox(height: 20),
-            // Section for Reports (Optional Here or Separate Screen)
-            _buildReportsSection(),
-
-            // Display loading/error/success messages
-            if (_isLoading)
-              const Center(
-                  child: Padding(
-                      padding: EdgeInsets.all(8.0),
-                      child: CircularProgressIndicator())),
-            if (_errorMessage != null)
-              Center(
-                  child: Padding(
-                      padding: const EdgeInsets.all(8.0),
-                      child: Text(_errorMessage!,
-                          style: const TextStyle(color: Colors.red)))),
-            if (_successMessage != null)
-              Center(
-                  child: Padding(
-                      padding: const EdgeInsets.all(8.0),
-                      child: Text(_successMessage!,
-                          style: const TextStyle(color: Colors.green)))),
-          ],
-        ),
+      body: Consumer<CourseProvider>(
+        // Corrected type
+        builder: (context, courseProvider, child) {
+          return RefreshIndicator(
+            onRefresh: _fetchEnrolledCourses, // Refresh action
+            child: Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'Select Course to Manage Attendance',
+                    style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                          fontWeight: FontWeight.bold,
+                          color: MyAppColors.primaryColor,
+                        ),
+                  ),
+                  const SizedBox(height: 16),
+                  Expanded(
+                    child: _buildCourseList(courseProvider),
+                  ),
+                ],
+              ),
+            ),
+          );
+        },
       ),
     );
   }
 
-  Widget _buildCreateSessionCard() {
-    // TODO: Add course dropdown, expiry input, create button
-    return Card(
-      elevation: 2,
-      child: Padding(
-        padding: const EdgeInsets.all(16.0),
+  Widget _buildCourseList(CourseProvider courseProvider) {
+    // Corrected type
+    if (courseProvider.isLoading) {
+      return const Center(child: CircularProgressIndicator());
+    }
+
+    final enrolledCourses = courseProvider.enrolledCourses;
+
+    if (enrolledCourses.isEmpty) {
+      return Center(
         child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Text('Create New Session',
-                style: Theme.of(context).textTheme.titleLarge),
-            const SizedBox(height: 16),
-            // Placeholder for Course Dropdown
-            const Text('Course Dropdown Here'),
-            const SizedBox(height: 12),
-            // Placeholder for Expiry Input
-            const Text('Expiry Minutes Input Here'),
+            const Text(
+              'You are not enrolled in any courses yet.',
+              textAlign: TextAlign.center,
+              style: TextStyle(fontSize: 16),
+            ),
             const SizedBox(height: 16),
             ElevatedButton.icon(
-              onPressed: _isLoading ? null : _createSession,
-              icon: const Icon(Icons.add_circle_outline),
-              label: const Text('Start Session'),
+              onPressed: () {
+                // TODO: Implement navigation to the main course browsing screen
+                print("Navigate to Browse Courses");
+                // Example: Navigator.pushNamed(context, ProfessorHomeScreen.routeName); // Or wherever courses are listed
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(
+                      content: Text(
+                          'Navigation to Browse Courses not implemented yet.')),
+                );
+              },
+              icon: const Icon(Icons.search),
+              label: const Text('Browse Courses'),
+              style: ElevatedButton.styleFrom(
+                backgroundColor:
+                    MyAppColors.secondaryBlueColor, // Corrected color name
+              ),
             ),
           ],
         ),
-      ),
-    );
-  }
+      );
+    }
 
-  Widget _buildActiveSessionsList() {
-    // TODO: Fetch and display list of active sessions
-    // Each item could show course, code, expiry, and a button to view attendees
-    return Card(
-      elevation: 2,
-      child: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text('Active Sessions',
-                style: Theme.of(context).textTheme.titleLarge),
-            const SizedBox(height: 16),
-            // Placeholder for list view
-            const Text('List of active sessions will appear here...'),
-            // Example list item structure:
-            // ListTile(
-            //   title: Text('CS101 - Code: ABCDEF'),
-            //   subtitle: Text('Expires: 10:45 AM'),
-            //   trailing: TextButton(onPressed: () => _viewAttendees(123), child: Text('View')),
-            // ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildReportsSection() {
-    // TODO: Add course dropdown and download button
-    return Card(
-      elevation: 2,
-      child: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text('Attendance Reports',
-                style: Theme.of(context).textTheme.titleLarge),
-            const SizedBox(height: 16),
-            // Placeholder for Course Dropdown
-            const Text('Course Dropdown Here (for report selection)'),
-            const SizedBox(height: 16),
-            ElevatedButton.icon(
-              onPressed: _isLoading
-                  ? null
-                  : () => _downloadSpreadsheet(1), // Placeholder ID
-              icon: const Icon(Icons.download_outlined),
-              label: const Text('Download Report (CSV)'),
-              style: ElevatedButton.styleFrom(backgroundColor: Colors.teal),
+    // Display list of enrolled courses
+    return ListView.builder(
+      itemCount: enrolledCourses.length,
+      itemBuilder: (context, index) {
+        final course = enrolledCourses[index];
+        return Card(
+          elevation: 2,
+          margin: const EdgeInsets.only(bottom: 12),
+          child: ListTile(
+            contentPadding: const EdgeInsets.all(16),
+            title: Text(
+              '${course.courseCode} - ${course.courseName}',
+              style: const TextStyle(
+                fontWeight: FontWeight.bold,
+                fontSize: 16,
+              ),
             ),
-          ],
-        ),
-      ),
+            subtitle: Text(course.description ?? 'No description'),
+            trailing: ElevatedButton(
+              style: ElevatedButton.styleFrom(
+                backgroundColor: MyAppColors.primaryColor,
+              ),
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => AttendanceRecordingScreen(
+                      // Corrected constructor call
+                      courseId: course.id, // Pass the course ID
+                      courseName:
+                          course.courseName, // Pass course name for display
+                      courseCode:
+                          course.courseCode, // Pass course code for display
+                    ),
+                  ),
+                );
+              },
+              child: const Text('Select'),
+            ),
+          ),
+        );
+      },
     );
   }
 }

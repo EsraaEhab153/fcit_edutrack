@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:fci_edutrack/screens/professor/attendance_recording_screen.dart'; // Placeholder for attendance management
+import 'package:fci_edutrack/screens/professor/professor_attendance_management.dart'; // Import the correct screen
 import 'package:fci_edutrack/screens/professor/quiz_management_screen.dart'; // Placeholder for quiz management
 import 'package:fci_edutrack/screens/assignment/assignment_screen.dart'; // Placeholder for assignment management
 import 'package:fci_edutrack/screens/home_screen/courses_screen.dart'; // For enrolling/viewing courses
@@ -25,7 +25,7 @@ class _ProfessorHomeScreenState extends State<ProfessorHomeScreen> {
   // Replace placeholders with actual implemented screens later
   final List<Widget> _screens = [
     const CoursesScreen(), // For enrolling/viewing courses
-    const AttendanceRecordingScreen(), // Placeholder for attendance
+    const ProfessorAttendanceManagementScreen(), // Use the management screen here
     const QuizManagementScreen(), // Placeholder for quizzes
     const AssignmentScreen(), // Placeholder for assignments
   ];

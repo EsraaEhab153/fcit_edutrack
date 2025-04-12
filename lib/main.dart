@@ -95,8 +95,6 @@ class MyApp extends StatelessWidget {
             const CourseManagementScreen(),
         QuizManagementScreen.routeName: (context) =>
             const QuizManagementScreen(),
-        AttendanceRecordingScreen.routeName: (context) =>
-            const AttendanceRecordingScreen(),
         AdminHomeScreen.routeName: (context) =>
             const AdminHomeScreen(), // Added route
         ProfessorHomeScreen.routeName: (context) =>

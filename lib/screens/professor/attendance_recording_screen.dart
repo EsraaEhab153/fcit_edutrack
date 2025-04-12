@@ -1,11 +1,23 @@
 import 'package:flutter/material.dart';
 import 'package:fci_edutrack/style/my_app_colors.dart';
 import 'package:intl/intl.dart';
+import 'package:provider/provider.dart'; // Import Provider
+import '../../providers/attendance_provider.dart'; // Import AttendanceProvider
 
 class AttendanceRecordingScreen extends StatefulWidget {
   static const String routeName = 'attendance_recording';
 
-  const AttendanceRecordingScreen({Key? key}) : super(key: key);
+  // Add required parameters
+  final int courseId;
+  final String courseName;
+  final String courseCode;
+
+  const AttendanceRecordingScreen({
+    required this.courseId,
+    required this.courseName,
+    required this.courseCode,
+    Key? key,
+  }) : super(key: key);
 
   @override
   State<AttendanceRecordingScreen> createState() =>
@@ -13,59 +25,31 @@ class AttendanceRecordingScreen extends StatefulWidget {
 }
 
 class _AttendanceRecordingScreenState extends State<AttendanceRecordingScreen> {
-  bool isLoading = false;
-  List<Map<String, dynamic>> courses = [];
-  Map<String, dynamic>? selectedCourse;
+  bool _isLoadingApiCall = false;
   DateTime selectedDate = DateTime.now();
+  final _expiryMinutesController = TextEditingController(text: '15');
+  final _topicController = TextEditingController();
+  final _startTimeController =
+      TextEditingController(text: '10:00 AM'); // Keep defaults for now
+  final _endTimeController =
+      TextEditingController(text: '11:30 AM'); // Keep defaults for now
 
   @override
   void initState() {
     super.initState();
-    _loadProfessorCourses();
+    // No need to load courses here anymore
   }
 
-  Future<void> _loadProfessorCourses() async {
-    setState(() {
-      isLoading = true;
-    });
-
-    try {
-      // TODO: Implement API call to get professor's courses
-
-      // Mock data for UI development
-      courses = [
-        {
-          'id': '1',
-          'code': 'CS101',
-          'name': 'Introduction to Programming',
-          'students': 28,
-          'classesRecorded': 14,
-        },
-        {
-          'id': '2',
-          'code': 'CS202',
-          'name': 'Data Structures',
-          'students': 22,
-          'classesRecorded': 12,
-        },
-        {
-          'id': '3',
-          'code': 'CS303',
-          'name': 'Database Systems',
-          'students': 18,
-          'classesRecorded': 10,
-        },
-      ];
-    } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Failed to load courses: $e')),
-      );
-    } finally {
-      setState(() {
-        isLoading = false;
-      });
-    }
+  @override
+  void dispose() {
+    _expiryMinutesController.dispose();
+    _topicController.dispose();
+    _startTimeController.dispose();
+    _endTimeController.dispose();
+    super.dispose();
   }
+
+  // Removed _loadProfessorCourses method as course is passed via constructor
 
   @override
   Widget build(BuildContext context) {
@@ -83,91 +67,12 @@ class _AttendanceRecordingScreenState extends State<AttendanceRecordingScreen> {
         elevation: 0,
         iconTheme: const IconThemeData(color: MyAppColors.primaryColor),
       ),
-      body: isLoading
-          ? const Center(child: CircularProgressIndicator())
-          : selectedCourse == null
-              ? _buildCourseSelection()
-              : _buildAttendanceRecorder(),
+      // Directly build the recorder, remove course selection logic
+      body: _buildAttendanceRecorder(),
     );
   }
 
-  Widget _buildCourseSelection() {
-    return Padding(
-      padding: const EdgeInsets.all(16.0),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const Text(
-            'Select a Course',
-            style: TextStyle(
-              fontSize: 20,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-          const SizedBox(height: 16),
-          Expanded(
-            child: courses.isEmpty
-                ? const Center(
-                    child: Text(
-                      'No courses found. Please check your assignments.',
-                      textAlign: TextAlign.center,
-                    ),
-                  )
-                : ListView.builder(
-                    itemCount: courses.length,
-                    itemBuilder: (context, index) {
-                      final course = courses[index];
-                      return Card(
-                        margin: const EdgeInsets.only(bottom: 12),
-                        child: ListTile(
-                          contentPadding: const EdgeInsets.all(16),
-                          title: Text(
-                            '${course['code']} - ${course['name']}',
-                            style: const TextStyle(
-                              fontWeight: FontWeight.bold,
-                              fontSize: 16,
-                            ),
-                          ),
-                          subtitle: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              const SizedBox(height: 8),
-                              Row(
-                                children: [
-                                  const Icon(Icons.people,
-                                      size: 16, color: Colors.grey),
-                                  const SizedBox(width: 4),
-                                  Text('${course['students']} students'),
-                                  const SizedBox(width: 16),
-                                  const Icon(Icons.calendar_today,
-                                      size: 16, color: Colors.grey),
-                                  const SizedBox(width: 4),
-                                  Text(
-                                      '${course['classesRecorded']} classes recorded'),
-                                ],
-                              ),
-                            ],
-                          ),
-                          trailing: ElevatedButton(
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: MyAppColors.primaryColor,
-                            ),
-                            onPressed: () {
-                              setState(() {
-                                selectedCourse = course;
-                              });
-                            },
-                            child: const Text('Select'),
-                          ),
-                        ),
-                      );
-                    },
-                  ),
-          ),
-        ],
-      ),
-    );
-  }
+  // Removed _buildCourseSelection widget as course is passed via constructor
 
   Widget _buildAttendanceRecorder() {
     return Padding(
@@ -175,36 +80,26 @@ class _AttendanceRecordingScreenState extends State<AttendanceRecordingScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Row(
-            children: [
-              IconButton(
-                icon: const Icon(Icons.arrow_back),
-                onPressed: () {
-                  setState(() {
-                    selectedCourse = null;
-                  });
-                },
-              ),
-              Expanded(
-                child: Text(
-                  '${selectedCourse!['code']} - ${selectedCourse!['name']}',
-                  style: const TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                  ),
-                  overflow: TextOverflow.ellipsis,
-                ),
-              ),
-            ],
+          // Display Course Name - Use widget properties
+          Text(
+            '${widget.courseCode} - ${widget.courseName}', // Access via widget
+            style: const TextStyle(
+              fontSize: 20, // Increased size
+              fontWeight: FontWeight.bold,
+              color: MyAppColors.primaryColor, // Use theme color
+            ),
+            overflow: TextOverflow.ellipsis,
           ),
           const SizedBox(height: 20),
-          // Date selector
+
+          // Date selector (Keep as is)
           InkWell(
             onTap: _selectDate,
             child: Container(
               padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(
-                border: Border.all(color: Colors.grey),
+                border:
+                    Border.all(color: Colors.grey.shade400), // Lighter border
                 borderRadius: BorderRadius.circular(8),
               ),
               child: Row(
@@ -214,14 +109,16 @@ class _AttendanceRecordingScreenState extends State<AttendanceRecordingScreen> {
                     'Date: ${DateFormat('EEEE, MMMM d, yyyy').format(selectedDate)}',
                     style: const TextStyle(fontSize: 16),
                   ),
-                  const Icon(Icons.calendar_today),
+                  const Icon(Icons.calendar_today, color: Colors.grey),
                 ],
               ),
             ),
           ),
           const SizedBox(height: 20),
+
+          // Class Details Section
           const Text(
-            'Class Details',
+            'Class Details (Optional)', // Made optional
             style: TextStyle(
               fontSize: 18,
               fontWeight: FontWeight.bold,
@@ -229,6 +126,7 @@ class _AttendanceRecordingScreenState extends State<AttendanceRecordingScreen> {
           ),
           const SizedBox(height: 12),
           TextFormField(
+            controller: _topicController, // Use controller
             decoration: const InputDecoration(
               labelText: 'Topic Covered',
               border: OutlineInputBorder(),
@@ -240,35 +138,72 @@ class _AttendanceRecordingScreenState extends State<AttendanceRecordingScreen> {
             children: [
               Expanded(
                 child: TextFormField(
+                  controller: _startTimeController, // Use controller
                   decoration: const InputDecoration(
                     labelText: 'Start Time',
                     border: OutlineInputBorder(),
                     prefixIcon: Icon(Icons.access_time),
                   ),
-                  initialValue: '10:00 AM',
+                  // initialValue: '10:00 AM', // Removed initial value
                 ),
               ),
               const SizedBox(width: 12),
               Expanded(
                 child: TextFormField(
+                  controller: _endTimeController, // Use controller
                   decoration: const InputDecoration(
                     labelText: 'End Time',
                     border: OutlineInputBorder(),
                     prefixIcon: Icon(Icons.access_time),
                   ),
-                  initialValue: '11:30 AM',
+                  // initialValue: '11:30 AM', // Removed initial value
                 ),
               ),
             ],
           ),
+          const SizedBox(height: 20), // Spacing
+
+          // Expiry Duration Input
+          const Text(
+            'Session Validity',
+            style: TextStyle(
+              fontSize: 18,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          const SizedBox(height: 12),
+          TextFormField(
+            controller: _expiryMinutesController,
+            keyboardType: TextInputType.number,
+            decoration: const InputDecoration(
+              labelText: 'Duration (minutes)',
+              border: OutlineInputBorder(),
+              prefixIcon: Icon(Icons.timer),
+              hintText: 'e.g., 5, 10, 15',
+            ),
+            validator: (value) {
+              if (value == null || value.isEmpty) {
+                return 'Please enter a duration';
+              }
+              final minutes = int.tryParse(value);
+              if (minutes == null || minutes <= 0) {
+                return 'Please enter a valid positive number';
+              }
+              return null;
+            },
+          ),
+
           const SizedBox(height: 24),
+          // Info Text (Keep as is)
           Row(
+            crossAxisAlignment: CrossAxisAlignment.start, // Align text better
             children: [
-              const Icon(Icons.info_outline, color: Colors.blue),
+              const Icon(Icons.info_outline,
+                  color: Colors.blue, size: 20), // Slightly smaller icon
               const SizedBox(width: 8),
               Expanded(
                 child: Text(
-                  'Recording a class helps track the total number of classes for attendance calculations. Students will receive a 6-digit code to mark their attendance.',
+                  'Students will use the generated code to mark their attendance within the specified duration.',
                   style: TextStyle(
                     color: Colors.grey[600],
                     fontSize: 14,
@@ -277,19 +212,30 @@ class _AttendanceRecordingScreenState extends State<AttendanceRecordingScreen> {
               ),
             ],
           ),
-          const Spacer(),
+          const Spacer(), // Pushes button to bottom
+
+          // Button
           SizedBox(
             width: double.infinity,
             child: ElevatedButton(
               style: ElevatedButton.styleFrom(
                 backgroundColor: MyAppColors.primaryColor,
-                padding: const EdgeInsets.symmetric(vertical: 12),
+                padding:
+                    const EdgeInsets.symmetric(vertical: 16), // More padding
+                textStyle: const TextStyle(fontSize: 16), // Consistent style
               ),
-              onPressed: _recordClass,
-              child: const Text(
-                'Record Class & Generate Verification Code',
-                style: TextStyle(fontSize: 16),
-              ),
+              // Disable button while API call is in progress
+              onPressed: _isLoadingApiCall ? null : _recordClass,
+              child: _isLoadingApiCall
+                  ? const SizedBox(
+                      height: 20,
+                      width: 20,
+                      child: CircularProgressIndicator(
+                        color: Colors.white,
+                        strokeWidth: 3,
+                      ),
+                    )
+                  : const Text('Generate Verification Code'),
             ),
           ),
         ],
@@ -311,101 +257,128 @@ class _AttendanceRecordingScreenState extends State<AttendanceRecordingScreen> {
     }
   }
 
-  void _recordClass() {
-    // Show loading indicator
-    showDialog(
-      context: context,
-      barrierDismissible: false,
-      builder: (context) => const Center(
-        child: CircularProgressIndicator(),
-      ),
-    );
+  // Updated _recordClass to call API
+  Future<void> _recordClass() async {
+    final expiryText = _expiryMinutesController.text;
+    final expiryMinutes = int.tryParse(expiryText);
 
-    // Simulate API call delay
-    Future.delayed(const Duration(seconds: 2), () {
-      Navigator.pop(context); // Close loading dialog
+    if (expiryMinutes == null || expiryMinutes <= 0) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+            content:
+                Text('Please enter a valid positive number for duration.')),
+      );
+      return;
+    }
 
-      // Generate a random 6-digit code
-      final verificationCode =
-          (100000 + DateTime.now().millisecondsSinceEpoch % 900000).toString();
+    setState(() {
+      _isLoadingApiCall = true;
+    });
 
-      // Show success dialog with verification code
-      showDialog(
-        context: context,
-        builder: (context) => AlertDialog(
-          title: const Text('Class Recorded'),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              const Text(
-                'Verification Code for Student Attendance',
-                style: TextStyle(fontWeight: FontWeight.bold),
-              ),
-              const SizedBox(height: 16),
-              Container(
-                width: 200,
-                padding:
-                    const EdgeInsets.symmetric(vertical: 20, horizontal: 16),
-                decoration: BoxDecoration(
-                  color: Colors.grey.shade100,
-                  borderRadius: BorderRadius.circular(12),
-                  border: Border.all(color: MyAppColors.primaryColor, width: 2),
+    try {
+      final attendanceProvider = Provider.of<AttendanceProvider>(context,
+          listen: false); // Correct Provider usage
+      final response = await attendanceProvider.createAttendanceSession(
+          widget.courseId, expiryMinutes); // Access courseId via widget
+
+      if (response['success'] && response['data'] != null) {
+        final sessionData = response['data'];
+        final verificationCode = sessionData['verificationCode'];
+        final expiresAtString = sessionData['expiresAt']; // ISO 8601 format
+        final expiresAt = DateTime.parse(expiresAtString);
+        final formattedExpiry = DateFormat('h:mm a, MMM d').format(expiresAt);
+
+        // Show success dialog with actual data
+        showDialog(
+          context: context,
+          builder: (context) => AlertDialog(
+            title: const Text('Session Created'),
+            content: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const Text(
+                  'Verification Code for Student Attendance',
+                  style: TextStyle(fontWeight: FontWeight.bold),
                 ),
-                child: Center(
-                  child: Text(
-                    verificationCode,
-                    style: const TextStyle(
-                      fontSize: 32,
-                      fontWeight: FontWeight.bold,
-                      letterSpacing: 4,
-                      color: MyAppColors.primaryColor,
+                const SizedBox(height: 16),
+                Container(
+                  width: 200,
+                  padding:
+                      const EdgeInsets.symmetric(vertical: 20, horizontal: 16),
+                  decoration: BoxDecoration(
+                    color: Colors.grey.shade100,
+                    borderRadius: BorderRadius.circular(12),
+                    border:
+                        Border.all(color: MyAppColors.primaryColor, width: 2),
+                  ),
+                  child: Center(
+                    child: Text(
+                      verificationCode ?? 'N/A', // Handle null code
+                      style: const TextStyle(
+                        fontSize: 32,
+                        fontWeight: FontWeight.bold,
+                        letterSpacing: 4,
+                        color: MyAppColors.primaryColor,
+                      ),
                     ),
                   ),
                 ),
-              ),
-              const SizedBox(height: 16),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  const Icon(Icons.timer, color: Colors.orange),
-                  const SizedBox(width: 8),
-                  Text(
-                    'Valid for 15 minutes',
-                    style: TextStyle(
-                      color: Colors.grey[700],
-                      fontWeight: FontWeight.bold,
+                const SizedBox(height: 16),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    const Icon(Icons.timer_off_outlined, color: Colors.orange),
+                    const SizedBox(width: 8),
+                    Text(
+                      'Expires at: $formattedExpiry', // Show actual expiry time
+                      style: TextStyle(
+                        color: Colors.grey[700],
+                        fontWeight: FontWeight.bold,
+                      ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
+                const SizedBox(height: 16),
+                const Text(
+                  'Students must enter this code to record their attendance for this session.',
+                  textAlign: TextAlign.center,
+                ),
+              ],
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(context),
+                child: const Text('Close'),
               ),
-              const SizedBox(height: 16),
-              const Text(
-                'Students must enter this code to record their attendance for this class',
-                textAlign: TextAlign.center,
+              ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: MyAppColors.primaryColor,
+                ),
+                onPressed: () {
+                  Navigator.pop(context); // Close dialog
+                  Navigator.pop(context); // Go back to previous screen
+                },
+                child: const Text('Done'),
               ),
             ],
           ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(context),
-              child: const Text('Close'),
-            ),
-            ElevatedButton(
-              style: ElevatedButton.styleFrom(
-                backgroundColor: MyAppColors.primaryColor,
-              ),
-              onPressed: () {
-                Navigator.pop(context);
-                // Reset to course selection
-                setState(() {
-                  selectedCourse = null;
-                });
-              },
-              child: const Text('Done'),
-            ),
-          ],
-        ),
+        );
+      } else {
+        // Show error message from API
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+              content: Text(
+                  'Failed to create session: ${response['message'] ?? 'Unknown error'}')),
+        );
+      }
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('An error occurred: $e')),
       );
-    });
+    } finally {
+      setState(() {
+        _isLoadingApiCall = false;
+      });
+    }
   }
 }

@@ -55,6 +55,7 @@ class _RegisterAttendanceScreenState extends State<RegisterAttendanceScreen> {
           'Record Attendance',
           style: TextStyle(
             fontSize: 20,
+            fontWeight: FontWeight.bold,
             color: isDark ? MyAppColors.whiteColor : MyAppColors.blackColor,
           ),
         ),

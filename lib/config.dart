@@ -22,6 +22,8 @@ class Config {
       '$baseUrl/api/attendance/user/username';
   static const String getCurrentUserAttendanceUrl =
       '$baseUrl/api/attendance/user/current';
+  static const String createSessionUrl =
+      '$baseUrl/api/attendance/sessions/create'; // Added for professor
 
   // Quiz endpoints
   static const String quizzesUrl = '$baseUrl/api/quizzes';

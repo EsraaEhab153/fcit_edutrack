@@ -22,8 +22,7 @@ class AttendanceProvider extends ChangeNotifier {
 
     try {
       // Since wifi verification is disabled, we'll use a standard method
-      final response =
-          await _apiService.recordAttendance(courseId, "MANUAL");
+      final response = await _apiService.recordAttendance(courseId, "MANUAL");
 
       if (response['success'] && response['data'] != null) {
         // Add the new attendance record to the list for this course
@@ -108,6 +107,30 @@ class AttendanceProvider extends ChangeNotifier {
       // If error, initialize with empty list
       _attendanceRecordsByCourse[courseId] = [];
       print('Error fetching attendance records for course $courseId: $e');
+    } finally {
+      _isLoading = false;
+      notifyListeners();
+    }
+  }
+
+  // Create Attendance Session (Professor Only)
+  Future<Map<String, dynamic>> createAttendanceSession(
+      int courseId, int expiryMinutes) async {
+    _isLoading = true;
+    notifyListeners();
+
+    try {
+      final response =
+          await _apiService.createAttendanceSession(courseId, expiryMinutes);
+
+      // No local state update needed here, just return the response
+      return response;
+    } catch (e) {
+      print('Error creating attendance session: $e');
+      return {
+        'success': false,
+        'message': 'Network error or failed to create session.',
+      };
     } finally {
       _isLoading = false;
       notifyListeners();

@@ -195,10 +195,12 @@ class ApiService {
 
   // Record attendance
   Future<Map<String, dynamic>> recordAttendance(
-      int courseId, String verificationCode) async { // Changed parameters
+      int courseId, String verificationCode) async {
+    // Changed parameters
     final token = await _getToken();
 
-    print("Recording attendance for course $courseId with code $verificationCode"); // Added log
+    print(
+        "Recording attendance for course $courseId with code $verificationCode"); // Added log
 
     final response = await http.post(
       Uri.parse(Config.recordAttendanceUrl),
@@ -278,6 +280,32 @@ class ApiService {
     print("Response status: ${response.statusCode}");
     if (response.statusCode != 200) {
       print("Error response: ${response.body}");
+    }
+
+    return jsonDecode(response.body);
+  }
+
+  // Create Attendance Session (Professor Only)
+  Future<Map<String, dynamic>> createAttendanceSession(
+      int courseId, int expiryMinutes) async {
+    final token = await _getToken();
+
+    print(
+        "Creating attendance session for course $courseId with expiry $expiryMinutes minutes");
+
+    final response = await http.post(
+      Uri.parse(Config.createSessionUrl), // Ensure this URL is in Config
+      headers: _headers(token: token),
+      body: jsonEncode({
+        'courseId': courseId,
+        'expiryMinutes': expiryMinutes,
+      }),
+    );
+
+    print("Create session response status: ${response.statusCode}");
+    if (response.statusCode != 201) {
+      // Expect 201 Created
+      print("Error response body: ${response.body}");
     }
 
     return jsonDecode(response.body);
