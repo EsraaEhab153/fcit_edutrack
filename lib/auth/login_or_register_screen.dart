@@ -18,16 +18,21 @@ class LoginOrRegisterScreen extends StatelessWidget {
         ),
         child: Column(
           children: [
-            Expanded(
-              child: Image.asset(
-                'assets/images/login_logo.png',
-                width: double.infinity,
-                height: double.infinity,
-                fit: BoxFit.fill,
-              ),
+            Row(
+              children: [
+                SizedBox(
+                  width: MediaQuery.of(context).size.width * 0.15,
+                ),
+                Image.asset(
+                  'assets/images/login_logo.png',
+                  width: MediaQuery.of(context).size.width * 0.8,
+                  height: MediaQuery.of(context).size.height * 0.5,
+                  fit: BoxFit.fill,
+                ),
+              ],
             ),
             SizedBox(
-              height: MediaQuery.of(context).size.height * 0.02,
+              height: MediaQuery.of(context).size.height * 0.035,
             ),
             Expanded(
                 child: Column(

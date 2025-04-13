@@ -21,6 +21,10 @@ class LoginScreen extends StatefulWidget {
 class _RegisterScreenState extends State<LoginScreen> {
   TextEditingController passwordController = TextEditingController();
   TextEditingController emailController = TextEditingController();
+  bool obSecure = true;
+
+  String? selectedRole;
+  final List<String> roles = ['Admin', 'Student', 'Doctor'];
 
   final _formKey = GlobalKey<FormState>();
 
@@ -46,6 +50,7 @@ class _RegisterScreenState extends State<LoginScreen> {
       body: Form(
         key: _formKey,
         child: SingleChildScrollView(
+          keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
           child: Padding(
             padding: EdgeInsets.symmetric(
                 horizontal: MediaQuery.of(context).size.width * 0.03),
@@ -92,7 +97,9 @@ class _RegisterScreenState extends State<LoginScreen> {
                 CustomTextFormField(
                   label: 'Password',
                   preIcon: Icons.vpn_key_outlined,
-                  sufIcon: Icons.visibility_off_outlined,
+                  sufIcon: obSecure
+                      ? Icons.visibility_off_outlined
+                      : Icons.visibility,
                   controller: passwordController,
                   validator: (text) {
                     if (text == null || text.trim().isEmpty) {
@@ -103,7 +110,40 @@ class _RegisterScreenState extends State<LoginScreen> {
                     }
                     return null;
                   },
-                  obscureText: true,
+                  obscureText: obSecure,
+                  onPressed: () {
+                    setState(() {
+                      obSecure = !obSecure;
+                    });
+                  },
+                ),
+                DropdownButtonFormField<String>(
+                  value: selectedRole,
+                  decoration: InputDecoration(
+                    labelText: 'Select Role',
+                    prefixIcon: Icon(Icons.account_circle_outlined),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(8.0),
+                    ),
+                  ),
+                  items: roles.map((role) {
+                    return DropdownMenuItem<String>(
+                      value: role,
+                      child: Text(role),
+                    );
+                  }).toList(),
+                  onChanged: (String? value) {
+                    setState(() {
+                      selectedRole = value;
+                    });
+                  },
+                  validator: (value) {
+                    if (value == null) {
+                      return 'Please select a role';
+                    }
+
+                    return null;
+                  },
                 ),
                 InkWell(
                   onTap: () {
@@ -207,7 +247,12 @@ class _RegisterScreenState extends State<LoginScreen> {
 
   void login() async {
     if (_formKey.currentState?.validate() == true) {
-      Navigator.pushReplacementNamed(context, MyBottomNavBar.routeName);
+      navigateToProfile(context, selectedRole!);
     }
+  }
+
+  void navigateToProfile(BuildContext context, String userRole) {
+    Navigator.pushReplacementNamed(context, MyBottomNavBar.routeName,
+        arguments: selectedRole);
   }
 }

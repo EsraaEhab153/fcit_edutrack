@@ -7,6 +7,8 @@ import 'package:fci_edutrack/screens/camera_permission_screen.dart';
 import 'package:fci_edutrack/screens/explain_screens.dart';
 import 'package:fci_edutrack/screens/home_screen/my_bottom_nav_bar.dart';
 import 'package:fci_edutrack/screens/home_screen/notifications_screen.dart';
+import 'package:fci_edutrack/screens/home_screen/profiles/doctor_profile_screen.dart';
+import 'package:fci_edutrack/screens/home_screen/profiles/student_profile_screen.dart';
 import 'package:fci_edutrack/screens/password/forget_password_screen.dart';
 import 'package:fci_edutrack/screens/password/pass_confirm_code_screen.dart';
 import 'package:fci_edutrack/screens/password/reset_password_screen.dart';
@@ -63,6 +65,9 @@ class MyApp extends StatelessWidget {
         AssignmentScreen.routeName: (context) => const AssignmentScreen(),
         AssignmentDetails.routeName: (context) => const AssignmentDetails(),
         SettingsScreen.routeName: (context) => const SettingsScreen(),
+        DoctorProfileScreen.routeName: (context) => const DoctorProfileScreen(),
+        StudentProfileScreen.routeName: (context) =>
+            const StudentProfileScreen(),
       },
     );
   }
