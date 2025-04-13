@@ -6,6 +6,11 @@ class AttendanceProvider extends ChangeNotifier {
   bool _isLoading = false;
   // Store attendance records by course ID
   Map<int, List<Attendance>> _attendanceRecordsByCourse = {};
+  List<Map<String, dynamic>> _activeSessions = []; // Store raw map data for now
+  Map<int, List<Map<String, dynamic>>> _sessionAttendees =
+      {}; // Store by session ID
+  Map<String, List<Map<String, dynamic>>> _dailyAttendees =
+      {}; // Store by courseId-date key
 
   final ApiService _apiService = ApiService();
 
@@ -14,6 +19,12 @@ class AttendanceProvider extends ChangeNotifier {
       _attendanceRecordsByCourse;
   List<Attendance> getAttendanceForCourse(int courseId) =>
       _attendanceRecordsByCourse[courseId] ?? [];
+// Getters for new state variables
+  List<Map<String, dynamic>> get activeSessions => _activeSessions;
+  List<Map<String, dynamic>> getAttendeesForSession(int sessionId) =>
+      _sessionAttendees[sessionId] ?? [];
+  List<Map<String, dynamic>> getAttendeesForDay(int courseId, String date) =>
+      _dailyAttendees['$courseId-$date'] ?? [];
 
   // Record attendance for a course
   Future<Map<String, dynamic>> recordAttendance(int courseId) async {
@@ -107,6 +118,94 @@ class AttendanceProvider extends ChangeNotifier {
       // If error, initialize with empty list
       _attendanceRecordsByCourse[courseId] = [];
       print('Error fetching attendance records for course $courseId: $e');
+    } finally {
+      _isLoading = false;
+      notifyListeners();
+    }
+  }
+
+  // Fetch Active Sessions (Professor)
+  Future<void> fetchActiveSessions() async {
+    _isLoading = true;
+    notifyListeners();
+    try {
+      final response = await _apiService.getActiveSessions();
+      if (response['success'] && response['data'] != null) {
+        _activeSessions = List<Map<String, dynamic>>.from(response['data']);
+      } else {
+        _activeSessions = [];
+        print("Failed to fetch active sessions: ${response['message']}");
+      }
+    } catch (e) {
+      _activeSessions = [];
+      print('Error fetching active sessions: $e');
+    } finally {
+      _isLoading = false;
+      notifyListeners();
+    }
+  }
+
+  // Fetch Session Attendees (Professor)
+  Future<void> fetchSessionAttendees(int sessionId) async {
+    _isLoading = true;
+    notifyListeners();
+    try {
+      final response = await _apiService.getSessionAttendees(sessionId);
+      if (response['success'] && response['data'] != null) {
+        _sessionAttendees[sessionId] =
+            List<Map<String, dynamic>>.from(response['data']);
+      } else {
+        _sessionAttendees[sessionId] = [];
+        print(
+            "Failed to fetch attendees for session $sessionId: ${response['message']}");
+      }
+    } catch (e) {
+      _sessionAttendees[sessionId] = [];
+      print('Error fetching attendees for session $sessionId: $e');
+    } finally {
+      _isLoading = false;
+      notifyListeners();
+    }
+  }
+
+  // Fetch Daily Attendees (Professor)
+  Future<void> fetchDailyAttendees(int courseId, String date) async {
+    _isLoading = true;
+    notifyListeners();
+    final key = '$courseId-$date';
+    try {
+      final response = await _apiService.getDailyAttendees(courseId, date);
+      if (response['success'] && response['data'] != null) {
+        _dailyAttendees[key] =
+            List<Map<String, dynamic>>.from(response['data']);
+      } else {
+        _dailyAttendees[key] = [];
+        print(
+            "Failed to fetch daily attendees for $key: ${response['message']}");
+      }
+    } catch (e) {
+      _dailyAttendees[key] = [];
+      print('Error fetching daily attendees for $key: $e');
+    } finally {
+      _isLoading = false;
+      notifyListeners();
+    }
+  }
+
+  // Download Attendance Spreadsheet (Professor)
+  // Returns the API response directly (contains bytes or error message)
+  Future<Map<String, dynamic>> downloadAttendanceSpreadsheet(
+      int courseId) async {
+    _isLoading = true;
+    notifyListeners();
+    try {
+      // ApiService method now returns a map with success status, bytes/filename or error
+      final response =
+          await _apiService.downloadAttendanceSpreadsheet(courseId);
+      return response;
+    } catch (e) {
+      print('Error downloading spreadsheet in provider: $e');
+      return {'success': false, 'message': 'An unexpected error occurred.'};
     } finally {
       _isLoading = false;
       notifyListeners();

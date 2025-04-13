@@ -1,7 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:fci_edutrack/style/my_app_colors.dart';
-import 'package:fci_edutrack/providers/auth_provider.dart';
+import 'package:fci_edutrack/providers/auth_provider.dart'; // Keep if needed for permissions later
 import 'package:provider/provider.dart';
+import '../../providers/quiz_provider.dart'; // Import QuizProvider
+import '../../models/quiz_models.dart';
+import 'quiz_creation_screen.dart'; // Import the creation screen
+import 'package:intl/intl.dart'; // Import intl for date formatting
 
 class QuizManagementScreen extends StatefulWidget {
   static const String routeName = 'quiz_management';
@@ -13,54 +17,31 @@ class QuizManagementScreen extends StatefulWidget {
 }
 
 class _QuizManagementScreenState extends State<QuizManagementScreen> {
-  bool isLoading = false;
-  List<Map<String, dynamic>> quizzes = [];
+  // isLoading state will be handled by the provider
+  // List<Map<String, dynamic>> quizzes = []; // Remove mock list
 
   @override
   void initState() {
     super.initState();
-    _loadQuizzes();
-  }
-
-  Future<void> _loadQuizzes() async {
-    setState(() {
-      isLoading = true;
+    // Fetch quizzes when the screen initializes
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _fetchQuizzes();
     });
-
-    try {
-      // TODO: Implement API call to get professor's quizzes
-
-      // Mock data for UI development
-      quizzes = [
-        {
-          'id': '1',
-          'title': 'Midterm Quiz',
-          'courseCode': 'CS101',
-          'totalQuestions': 10,
-          'timeLimit': 30,
-          'dueDate': DateTime.now().add(const Duration(days: 7)),
-          'isPublished': true
-        },
-        {
-          'id': '2',
-          'title': 'Final Quiz',
-          'courseCode': 'CS101',
-          'totalQuestions': 15,
-          'timeLimit': 45,
-          'dueDate': DateTime.now().add(const Duration(days: 14)),
-          'isPublished': false
-        },
-      ];
-    } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Failed to load quizzes: $e')),
-      );
-    } finally {
-      setState(() {
-        isLoading = false;
-      });
-    }
   }
+
+  Future<void> _fetchQuizzes() async {
+    // Access provider without listening here, Consumer will handle updates
+    final quizProvider = Provider.of<QuizProvider>(context, listen: false);
+    await quizProvider.fetchProfessorQuizzes();
+    // Error handling is done within the provider, maybe show SnackBar here if needed
+    // if (quizProvider.errorMessage != null) { // Assuming provider has error message state
+    //   ScaffoldMessenger.of(context).showSnackBar(
+    //     SnackBar(content: Text('Failed to load quizzes: ${quizProvider.errorMessage}')),
+    //   );
+    // }
+  }
+
+  // Removed mock _loadQuizzes
 
   @override
   Widget build(BuildContext context) {
@@ -77,15 +58,24 @@ class _QuizManagementScreenState extends State<QuizManagementScreen> {
         elevation: 0,
         iconTheme: const IconThemeData(color: MyAppColors.primaryColor),
       ),
-      body: isLoading
-          ? const Center(child: CircularProgressIndicator())
-          : quizzes.isEmpty
-              ? _buildEmptyState()
-              : _buildQuizList(),
+      body: Consumer<QuizProvider>(
+        builder: (context, quizProvider, child) {
+          if (quizProvider.isLoading && quizProvider.professorQuizzes.isEmpty) {
+            return const Center(child: CircularProgressIndicator());
+          }
+          if (!quizProvider.isLoading &&
+              quizProvider.professorQuizzes.isEmpty) {
+            return _buildEmptyState(); // Show empty state if not loading and no quizzes
+          }
+          // Pass the provider to the list builder
+          return _buildQuizList(quizProvider);
+        },
+      ),
       floatingActionButton: FloatingActionButton(
         backgroundColor: MyAppColors.primaryColor,
         onPressed: () {
-          _showCreateQuizDialog();
+          // Navigate to the creation screen
+          Navigator.pushNamed(context, QuizCreationScreen.routeName);
         },
         child: const Icon(Icons.add),
       ),
@@ -119,7 +109,8 @@ class _QuizManagementScreenState extends State<QuizManagementScreen> {
           const SizedBox(height: 24),
           ElevatedButton(
             onPressed: () {
-              _showCreateQuizDialog();
+              // Navigate to the creation screen
+              Navigator.pushNamed(context, QuizCreationScreen.routeName);
             },
             style: ElevatedButton.styleFrom(
               backgroundColor: MyAppColors.primaryColor,
@@ -132,19 +123,22 @@ class _QuizManagementScreenState extends State<QuizManagementScreen> {
     );
   }
 
-  Widget _buildQuizList() {
+  Widget _buildQuizList(QuizProvider quizProvider) {
+    // Accept provider
+    final quizzes = quizProvider.professorQuizzes; // Get quizzes from provider
+
     return ListView.builder(
       padding: const EdgeInsets.all(16),
       itemCount: quizzes.length,
       itemBuilder: (context, index) {
-        final quiz = quizzes[index];
+        final Quiz quiz = quizzes[index]; // Use Quiz model
         return Card(
           elevation: 2,
           margin: const EdgeInsets.only(bottom: 16),
           child: ListTile(
             contentPadding: const EdgeInsets.all(16),
             title: Text(
-              quiz['title'],
+              quiz.title, // Use model property
               style: const TextStyle(
                 fontWeight: FontWeight.bold,
                 fontSize: 18,
@@ -158,7 +152,9 @@ class _QuizManagementScreenState extends State<QuizManagementScreen> {
                   children: [
                     const Icon(Icons.school, size: 16, color: Colors.grey),
                     const SizedBox(width: 4),
-                    Text('Course: ${quiz['courseCode']}'),
+                    // TODO: Need Course Name/Code - Quiz model needs course details or fetch separately
+                    Text(
+                        'Course ID: ${quiz.courseId}'), // Display Course ID for now
                   ],
                 ),
                 const SizedBox(height: 4),
@@ -167,11 +163,13 @@ class _QuizManagementScreenState extends State<QuizManagementScreen> {
                     const Icon(Icons.question_answer,
                         size: 16, color: Colors.grey),
                     const SizedBox(width: 4),
-                    Text('Questions: ${quiz['totalQuestions']}'),
+                    Text(
+                        'Questions: ${quiz.questions.length}'), // Use model property
                     const SizedBox(width: 16),
                     const Icon(Icons.timer, size: 16, color: Colors.grey),
                     const SizedBox(width: 4),
-                    Text('${quiz['timeLimit']} minutes'),
+                    Text(
+                        '${quiz.durationMinutes} minutes'), // Use model property
                   ],
                 ),
                 const SizedBox(height: 4),
@@ -180,7 +178,8 @@ class _QuizManagementScreenState extends State<QuizManagementScreen> {
                     const Icon(Icons.calendar_today,
                         size: 16, color: Colors.grey),
                     const SizedBox(width: 4),
-                    Text('Due: ${_formatDate(quiz['dueDate'])}'),
+                    Text(
+                        'End Date: ${_formatDate(quiz.endDate)}'), // Use model property
                   ],
                 ),
                 const SizedBox(height: 12),
@@ -191,15 +190,17 @@ class _QuizManagementScreenState extends State<QuizManagementScreen> {
                       padding: const EdgeInsets.symmetric(
                           horizontal: 8, vertical: 4),
                       decoration: BoxDecoration(
-                        color: quiz['isPublished']
+                        color: (quiz.isPublished ?? false)
                             ? Colors.green.shade100
                             : Colors.orange.shade100,
                         borderRadius: BorderRadius.circular(12),
                       ),
                       child: Text(
-                        quiz['isPublished'] ? 'Published' : 'Draft',
+                        (quiz.isPublished ?? false)
+                            ? 'Published'
+                            : 'Draft', // Use model property
                         style: TextStyle(
-                          color: quiz['isPublished']
+                          color: (quiz.isPublished ?? false)
                               ? Colors.green.shade800
                               : Colors.orange.shade800,
                           fontWeight: FontWeight.bold,
@@ -212,27 +213,36 @@ class _QuizManagementScreenState extends State<QuizManagementScreen> {
                           icon: const Icon(Icons.edit,
                               color: MyAppColors.primaryColor),
                           onPressed: () {
-                            // Navigate to edit quiz
+                            // TODO: Navigate to edit quiz screen (pass quiz object)
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(
+                                  content: Text('Edit quiz coming soon!')),
+                            );
                           },
                         ),
                         IconButton(
                           icon: Icon(
-                            quiz['isPublished']
-                                ? Icons.visibility_off
-                                : Icons.visibility,
+                            (quiz.isPublished ?? false)
+                                ? Icons
+                                    .visibility_off_outlined // Use outlined icons
+                                : Icons.visibility_outlined,
                             color: MyAppColors.primaryColor,
                           ),
                           onPressed: () {
-                            // Toggle published status
-                            setState(() {
-                              quiz['isPublished'] = !quiz['isPublished'];
-                            });
+                            // TODO: Call provider to toggle published status
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(
+                                  content:
+                                      Text('Publish/unpublish coming soon!')),
+                            );
+                            // Example: Provider.of<QuizProvider>(context, listen: false).toggleQuizStatus(quiz.id);
                           },
                         ),
                         IconButton(
                           icon: const Icon(Icons.delete, color: Colors.red),
                           onPressed: () {
-                            _showDeleteConfirmation(quiz['id']);
+                            _showDeleteConfirmation(
+                                quiz); // Pass the whole quiz object
                           },
                         ),
                       ],
@@ -248,47 +258,20 @@ class _QuizManagementScreenState extends State<QuizManagementScreen> {
   }
 
   String _formatDate(DateTime date) {
-    return '${date.day}/${date.month}/${date.year}';
+    // Use intl package for better formatting
+    return DateFormat('MMM d, yyyy').format(date);
   }
 
-  void _showCreateQuizDialog() {
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Create New Quiz'),
-        content: const Text(
-          'This will take you to the quiz creation form where you can add questions and set quiz parameters.',
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('Cancel'),
-          ),
-          ElevatedButton(
-            style: ElevatedButton.styleFrom(
-              backgroundColor: MyAppColors.primaryColor,
-            ),
-            onPressed: () {
-              Navigator.pop(context);
-              // Navigate to quiz creation screen
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('Quiz creation coming soon!')),
-              );
-            },
-            child: const Text('Create'),
-          ),
-        ],
-      ),
-    );
-  }
+  // Removed _showCreateQuizDialog as we navigate directly now
 
-  void _showDeleteConfirmation(String quizId) {
+  void _showDeleteConfirmation(Quiz quiz) {
+    // Accept Quiz object
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
         title: const Text('Delete Quiz'),
-        content: const Text(
-          'Are you sure you want to delete this quiz? This action cannot be undone.',
+        content: Text(
+          'Are you sure you want to delete "${quiz.title}"? This action cannot be undone.', // Show quiz title
         ),
         actions: [
           TextButton(
@@ -301,13 +284,12 @@ class _QuizManagementScreenState extends State<QuizManagementScreen> {
             ),
             onPressed: () {
               Navigator.pop(context);
-              // Delete quiz logic
-              setState(() {
-                quizzes.removeWhere((quiz) => quiz['id'] == quizId);
-              });
+              // TODO: Call provider to delete quiz
               ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('Quiz deleted')),
+                SnackBar(
+                    content: Text('Delete quiz "${quiz.title}" coming soon!')),
               );
+              // Example: Provider.of<QuizProvider>(context, listen: false).deleteQuiz(quiz.id);
             },
             child: const Text('Delete'),
           ),

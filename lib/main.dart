@@ -5,6 +5,7 @@ import 'package:fci_edutrack/auth/auth_wrapper.dart'; // Import AuthWrapper
 import 'package:fci_edutrack/providers/attendance_provider.dart';
 import 'package:fci_edutrack/providers/auth_provider.dart';
 import 'package:fci_edutrack/providers/course_provider.dart';
+import 'package:fci_edutrack/providers/quiz_provider.dart'; // Import QuizProvider (only once)
 import 'package:fci_edutrack/screens/assignment/assignment_details.dart';
 import 'package:fci_edutrack/screens/assignment/assignment_screen.dart';
 import 'package:fci_edutrack/screens/camera_permission_screen.dart';
@@ -25,9 +26,11 @@ import 'package:fci_edutrack/screens/attendance_history_screen.dart';
 import 'package:fci_edutrack/screens/admin/professor_requests_screen.dart';
 import 'package:fci_edutrack/screens/admin/course_management_screen.dart';
 import 'package:fci_edutrack/screens/professor/quiz_management_screen.dart';
+import 'package:fci_edutrack/screens/professor/quiz_creation_screen.dart'; // Import Quiz Creation Screen
 import 'package:fci_edutrack/screens/professor/attendance_recording_screen.dart';
-import 'package:fci_edutrack/screens/admin/admin_home_screen.dart'; // Added import
-import 'package:fci_edutrack/screens/professor/professor_home_screen.dart'; // Added import
+import 'package:fci_edutrack/screens/admin/admin_home_screen.dart';
+import 'package:fci_edutrack/screens/professor/professor_home_screen.dart';
+import 'package:fci_edutrack/screens/student/student_quiz_list_screen.dart'; // Import Student Quiz List
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
@@ -48,6 +51,16 @@ void main() {
     ),
     ChangeNotifierProvider(
       create: (context) => AttendanceProvider(),
+    ),
+    // Use ChangeNotifierProxyProvider to inject CourseProvider into QuizProvider
+    ChangeNotifierProxyProvider<CourseProvider, QuizProvider>(
+      create: (context) => QuizProvider(), // Initial creation
+      update: (context, courseProvider, previousQuizProvider) {
+        // Update QuizProvider whenever CourseProvider changes (or initially)
+        previousQuizProvider?.update(courseProvider);
+        return previousQuizProvider ??
+            QuizProvider(); // Return existing or new instance
+      },
     ),
   ], child: const MyApp()));
 }
@@ -99,6 +112,10 @@ class MyApp extends StatelessWidget {
             const AdminHomeScreen(), // Added route
         ProfessorHomeScreen.routeName: (context) =>
             const ProfessorHomeScreen(), // Added route
+        QuizCreationScreen.routeName: (context) =>
+            const QuizCreationScreen(), // Added Quiz Creation route
+        StudentQuizListScreen.routeName: (context) =>
+            const StudentQuizListScreen(), // Added Student Quiz List route
       },
     );
   }

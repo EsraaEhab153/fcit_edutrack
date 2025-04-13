@@ -23,10 +23,26 @@ class Config {
   static const String getCurrentUserAttendanceUrl =
       '$baseUrl/api/attendance/user/current';
   static const String createSessionUrl =
-      '$baseUrl/api/attendance/sessions/create'; // Added for professor
+      '$baseUrl/api/attendance/sessions/create';
+  static const String activeSessionsUrl =
+      '$baseUrl/api/attendance/sessions/active'; // Added
+  static const String sessionAttendeesBaseUrl =
+      '$baseUrl/api/attendance/sessions'; // Added (base for /sessionId/attendees)
+  static const String dailyAttendeesBaseUrl =
+      '$baseUrl/api/attendance/course'; // Added (base for /courseId/date/YYYY-MM-DD/attendees)
+  static const String downloadSpreadsheetBaseUrl =
+      '$baseUrl/api/attendance/course'; // Added (base for /courseId/spreadsheet)
 
   // Quiz endpoints
-  static const String quizzesUrl = '$baseUrl/api/quizzes';
+  static const String quizzesUrl = '$baseUrl/api/quizzes'; // Base for CRUD
+  // Removed assumed professorQuizzesUrl
+  static const String availableQuizzesUrl =
+      '$baseUrl/api/quizzes/available'; // Base URL for available quizzes (add ?courseId=X)
+  // Note: Start and Submit use the base quizzesUrl + quizId + /action
+  static const String startQuizBaseUrl =
+      '$baseUrl/api/quizzes'; // Base for /<quizId>/start
+  static const String submitQuizBaseUrl =
+      '$baseUrl/api/quizzes'; // Base for /<quizId>/submit
 
   // Assignment endpoints
   static const String assignmentsUrl = '$baseUrl/api/assignments';

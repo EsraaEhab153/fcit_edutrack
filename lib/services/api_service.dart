@@ -311,15 +311,121 @@ class ApiService {
     return jsonDecode(response.body);
   }
 
-  // Get available quizzes for a course
-  Future<Map<String, dynamic>> getAvailableQuizzes(int courseId) async {
-    final token = await _getToken();
+  // Removed potentially duplicated method here
 
+  // Get Active Sessions (Professor Only)
+  Future<Map<String, dynamic>> getActiveSessions() async {
+    final token = await _getToken();
+    print("Getting active sessions from URL: ${Config.activeSessionsUrl}");
     final response = await http.get(
-      Uri.parse('${Config.quizzesUrl}/available?courseId=$courseId'),
+      Uri.parse(Config.activeSessionsUrl),
       headers: _headers(token: token),
     );
+    print("Active sessions response status: ${response.statusCode}");
+    if (response.statusCode != 200) {
+      print("Error response body: ${response.body}");
+    }
+    return jsonDecode(response.body);
+  }
 
+  // Get Daily Attendees for Course (Professor Only)
+  Future<Map<String, dynamic>> getDailyAttendees(
+      int courseId, String date) async {
+    // date should be in YYYY-MM-DD format
+    final token = await _getToken();
+    final url =
+        '${Config.dailyAttendeesBaseUrl}/$courseId/date/$date/attendees';
+    print(
+        "Getting daily attendees for course $courseId on $date from URL: $url");
+    final response = await http.get(
+      Uri.parse(url),
+      headers: _headers(token: token),
+    );
+    print("Daily attendees response status: ${response.statusCode}");
+    if (response.statusCode != 200) {
+      print("Error response body: ${response.body}");
+    }
+    return jsonDecode(response.body);
+  }
+
+  // Download Course Attendance Spreadsheet (Professor Only)
+  // Returns raw response bytes on success, or a Map on error
+  Future<dynamic> downloadAttendanceSpreadsheet(int courseId) async {
+    final token = await _getToken();
+    final url = '${Config.downloadSpreadsheetBaseUrl}/$courseId/spreadsheet';
+    print("Downloading spreadsheet for course $courseId from URL: $url");
+
+    try {
+      final response = await http.get(
+        Uri.parse(url),
+        headers: {
+          'Authorization': 'Bearer $token',
+          'Accept': 'text/plain', // Important: Request plain text
+        },
+      );
+
+      print("Download spreadsheet response status: ${response.statusCode}");
+
+      if (response.statusCode == 200) {
+        // Success: Return the raw bytes
+        print(
+            "Spreadsheet downloaded successfully (${response.bodyBytes.length} bytes)");
+        // Extract filename from Content-Disposition header if needed
+        String? filename = response.headers['content-disposition']
+            ?.split('filename=')
+            .last
+            .replaceAll('"', ''); // Basic extraction
+        return {
+          'success': true,
+          'bytes': response.bodyBytes,
+          'filename': filename
+        };
+      } else if (response.statusCode == 204) {
+        // No content
+        print("No attendance data found for spreadsheet download.");
+        return {
+          'success': false,
+          'message': 'No attendance data found for this course.'
+        };
+      } else {
+        // Other errors
+        print("Error downloading spreadsheet: ${response.body}");
+        // Try to decode as JSON error message if possible
+        try {
+          final errorData = jsonDecode(response.body);
+          return {
+            'success': false,
+            'message': errorData['message'] ?? 'Failed to download spreadsheet',
+            'statusCode': response.statusCode
+          };
+        } catch (_) {
+          return {
+            'success': false,
+            'message':
+                'Failed to download spreadsheet (Status: ${response.statusCode})',
+            'statusCode': response.statusCode
+          };
+        }
+      }
+    } catch (e) {
+      print("Exception during spreadsheet download: $e");
+      return {'success': false, 'message': 'Network error during download.'};
+    }
+  }
+
+  // Get Session Attendees (Professor Only)
+  Future<Map<String, dynamic>> getSessionAttendees(int sessionId) async {
+    final token = await _getToken();
+    final url = '${Config.sessionAttendeesBaseUrl}/$sessionId/attendees';
+    print("Getting attendees for session $sessionId from URL: $url");
+    final response = await http.get(
+      Uri.parse(url),
+      headers: _headers(token: token),
+    );
+    print("Session attendees response status: ${response.statusCode}");
+    if (response.statusCode != 200) {
+      print("Error response body: ${response.body}");
+    }
     return jsonDecode(response.body);
   }
 
@@ -361,6 +467,90 @@ class ApiService {
       return {'success': false, 'message': e.toString()};
     }
   }
+
+  // --- Quiz Endpoints ---
+
+  // Create Quiz (Professor Only)
+  Future<Map<String, dynamic>> createQuiz(Map<String, dynamic> quizData) async {
+    final token = await _getToken();
+    print("Creating quiz with data: $quizData");
+    final response = await http.post(
+      Uri.parse(Config.quizzesUrl), // Use the base quizzes URL for creation
+      headers: _headers(token: token),
+      body: jsonEncode(quizData),
+    );
+    print("Create quiz response status: ${response.statusCode}");
+    if (response.statusCode != 201) {
+      // Expect 201 Created
+      print("Error response body: ${response.body}");
+    }
+    return jsonDecode(response.body);
+  }
+// Removed getProfessorQuizzes as there's no dedicated endpoint
+
+  // Get Available Quizzes (Used by both Students and Professors)
+  Future<Map<String, dynamic>> getAvailableQuizzes(int courseId) async {
+    final token = await _getToken();
+    // Use the correct config URL now
+    final url =
+        '${Config.availableQuizzesUrl}?courseId=$courseId'; // Add courseId as query param
+    print("Getting available quizzes for course $courseId from URL: $url");
+    final response = await http.get(
+      Uri.parse(url),
+      headers: _headers(token: token),
+    );
+    print("Get available quizzes response status: ${response.statusCode}");
+    if (response.statusCode != 200) {
+      print("Error response body: ${response.body}");
+    }
+    return jsonDecode(response.body);
+  }
+
+// Start Quiz (Student Only)
+  Future<Map<String, dynamic>> startQuiz(int quizId) async {
+    final token = await _getToken();
+    final url = '${Config.startQuizBaseUrl}/$quizId/start';
+    print("Starting quiz $quizId from URL: $url");
+    final response = await http.post(
+      Uri.parse(url),
+      headers: _headers(token: token),
+      // No body needed for start
+    );
+    print("Start quiz response status: ${response.statusCode}");
+    if (response.statusCode != 200) {
+      // Expect 200 OK
+      print("Error response body: ${response.body}");
+    }
+    return jsonDecode(response.body);
+  }
+
+// Submit Quiz (Student Only)
+  Future<Map<String, dynamic>> submitQuiz(
+      int quizId, List<Map<String, dynamic>> answers) async {
+    final token = await _getToken();
+    final url = '${Config.submitQuizBaseUrl}/$quizId/submit';
+    print("Submitting quiz $quizId to URL: $url");
+    final payload = {
+      'quizId': quizId, // API might infer from URL, but include for clarity
+      'answers': answers,
+    };
+    print("Submission payload: ${jsonEncode(payload)}");
+
+    final response = await http.post(
+      Uri.parse(url),
+      headers: _headers(token: token),
+      body: jsonEncode(payload),
+    );
+    print("Submit quiz response status: ${response.statusCode}");
+    if (response.statusCode != 200) {
+      // Expect 200 OK
+      print("Error response body: ${response.body}");
+    }
+    return jsonDecode(response.body);
+  }
+
+// TODO: Add methods for Start Quiz, Submit Quiz if needed in ApiService // Keep TODO if other actions needed
+  // TODO: Add methods for Start Quiz, Submit Quiz if needed in ApiService
 
   // Upload file
   Future<dynamic> uploadFile(File file) async {

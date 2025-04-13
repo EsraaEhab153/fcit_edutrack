@@ -9,6 +9,7 @@ import 'package:fci_edutrack/screens/admin/professor_requests_screen.dart';
 import 'package:fci_edutrack/screens/admin/course_management_screen.dart';
 import 'package:fci_edutrack/screens/professor/quiz_management_screen.dart';
 import 'package:fci_edutrack/screens/professor/attendance_recording_screen.dart';
+import 'package:fci_edutrack/screens/student/student_quiz_list_screen.dart'; // Import student quiz list screen
 
 import '../../settings_screen.dart';
 import 'drawer_tile.dart';
@@ -62,6 +63,8 @@ class MyDrawer extends StatelessWidget {
                 icon: Icons.lightbulb_outline,
                 onTap: () {
                   Navigator.pop(context);
+                  // Navigate to Student Quiz List Screen
+                  Navigator.pushNamed(context, StudentQuizListScreen.routeName);
                 }),
             // settings
             MyDrawerTile(
