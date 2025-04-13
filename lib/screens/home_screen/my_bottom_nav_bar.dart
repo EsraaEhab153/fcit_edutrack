@@ -2,6 +2,7 @@ import 'package:fci_edutrack/screens/home_screen/QR_code/qr_scanner.dart';
 import 'package:fci_edutrack/screens/home_screen/courses_screen.dart';
 import 'package:fci_edutrack/screens/home_screen/drawer/my_drawer.dart';
 import 'package:fci_edutrack/screens/home_screen/home_screen.dart';
+import 'package:fci_edutrack/screens/home_screen/profiles/doctor_profile_screen.dart';
 import 'package:fci_edutrack/screens/home_screen/profiles/student_profile_screen.dart';
 import 'package:fci_edutrack/style/my_app_colors.dart';
 import 'package:fci_edutrack/themes/theme_provider.dart';
@@ -20,9 +21,17 @@ class MyBottomNavBar extends StatefulWidget {
 
 class _MyBottomNavBarState extends State<MyBottomNavBar> {
   int selectedIndex = 0;
+  late String userRole;
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    userRole = ModalRoute.of(context)!.settings.arguments as String;
+  }
 
   @override
   Widget build(BuildContext context) {
+    String userRole = ModalRoute.of(context)!.settings.arguments as String;
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Colors.transparent,
@@ -30,7 +39,7 @@ class _MyBottomNavBarState extends State<MyBottomNavBar> {
         iconTheme: const IconThemeData(color: MyAppColors.primaryColor),
       ),
       drawer: const MyDrawer(),
-      body: selectedScreen[selectedIndex],
+      body: selectedScreen()[selectedIndex],
       backgroundColor: Provider.of<ThemeProvider>(context).isDark()
           ? MyAppColors.primaryDarkColor
           : MyAppColors.whiteColor,
@@ -77,10 +86,14 @@ class _MyBottomNavBarState extends State<MyBottomNavBar> {
     );
   }
 
-  List<Widget> selectedScreen = [
-    const HomeScreen(),
-    const QrCodeScanner(),
-    const CoursesScreen(),
-    const StudentProfileScreen()
-  ];
+  List<Widget> selectedScreen() {
+    return [
+      const HomeScreen(),
+      const QrCodeScanner(),
+      const CoursesScreen(),
+      userRole == 'Doctor'
+          ? const DoctorProfileScreen()
+          : const StudentProfileScreen(),
+    ];
+  }
 }

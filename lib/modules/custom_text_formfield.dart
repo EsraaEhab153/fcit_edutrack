@@ -11,6 +11,7 @@ class CustomTextFormField extends StatelessWidget {
   TextInputType keyboardType;
   IconData preIcon;
   IconData? sufIcon;
+  void Function()? onPressed;
 
   Validator validator;
   bool obscureText;
@@ -23,6 +24,7 @@ class CustomTextFormField extends StatelessWidget {
       required this.validator,
       required this.preIcon,
       this.sufIcon,
+      this.onPressed,
       this.obscureText = false});
 
   @override
@@ -61,7 +63,7 @@ class CustomTextFormField extends StatelessWidget {
                 : MyAppColors.blackColor,
           ),
           suffixIcon: IconButton(
-            onPressed: () {},
+            onPressed: onPressed,
             icon: Icon(sufIcon),
             color: Provider.of<ThemeProvider>(context).isDark()
                 ? MyAppColors.lightBlueColor

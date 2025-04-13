@@ -1,3 +1,4 @@
+import 'package:fci_edutrack/auth/login_screen.dart';
 import 'package:fci_edutrack/modules/custome_container.dart';
 import 'package:fci_edutrack/screens/home_screen/notifications_screen.dart';
 import 'package:fci_edutrack/screens/settings_screen.dart';
@@ -8,6 +9,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 class StudentProfileScreen extends StatelessWidget {
+  static const String routeName = 'student_profile';
   const StudentProfileScreen({super.key});
 
   @override
@@ -66,7 +68,9 @@ class StudentProfileScreen extends StatelessWidget {
             CustomContainer(
               label: 'Log Out',
               icon: Icons.logout,
-              onContainerClick: () {},
+              onContainerClick: () {
+                Navigator.pushReplacementNamed(context, LoginScreen.routeName);
+              },
             ),
           ],
         ),

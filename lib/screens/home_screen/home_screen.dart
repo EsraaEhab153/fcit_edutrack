@@ -8,6 +8,7 @@ class HomeScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    String userRole = ModalRoute.of(context)!.settings.arguments as String;
     return Container(
       color: Provider.of<ThemeProvider>(context).isDark()
           ? MyAppColors.primaryDarkColor
