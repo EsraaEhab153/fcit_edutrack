@@ -35,9 +35,16 @@ class Config {
 
   // Quiz endpoints
   static const String quizzesUrl = '$baseUrl/api/quizzes'; // Base for CRUD
-  // Removed assumed professorQuizzesUrl
   static const String availableQuizzesUrl =
       '$baseUrl/api/quizzes/available'; // Base URL for available quizzes (add ?courseId=X)
+  static const String professorQuizzesUrl =
+      '$baseUrl/api/quizzes/my-quizzes'; // Base URL for professor's quizzes
+  static const String quizSubmissionsUrl =
+      '$baseUrl/api/quizzes'; // Base URL for /{quizId}/submissions
+  static const String downloadQuizSubmissionsUrl =
+      '$baseUrl/api/quizzes'; // Base URL for /{quizId}/submissions/download
+  static const String quizSubmissionDetailsUrl =
+      '$baseUrl/api/quizzes'; // Base URL for /{quizId}/submissions/{submissionId}
   // Note: Start and Submit use the base quizzesUrl + quizId + /action
   static const String startQuizBaseUrl =
       '$baseUrl/api/quizzes'; // Base for /<quizId>/start

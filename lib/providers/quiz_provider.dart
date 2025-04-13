@@ -163,5 +163,79 @@ class QuizProvider extends ChangeNotifier {
     // No notifyListeners needed here unless we store attempt state
   }
 
+  // Get quiz submissions
+  Future<Map<String, dynamic>> getQuizSubmissions(int quizId) async {
+    _isLoading = true;
+    notifyListeners();
+
+    try {
+      final response = await _apiService.getQuizSubmissions(quizId);
+      return response;
+    } catch (e) {
+      print('Error fetching quiz submissions: $e');
+      return {
+        'success': false,
+        'message': 'Failed to fetch submissions: $e',
+      };
+    } finally {
+      _isLoading = false;
+      notifyListeners();
+    }
+  }
+
+  // Download quiz submissions as CSV
+  Future<Map<String, dynamic>> downloadQuizSubmissions(int quizId) async {
+    _isLoading = true;
+    notifyListeners();
+
+    try {
+      final response = await _apiService.downloadQuizSubmissions(quizId);
+      if (response['success']) {
+        // File was downloaded and opened successfully
+        return response;
+      } else {
+        // Handle specific error cases
+        if (response['message']?.contains('No submissions') ?? false) {
+          return {
+            'success': false,
+            'message': 'No submissions available to download.',
+          };
+        }
+        return response;
+      }
+    } catch (e) {
+      print('Error downloading quiz submissions: $e');
+      return {
+        'success': false,
+        'message': 'Failed to download submissions: $e',
+      };
+    } finally {
+      _isLoading = false;
+      notifyListeners();
+    }
+  }
+
+  // Get submission details
+  Future<Map<String, dynamic>> getSubmissionDetails(
+      int quizId, int submissionId) async {
+    _isLoading = true;
+    notifyListeners();
+
+    try {
+      final response =
+          await _apiService.getSubmissionDetails(quizId, submissionId);
+      return response;
+    } catch (e) {
+      print('Error fetching submission details: $e');
+      return {
+        'success': false,
+        'message': 'Failed to fetch submission details: $e',
+      };
+    } finally {
+      _isLoading = false;
+      notifyListeners();
+    }
+  }
+
   // TODO: Add methods for updating, deleting, publishing/unpublishing quizzes if needed
 }

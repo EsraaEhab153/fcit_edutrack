@@ -2,6 +2,8 @@ import 'dart:convert';
 import 'dart:io';
 import 'package:http/http.dart' as http;
 import 'package:http_parser/http_parser.dart';
+import 'package:path_provider/path_provider.dart';
+import 'package:open_file/open_file.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../config.dart';
 
@@ -486,7 +488,6 @@ class ApiService {
     }
     return jsonDecode(response.body);
   }
-// Removed getProfessorQuizzes as there's no dedicated endpoint
 
   // Get Available Quizzes (Used by both Students and Professors)
   Future<Map<String, dynamic>> getAvailableQuizzes(int courseId) async {
@@ -506,7 +507,7 @@ class ApiService {
     return jsonDecode(response.body);
   }
 
-// Start Quiz (Student Only)
+  // Start Quiz (Student Only)
   Future<Map<String, dynamic>> startQuiz(int quizId) async {
     final token = await _getToken();
     final url = '${Config.startQuizBaseUrl}/$quizId/start';
@@ -524,7 +525,7 @@ class ApiService {
     return jsonDecode(response.body);
   }
 
-// Submit Quiz (Student Only)
+  // Submit Quiz (Student Only)
   Future<Map<String, dynamic>> submitQuiz(
       int quizId, List<Map<String, dynamic>> answers) async {
     final token = await _getToken();
@@ -549,8 +550,118 @@ class ApiService {
     return jsonDecode(response.body);
   }
 
-// TODO: Add methods for Start Quiz, Submit Quiz if needed in ApiService // Keep TODO if other actions needed
-  // TODO: Add methods for Start Quiz, Submit Quiz if needed in ApiService
+  Future<Map<String, dynamic>> downloadQuizSubmissions(int quizId) async {
+    try {
+      final token = await _getToken();
+      final url = '${Config.quizzesUrl}/$quizId/submissions/download';
+      final response = await http.get(
+        Uri.parse(url),
+        headers: {
+          'Authorization': 'Bearer $token',
+          'Accept': 'text/csv',
+        },
+      );
+
+      if (response.statusCode == 200) {
+        // Get the filename from the content-disposition header
+        String? filename;
+        String? disposition = response.headers['content-disposition'];
+        if (disposition != null && disposition.contains('filename=')) {
+          filename = disposition.split('filename=')[1].replaceAll('"', '');
+        }
+        filename ??= 'quiz_${quizId}_submissions.csv';
+
+        // Save file to app documents directory
+        final dir = await getApplicationDocumentsDirectory();
+        final file = File('${dir.path}/$filename');
+        await file.writeAsBytes(response.bodyBytes);
+
+        // Open the file
+        final result = await OpenFile.open(file.path);
+        if (result.type == ResultType.done) {
+          return {
+            'success': true,
+            'message': 'File downloaded successfully',
+            'filePath': file.path
+          };
+        } else {
+          return {
+            'success': false,
+            'message': 'Failed to open file: ${result.message}'
+          };
+        }
+      }
+
+      return _handleError(response);
+    } catch (e) {
+      print('Error downloading quiz submissions: $e');
+      return {
+        'success': false,
+        'message': 'Failed to download submissions: $e',
+      };
+    }
+  }
+
+  Future<Map<String, dynamic>> getQuizSubmissions(int quizId) async {
+    try {
+      final token = await _getToken();
+      final url = '${Config.quizzesUrl}/$quizId/submissions';
+
+      final response = await http.get(
+        Uri.parse(url),
+        headers: _headers(token: token),
+      );
+
+      if (response.statusCode == 200) {
+        return jsonDecode(response.body);
+      }
+
+      return _handleError(response);
+    } catch (e) {
+      print('Error fetching quiz submissions: $e');
+      return {
+        'success': false,
+        'message': 'Failed to fetch submissions: $e',
+      };
+    }
+  }
+
+  Future<Map<String, dynamic>> getSubmissionDetails(
+      int quizId, int submissionId) async {
+    try {
+      final token = await _getToken();
+      final url = '${Config.quizzesUrl}/$quizId/submissions/$submissionId';
+
+      final response = await http.get(
+        Uri.parse(url),
+        headers: _headers(token: token),
+      );
+
+      if (response.statusCode == 200) {
+        return jsonDecode(response.body);
+      }
+
+      return _handleError(response);
+    } catch (e) {
+      print('Error fetching submission details: $e');
+      return {
+        'success': false,
+        'message': 'Failed to fetch submission details: $e',
+      };
+    }
+  }
+
+  // Helper method to handle error responses
+  Map<String, dynamic> _handleError(http.Response response) {
+    try {
+      return jsonDecode(response.body);
+    } catch (e) {
+      return {
+        'success': false,
+        'message': 'Server error: ${response.statusCode}',
+      };
+    }
+  }
 
   // Upload file
   Future<dynamic> uploadFile(File file) async {

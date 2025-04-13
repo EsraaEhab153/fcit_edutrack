@@ -5,6 +5,7 @@ import 'package:intl/intl.dart';
 import '../../providers/quiz_provider.dart';
 import '../../providers/course_provider.dart';
 import '../../models/quiz_models.dart';
+import '../../models/course_model.dart'; // Import Course model
 import '../../style/my_app_colors.dart';
 import 'quiz_taking_screen.dart'; // Import the Quiz Taking Screen
 
@@ -66,14 +67,19 @@ class _StudentQuizListScreenState extends State<StudentQuizListScreen> {
         builder: (context, quizProvider, child) {
           return RefreshIndicator(
             onRefresh: _refreshQuizzes,
-            child: _buildQuizList(quizProvider),
+            // Also consume CourseProvider here to pass it down
+            child: Consumer<CourseProvider>(
+              builder: (context, courseProvider, _) =>
+                  _buildQuizList(quizProvider, courseProvider),
+            ),
           );
         },
       ),
     );
   }
 
-  Widget _buildQuizList(QuizProvider quizProvider) {
+  Widget _buildQuizList(
+      QuizProvider quizProvider, CourseProvider courseProvider) {
     if (quizProvider.isLoading && quizProvider.professorQuizzes.isEmpty) {
       return const Center(child: CircularProgressIndicator());
     }
@@ -99,7 +105,19 @@ class _StudentQuizListScreenState extends State<StudentQuizListScreen> {
       itemCount: quizzes.length,
       itemBuilder: (context, index) {
         final Quiz quiz = quizzes[index];
-        // TODO: Get course name from CourseProvider based on quiz.courseId for better display
+        // Get course name from CourseProvider's enrolledCourses list
+        final course = courseProvider.enrolledCourses.firstWhere(
+          (c) => c.id == quiz.courseId,
+          orElse: () => Course(
+              id: 0,
+              courseCode: 'N/A',
+              courseName: 'Unknown Course',
+              description: '',
+              startTime: '',
+              endTime: '',
+              days: []), // Provide a default Course object
+        );
+        final String courseName = course?.courseName ?? 'Unknown Course';
         String courseIdentifier = 'Course ID: ${quiz.courseId}'; // Placeholder
 
         return Card(
@@ -115,7 +133,7 @@ class _StudentQuizListScreenState extends State<StudentQuizListScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 const SizedBox(height: 8),
-                Text(courseIdentifier), // Show course info
+                Text('Course: $courseName'), // Show actual course name
                 const SizedBox(height: 4),
                 Text('Description: ${quiz.description}'),
                 const SizedBox(height: 4),
