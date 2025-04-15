@@ -11,6 +11,8 @@ class AttendanceProvider extends ChangeNotifier {
       {}; // Store by session ID
   final Map<String, List<Map<String, dynamic>>> _dailyAttendees =
       {}; // Store by courseId-date key
+  // Store total classes per course
+  final Map<int, int> _totalClassesByCourse = {};
 
   final ApiService _apiService = ApiService();
 
@@ -19,6 +21,7 @@ class AttendanceProvider extends ChangeNotifier {
       _attendanceRecordsByCourse;
   List<Attendance> getAttendanceForCourse(int courseId) =>
       _attendanceRecordsByCourse[courseId] ?? [];
+  Map<int, int> get totalClassesByCourse => _totalClassesByCourse;
 // Getters for new state variables
   List<Map<String, dynamic>> get activeSessions => _activeSessions;
   List<Map<String, dynamic>> getAttendeesForSession(int sessionId) =>
@@ -188,6 +191,15 @@ class AttendanceProvider extends ChangeNotifier {
       print('Error fetching daily attendees for $key: $e');
     } finally {
       _isLoading = false;
+      notifyListeners();
+    }
+  }
+
+  // Fetch total classes for a course
+  Future<void> fetchTotalClassesForCourse(int courseId) async {
+    final total = await _apiService.getTotalClassesForCourse(courseId);
+    if (total != null) {
+      _totalClassesByCourse[courseId] = total;
       notifyListeners();
     }
   }

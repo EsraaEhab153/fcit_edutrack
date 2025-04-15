@@ -23,6 +23,24 @@ class _AttendanceHistoryScreenState extends State<AttendanceHistoryScreen> {
   Map<int, bool> expandedCourses = {};
   bool isLoading = false;
 
+  // Store total classes for each course
+  final Map<int, int> _totalClassesCache = {};
+
+  // Fetch and cache total classes for a course
+  Future<void> _fetchTotalClasses(int courseId) async {
+    final attendanceProvider =
+        Provider.of<AttendanceProvider>(context, listen: false);
+    if (!_totalClassesCache.containsKey(courseId)) {
+      await attendanceProvider.fetchTotalClassesForCourse(courseId);
+      final total = attendanceProvider.totalClassesByCourse[courseId];
+      if (total != null) {
+        setState(() {
+          _totalClassesCache[courseId] = total;
+        });
+      }
+    }
+  }
+
   @override
   void initState() {
     super.initState();
@@ -70,34 +88,12 @@ class _AttendanceHistoryScreenState extends State<AttendanceHistoryScreen> {
         Provider.of<AttendanceProvider>(context, listen: false);
     final attendanceRecords =
         attendanceProvider.getAttendanceForCourse(courseId);
+    final totalClasses = _totalClassesCache[courseId] ?? 0;
 
-    if (attendanceRecords.isEmpty) {
-      return 0.0;
-    }
+    if (totalClasses == 0) return 0.0; // Avoid division by zero
 
-    // Total number of classes should be determined by schedule
-    // For now, let's assume all scheduled classes have been held
-    // In a real app, you'd compare with the schedule
-    final records = attendanceRecords;
-
-    // Get the course from provider
-    final course = Provider.of<CourseProvider>(context, listen: false)
-        .enrolledCourses
-        .firstWhere((c) => c.id == courseId);
-
-    // For demo purposes, calculate based on days since course creation
-    // Estimate number of classes that should have been held
-    final now = DateTime.now();
-    const classesPerWeek = 2; // Assuming 2 classes per week
-    int totalClassesShouldHaveBeenHeld =
-        classesPerWeek; // At least one week of classes
-
-    if (records.isEmpty) return 0.0;
-
-    final attendedClasses = records.length;
-    if (totalClassesShouldHaveBeenHeld == 0) return 100.0;
-
-    return (attendedClasses / totalClassesShouldHaveBeenHeld) * 100;
+    final attendedClasses = attendanceRecords.length;
+    return (attendedClasses / totalClasses) * 100;
   }
 
   @override
@@ -182,6 +178,20 @@ class _AttendanceHistoryScreenState extends State<AttendanceHistoryScreen> {
                                 expandedCourses[course.id] ?? false;
                             final attendanceRecords = attendanceProvider
                                 .getAttendanceForCourse(course.id);
+                            // Fetch total classes if not already cached
+                            _fetchTotalClasses(course.id);
+                            final totalClasses =
+                                _totalClassesCache[course.id] ?? 0;
+                            // Find the most recent attendance date
+                            String lastAttended = 'Never';
+                            if (attendanceRecords.isNotEmpty) {
+                              final latest = attendanceRecords
+                                  .map((r) =>
+                                      DateTime.parse(r.timestamp).toUtc())
+                                  .reduce((a, b) => a.isAfter(b) ? a : b)
+                                  .toLocal();
+                              lastAttended = DateFormat('MMM d').format(latest);
+                            }
 
                             return Card(
                               elevation: 2,
@@ -289,20 +299,13 @@ class _AttendanceHistoryScreenState extends State<AttendanceHistoryScreen> {
                                             isDark),
                                         _buildAttendanceInfoItem(
                                             'Total Classes',
-                                            '2', // Placeholder for total scheduled classes
+                                            '$totalClasses',
                                             Icons.calendar_today,
                                             Colors.blue,
                                             isDark),
                                         _buildAttendanceInfoItem(
                                             'Last Attended',
-                                            attendanceRecords.isNotEmpty
-                                                ? DateFormat('MMM d').format(
-                                                    DateTime.parse(
-                                                            attendanceRecords
-                                                                .first
-                                                                .timestamp)
-                                                        .toLocal())
-                                                : 'Never',
+                                            lastAttended,
                                             Icons.access_time,
                                             Colors.blue,
                                             isDark),
@@ -338,6 +341,7 @@ class _AttendanceHistoryScreenState extends State<AttendanceHistoryScreen> {
                                         ...attendanceRecords.map((record) {
                                           final recordDate =
                                               DateTime.parse(record.timestamp)
+                                                  .toUtc()
                                                   .toLocal();
                                           return Padding(
                                             padding: const EdgeInsets.only(

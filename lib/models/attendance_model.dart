@@ -26,7 +26,9 @@ class Attendance {
       studentId: json['studentId'] ?? '',
       courseCode: json['courseCode'] ?? '',
       courseName: json['courseName'] ?? '',
-      timestamp: json['timestamp'] ?? '',
+      // Parse timestamp as UTC, then convert to local
+      timestamp:
+          DateTime.parse(json['timestamp']).toUtc().toLocal().toIso8601String(),
       verified: json['verified'] ?? false,
       verificationMethod: json['verificationMethod'] ?? '',
     );

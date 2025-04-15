@@ -894,4 +894,22 @@ class ApiService {
       return {'success': false, 'message': e.toString()};
     }
   }
+
+  // Get total classes (number of held classes) for a course
+  Future<int?> getTotalClassesForCourse(int courseId) async {
+    final token = await _getToken();
+    final url =
+        '${Config.baseUrl}/api/attendance/sessions/class-days-count/$courseId';
+    final response = await http.get(
+      Uri.parse(url),
+      headers: _headers(token: token),
+    );
+    if (response.statusCode == 200) {
+      final data = jsonDecode(response.body);
+      if (data['success'] && data['data'] != null) {
+        return data['data'] as int;
+      }
+    }
+    return null;
+  }
 }
