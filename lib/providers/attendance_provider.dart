@@ -5,11 +5,11 @@ import '../services/api_service.dart';
 class AttendanceProvider extends ChangeNotifier {
   bool _isLoading = false;
   // Store attendance records by course ID
-  Map<int, List<Attendance>> _attendanceRecordsByCourse = {};
+  final Map<int, List<Attendance>> _attendanceRecordsByCourse = {};
   List<Map<String, dynamic>> _activeSessions = []; // Store raw map data for now
-  Map<int, List<Map<String, dynamic>>> _sessionAttendees =
+  final Map<int, List<Map<String, dynamic>>> _sessionAttendees =
       {}; // Store by session ID
-  Map<String, List<Map<String, dynamic>>> _dailyAttendees =
+  final Map<String, List<Map<String, dynamic>>> _dailyAttendees =
       {}; // Store by courseId-date key
 
   final ApiService _apiService = ApiService();

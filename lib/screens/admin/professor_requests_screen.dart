@@ -220,7 +220,7 @@ class _ProfessorRequestsScreenState extends State<ProfessorRequestsScreen> {
     String imageUrl = request['idImageUrl'] ?? '';
     if (imageUrl.isNotEmpty && !imageUrl.startsWith('http')) {
       // Add the base URL for relative paths
-      imageUrl = 'https://edutrack-backend-orms.onrender.com${imageUrl}';
+      imageUrl = 'https://edutrack-backend-orms.onrender.com$imageUrl';
     }
 
     print("ID Image URL: $imageUrl"); // Debug the image URL
@@ -388,7 +388,8 @@ class _ProfessorRequestsScreenState extends State<ProfessorRequestsScreen> {
               children: [
                 Expanded(
                   child: OutlinedButton(
-                    onPressed: () => _showRejectDialog(request['id']),
+                    onPressed: () =>
+                        _showRejectDialog(request['id'].toString()),
                     style: OutlinedButton.styleFrom(
                       foregroundColor: Colors.red,
                       side: const BorderSide(color: Colors.red),
@@ -421,7 +422,7 @@ class _ProfessorRequestsScreenState extends State<ProfessorRequestsScreen> {
                               ),
                               onPressed: () {
                                 Navigator.pop(context);
-                                _reviewRequest(request['id'], true);
+                                _reviewRequest(request['id'].toString(), true);
                               },
                               child: const Text('Approve'),
                             ),

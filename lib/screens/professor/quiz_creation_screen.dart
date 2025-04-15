@@ -30,7 +30,7 @@ class _QuizCreationScreenState extends State<QuizCreationScreen> {
   final _durationController = TextEditingController();
 
   // List to hold questions being built
-  List<Question> _questions = [];
+  final List<Question> _questions = [];
 
   @override
   void initState() {
@@ -160,8 +160,9 @@ class _QuizCreationScreenState extends State<QuizCreationScreen> {
           keyboardType: TextInputType.number,
           validator: (value) {
             if (value == null || value.isEmpty) return 'Please enter duration';
-            if (int.tryParse(value) == null || int.parse(value) <= 0)
+            if (int.tryParse(value) == null || int.parse(value) <= 0) {
               return 'Enter a valid number';
+            }
             return null;
           },
         ),
@@ -299,38 +300,39 @@ class _QuizCreationScreenState extends State<QuizCreationScreen> {
 
   // Method to show dialog for adding/editing a question
   Future<void> _showQuestionDialog({int? editIndex}) async {
-    final _questionTextController = TextEditingController();
-    final _pointsController = TextEditingController();
-    QuestionType _selectedType = QuestionType.MULTIPLE_CHOICE;
+    final questionTextController = TextEditingController();
+    final pointsController = TextEditingController();
+    QuestionType selectedType = QuestionType.MULTIPLE_CHOICE;
     // Declare controllers and state variables needed within the dialog scope
-    List<TextEditingController> _optionControllers = [];
-    int? _correctOptionIndex; // Index of the correct option for MC questions
-    final _textAnswerController = TextEditingController();
+    List<TextEditingController> optionControllers = [];
+    int? correctOptionIndex; // Index of the correct option for MC questions
+    final textAnswerController = TextEditingController();
 
     bool isEditing = editIndex != null;
     if (isEditing) {
       final existingQuestion = _questions[editIndex];
-      _questionTextController.text = existingQuestion.text;
-      _pointsController.text = existingQuestion.points.toString();
-      _selectedType = existingQuestion.type;
+      questionTextController.text = existingQuestion.text;
+      pointsController.text = existingQuestion.points.toString();
+      selectedType = existingQuestion.type;
       // Populate options/answer controllers based on existing question
       if (existingQuestion.type == QuestionType.MULTIPLE_CHOICE &&
           existingQuestion.options != null) {
-        _optionControllers = existingQuestion.options!
+        optionControllers = existingQuestion.options!
             .map((opt) => TextEditingController(text: opt.text))
             .toList();
-        _correctOptionIndex =
+        correctOptionIndex =
             existingQuestion.options!.indexWhere((opt) => opt.correct);
-        if (_correctOptionIndex == -1)
-          _correctOptionIndex =
+        if (correctOptionIndex == -1) {
+          correctOptionIndex =
               null; // Handle case where no correct option was marked
+        }
       } else if (existingQuestion.type == QuestionType.TEXT_ANSWER) {
-        _textAnswerController.text = existingQuestion.correctAnswer ?? '';
+        textAnswerController.text = existingQuestion.correctAnswer ?? '';
       }
     } else {
       // Initialize with two empty options for new MC questions by default
-      _optionControllers.add(TextEditingController());
-      _optionControllers.add(TextEditingController());
+      optionControllers.add(TextEditingController());
+      optionControllers.add(TextEditingController());
     }
 
     await showDialog(
@@ -346,14 +348,14 @@ class _QuizCreationScreenState extends State<QuizCreationScreen> {
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   TextField(
-                    controller: _questionTextController,
+                    controller: questionTextController,
                     decoration:
                         const InputDecoration(labelText: 'Question Text'),
                     maxLines: 3,
                   ),
                   const SizedBox(height: 16),
                   DropdownButtonFormField<QuestionType>(
-                    value: _selectedType,
+                    value: selectedType,
                     items: QuestionType.values
                         .where((t) => t != QuestionType.UNKNOWN)
                         .map((type) {
@@ -367,7 +369,7 @@ class _QuizCreationScreenState extends State<QuizCreationScreen> {
                       if (newValue != null) {
                         setDialogState(() {
                           // Use setDialogState for dialog UI updates
-                          _selectedType = newValue;
+                          selectedType = newValue;
                         });
                       }
                     },
@@ -376,22 +378,22 @@ class _QuizCreationScreenState extends State<QuizCreationScreen> {
                   ),
                   const SizedBox(height: 16),
                   TextField(
-                    controller: _pointsController,
+                    controller: pointsController,
                     decoration: const InputDecoration(labelText: 'Points'),
                     keyboardType: TextInputType.number,
                   ),
                   const SizedBox(height: 16),
                   // --- Dynamic Fields based on Question Type ---
-                  if (_selectedType == QuestionType.MULTIPLE_CHOICE)
+                  if (selectedType == QuestionType.MULTIPLE_CHOICE)
                     _buildMultipleChoiceOptions(
-                        setDialogState, _optionControllers, _correctOptionIndex,
+                        setDialogState, optionControllers, correctOptionIndex,
                         (index) {
-                      setDialogState(() => _correctOptionIndex =
+                      setDialogState(() => correctOptionIndex =
                           index); // Update correct index state
                     }),
-                  if (_selectedType == QuestionType.TEXT_ANSWER)
+                  if (selectedType == QuestionType.TEXT_ANSWER)
                     TextField(
-                      controller: _textAnswerController,
+                      controller: textAnswerController,
                       decoration: const InputDecoration(
                           labelText: 'Correct Answer Text'),
                       maxLines: 2,
@@ -408,23 +410,23 @@ class _QuizCreationScreenState extends State<QuizCreationScreen> {
               ElevatedButton(
                 onPressed: () {
                   // --- Validation ---
-                  if (_questionTextController.text.isEmpty) {
+                  if (questionTextController.text.isEmpty) {
                     ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
                         content: Text('Please enter the question text.')));
                     return;
                   }
-                  if (_pointsController.text.isEmpty ||
-                      int.tryParse(_pointsController.text) == null ||
-                      int.parse(_pointsController.text) <= 0) {
+                  if (pointsController.text.isEmpty ||
+                      int.tryParse(pointsController.text) == null ||
+                      int.parse(pointsController.text) <= 0) {
                     ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
                         content: Text(
                             'Please enter valid points (positive number).')));
                     return;
                   }
                   // Additional validation based on type
-                  if (_selectedType == QuestionType.MULTIPLE_CHOICE) {
-                    if (_optionControllers.length < 2 ||
-                        _optionControllers.any((c) => c.text.isEmpty)) {
+                  if (selectedType == QuestionType.MULTIPLE_CHOICE) {
+                    if (optionControllers.length < 2 ||
+                        optionControllers.any((c) => c.text.isEmpty)) {
                       ScaffoldMessenger.of(context).showSnackBar(
                         const SnackBar(
                             content: Text(
@@ -432,9 +434,9 @@ class _QuizCreationScreenState extends State<QuizCreationScreen> {
                       );
                       return;
                     }
-                    if (_correctOptionIndex == null ||
-                        _correctOptionIndex! < 0 ||
-                        _correctOptionIndex! >= _optionControllers.length) {
+                    if (correctOptionIndex == null ||
+                        correctOptionIndex! < 0 ||
+                        correctOptionIndex! >= optionControllers.length) {
                       ScaffoldMessenger.of(context).showSnackBar(
                         const SnackBar(
                             content:
@@ -442,8 +444,8 @@ class _QuizCreationScreenState extends State<QuizCreationScreen> {
                       );
                       return;
                     }
-                  } else if (_selectedType == QuestionType.TEXT_ANSWER) {
-                    if (_textAnswerController.text.isEmpty) {
+                  } else if (selectedType == QuestionType.TEXT_ANSWER) {
+                    if (textAnswerController.text.isEmpty) {
                       ScaffoldMessenger.of(context).showSnackBar(
                         const SnackBar(
                             content: Text(
@@ -456,20 +458,20 @@ class _QuizCreationScreenState extends State<QuizCreationScreen> {
 
                   final newQuestion = Question(
                     // id: isEditing ? _questions[editIndex].id : null, // Keep ID if editing
-                    text: _questionTextController.text,
-                    type: _selectedType,
-                    points: int.parse(_pointsController.text),
-                    options: _selectedType == QuestionType.MULTIPLE_CHOICE
-                        ? _optionControllers.asMap().entries.map((entry) {
+                    text: questionTextController.text,
+                    type: selectedType,
+                    points: int.parse(pointsController.text),
+                    options: selectedType == QuestionType.MULTIPLE_CHOICE
+                        ? optionControllers.asMap().entries.map((entry) {
                             int idx = entry.key;
                             TextEditingController ctrl = entry.value;
                             return Option(
                                 text: ctrl.text,
-                                correct: idx == _correctOptionIndex);
+                                correct: idx == correctOptionIndex);
                           }).toList()
                         : null,
-                    correctAnswer: _selectedType == QuestionType.TEXT_ANSWER
-                        ? _textAnswerController.text
+                    correctAnswer: selectedType == QuestionType.TEXT_ANSWER
+                        ? textAnswerController.text
                         : null,
                   );
 
@@ -491,10 +493,10 @@ class _QuizCreationScreenState extends State<QuizCreationScreen> {
       },
     );
     // Dispose controllers after dialog is closed
-    _questionTextController.dispose();
-    _pointsController.dispose();
-    _textAnswerController.dispose();
-    for (var controller in _optionControllers) {
+    questionTextController.dispose();
+    pointsController.dispose();
+    textAnswerController.dispose();
+    for (var controller in optionControllers) {
       controller.dispose();
     }
   }

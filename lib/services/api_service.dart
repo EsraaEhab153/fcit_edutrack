@@ -507,6 +507,22 @@ class ApiService {
     return jsonDecode(response.body);
   }
 
+  // Get Professor's Quizzes
+  Future<Map<String, dynamic>> getProfessorQuizzes() async {
+    final token = await _getToken();
+    const url = Config.myQuizzesUrl; // Ensure this URL is defined in Config
+    print("Getting professor's quizzes from URL: $url");
+    final response = await http.get(
+      Uri.parse(url),
+      headers: _headers(token: token),
+    );
+    print("Get professor's quizzes response status: ${response.statusCode}");
+    if (response.statusCode != 200) {
+      print("Error response body: ${response.body}");
+    }
+    return jsonDecode(response.body);
+  }
+
   // Start Quiz (Student Only)
   Future<Map<String, dynamic>> startQuiz(int quizId) async {
     final token = await _getToken();
@@ -571,8 +587,8 @@ class ApiService {
         }
         filename ??= 'quiz_${quizId}_submissions.csv';
 
-        // Save file to app documents directory
-        final dir = await getApplicationDocumentsDirectory();
+        // Save file to temporary directory (covered by FileProvider's cache-path)
+        final dir = await getTemporaryDirectory();
         final file = File('${dir.path}/$filename');
         await file.writeAsBytes(response.bodyBytes);
 

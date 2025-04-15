@@ -153,7 +153,7 @@ class _AttendanceHistoryScreenState extends State<AttendanceHistoryScreen> {
               child: isLoading || courseProvider.isLoading
                   ? const Center(child: CircularProgressIndicator())
                   : courseProvider.enrolledCourses.isEmpty
-                      ? Center(
+                      ? const Center(
                           child: Column(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
@@ -162,7 +162,7 @@ class _AttendanceHistoryScreenState extends State<AttendanceHistoryScreen> {
                                 size: 64,
                                 color: Colors.grey,
                               ),
-                              const SizedBox(height: 16),
+                              SizedBox(height: 16),
                               Text(
                                 'You are not enrolled in any courses yet',
                                 style: TextStyle(color: Colors.grey),
@@ -344,7 +344,7 @@ class _AttendanceHistoryScreenState extends State<AttendanceHistoryScreen> {
                                                 bottom: 8.0),
                                             child: Row(
                                               children: [
-                                                Icon(
+                                                const Icon(
                                                   Icons.check_circle,
                                                   color: Colors.green,
                                                   size: 16,

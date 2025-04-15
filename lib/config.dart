@@ -37,7 +37,7 @@ class Config {
   static const String quizzesUrl = '$baseUrl/api/quizzes'; // Base for CRUD
   static const String availableQuizzesUrl =
       '$baseUrl/api/quizzes/available'; // Base URL for available quizzes (add ?courseId=X)
-  static const String professorQuizzesUrl =
+  static const String myQuizzesUrl =
       '$baseUrl/api/quizzes/my-quizzes'; // Base URL for professor's quizzes
   static const String quizSubmissionsUrl =
       '$baseUrl/api/quizzes'; // Base URL for /{quizId}/submissions

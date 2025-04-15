@@ -4,7 +4,6 @@ import 'package:fci_edutrack/themes/theme_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:fci_edutrack/providers/auth_provider.dart';
-import 'package:fci_edutrack/auth/login_screen.dart';
 import 'package:fci_edutrack/screens/admin/professor_requests_screen.dart';
 import 'package:fci_edutrack/screens/admin/course_management_screen.dart';
 import 'package:fci_edutrack/screens/professor/quiz_management_screen.dart';
@@ -89,8 +88,8 @@ class MyDrawer extends StatelessWidget {
                             : MyAppColors.blackColor,
                         thickness: 1.25,
                       ),
-                      Padding(
-                        padding: const EdgeInsets.symmetric(vertical: 8.0),
+                      const Padding(
+                        padding: EdgeInsets.symmetric(vertical: 8.0),
                         child: Row(
                           children: [
                             Text(
@@ -148,8 +147,8 @@ class MyDrawer extends StatelessWidget {
                             : MyAppColors.blackColor,
                         thickness: 1.25,
                       ),
-                      Padding(
-                        padding: const EdgeInsets.symmetric(vertical: 8.0),
+                      const Padding(
+                        padding: EdgeInsets.symmetric(vertical: 8.0),
                         child: Row(
                           children: [
                             Text(

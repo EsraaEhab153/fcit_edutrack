@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import '../../providers/auth_provider.dart'; // For potential future use
+// For potential future use
 import 'dart:io'; // For file operations
 import 'dart:typed_data'; // For Uint8List
 import 'package:fci_edutrack/models/course_model.dart';
@@ -58,21 +58,53 @@ class _ProfessorAttendanceManagementScreenState
     }
   }
 
-  // Renamed fetch method
+  // Refreshes data and validates selected course
   Future<void> _refreshData() async {
     final courseProvider = Provider.of<CourseProvider>(context, listen: false);
     final attendanceProvider =
         Provider.of<AttendanceProvider>(context, listen: false);
+
+    // Store the ID of the currently selected course, if any
+    final selectedCourseId = _selectedCourseForReport?.id;
+
+    // Fetch new data
     await Future.wait([
       courseProvider.fetchEnrolledCourses(),
       attendanceProvider.fetchActiveSessions(),
     ]);
-    if (courseProvider.enrolledCourses.isNotEmpty &&
-        _selectedCourseForReport == null) {
-      setState(() {
-        _selectedCourseForReport = courseProvider.enrolledCourses.first;
-      });
+
+    // After fetching, find the course in the new list that matches the old ID
+    Course? potentiallyStaleSelectedCourse = _selectedCourseForReport;
+    Course? newSelectedCourseInstance;
+    if (selectedCourseId != null && courseProvider.enrolledCourses.isNotEmpty) {
+      try {
+        newSelectedCourseInstance = courseProvider.enrolledCourses
+            .firstWhere((course) => course.id == selectedCourseId);
+      } catch (e) {
+        // The previously selected course ID is no longer in the list
+        newSelectedCourseInstance = null;
+        print(
+            "Previously selected course (ID: $selectedCourseId) not found after refresh.");
+      }
     }
+
+    // Update the state
+    // Use the new instance if found, otherwise default to the first course or null
+    setState(() {
+      if (newSelectedCourseInstance != null) {
+        _selectedCourseForReport = newSelectedCourseInstance;
+      } else if (courseProvider.enrolledCourses.isNotEmpty) {
+        // If the old selection is invalid or wasn't set, default to the first
+        if (potentiallyStaleSelectedCourse != null) {
+          print(
+              "Resetting selected course as previous selection is no longer valid.");
+        }
+        _selectedCourseForReport = courseProvider.enrolledCourses.first;
+      } else {
+        // No courses available
+        _selectedCourseForReport = null;
+      }
+    });
   }
 
   // Removed placeholder methods for create/fetch/view/download as they are not needed here
@@ -93,6 +125,7 @@ class _ProfessorAttendanceManagementScreenState
               '1. Create Attendance Session',
               style: Theme.of(context).textTheme.titleLarge?.copyWith(
                     fontWeight: FontWeight.bold,
+                    fontSize: 20.0, // Adjusted font size
                   ),
             ),
             const SizedBox(height: 8),
@@ -109,6 +142,7 @@ class _ProfessorAttendanceManagementScreenState
               '2. Active Sessions',
               style: Theme.of(context).textTheme.titleLarge?.copyWith(
                     fontWeight: FontWeight.bold,
+                    fontSize: 20.0, // Adjusted font size
                   ),
             ),
             const SizedBox(height: 8),
@@ -124,6 +158,7 @@ class _ProfessorAttendanceManagementScreenState
               '3. Daily Attendance Report',
               style: Theme.of(context).textTheme.titleLarge?.copyWith(
                     fontWeight: FontWeight.bold,
+                    fontSize: 20.0, // Adjusted font size
                   ),
             ),
             const SizedBox(height: 8),
@@ -138,6 +173,7 @@ class _ProfessorAttendanceManagementScreenState
               '4. Download Full Report (CSV)',
               style: Theme.of(context).textTheme.titleLarge?.copyWith(
                     fontWeight: FontWeight.bold,
+                    fontSize: 20.0, // Adjusted font size
                   ),
             ),
             const SizedBox(height: 8),
@@ -310,11 +346,21 @@ class _ProfessorAttendanceManagementScreenState
           children: [
             // Course Dropdown
             DropdownButtonFormField<Course>(
-              value: _selectedCourseForReport,
+              // Ensure the value exists in the items list before assigning
+              value: enrolledCourses
+                      .any((c) => c.id == _selectedCourseForReport?.id)
+                  ? _selectedCourseForReport
+                  : null,
               items: enrolledCourses.map((Course course) {
                 return DropdownMenuItem<Course>(
-                  value: course,
-                  child: Text('${course.courseCode} - ${course.courseName}'),
+                  value: course, // Keep using the Course object as value
+                  // Wrap with Flexible to handle potential overflow
+                  child: Flexible(
+                    child: Text(
+                      '${course.courseCode} - ${course.courseName}',
+                      // overflow: TextOverflow.ellipsis, // Remove overflow, Flexible handles it
+                    ),
+                  ),
                 );
               }).toList(),
               onChanged: (Course? newValue) {
@@ -373,12 +419,21 @@ class _ProfessorAttendanceManagementScreenState
           children: [
             // Course Dropdown (similar to daily reports)
             DropdownButtonFormField<Course>(
-              value:
-                  _selectedCourseForReport, // Use the same state variable for simplicity
+              // Ensure the value exists in the items list before assigning
+              value: enrolledCourses
+                      .any((c) => c.id == _selectedCourseForReport?.id)
+                  ? _selectedCourseForReport
+                  : null,
               items: enrolledCourses.map((Course course) {
                 return DropdownMenuItem<Course>(
-                  value: course,
-                  child: Text('${course.courseCode} - ${course.courseName}'),
+                  value: course, // Keep using the Course object as value
+                  // Wrap with Flexible to handle potential overflow
+                  child: Flexible(
+                    child: Text(
+                      '${course.courseCode} - ${course.courseName}',
+                      // overflow: TextOverflow.ellipsis, // Remove overflow, Flexible handles it
+                    ),
+                  ),
                 );
               }).toList(),
               onChanged: (Course? newValue) {

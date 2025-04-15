@@ -126,13 +126,13 @@ class _QrCodeScannerState extends State<QrCodeScanner> {
                           child: Column(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
-                              Icon(
+                              const Icon(
                                 Icons.school_outlined,
                                 size: 64,
                                 color: Colors.grey,
                               ),
                               const SizedBox(height: 16),
-                              Text(
+                              const Text(
                                 'No classes taking place right now',
                                 style: TextStyle(color: Colors.grey),
                                 textAlign: TextAlign.center,
@@ -242,7 +242,7 @@ class CourseAttendanceCard extends StatelessWidget {
                   color: MyAppColors.primaryColor.withOpacity(0.1),
                   borderRadius: BorderRadius.circular(8),
                 ),
-                child: Icon(
+                child: const Icon(
                   Icons.school,
                   color: MyAppColors.primaryColor,
                 ),
@@ -272,7 +272,7 @@ class CourseAttendanceCard extends StatelessWidget {
                   ],
                 ),
               ),
-              Icon(
+              const Icon(
                 Icons.how_to_reg,
                 color: MyAppColors.primaryColor,
                 size: 28,

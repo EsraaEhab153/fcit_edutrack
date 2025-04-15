@@ -2,94 +2,142 @@ import 'package:flutter/foundation.dart';
 import '../models/quiz_models.dart'; // Import the quiz models
 import '../services/api_service.dart';
 import 'course_provider.dart'; // Import CourseProvider
+// import 'course_provider.dart';
 
 class QuizProvider extends ChangeNotifier {
   bool _isLoading = false;
-  List<Quiz> _professorQuizzes = [];
+  List<Quiz> _professorQuizzes = []; // Holds sorted list for professor view
+  List<Quiz> _studentAvailableQuizzes =
+      []; // Holds available quizzes for student view
   final ApiService _apiService = ApiService();
-  CourseProvider? _courseProvider; // To access enrolled courses
+  CourseProvider? _courseProvider; // Needed again for student view
 
   bool get isLoading => _isLoading;
   List<Quiz> get professorQuizzes => _professorQuizzes;
+  List<Quiz> get studentAvailableQuizzes => _studentAvailableQuizzes;
 
-  // Method to update the internal CourseProvider reference (called by ProxyProvider)
-  void update(CourseProvider courseProvider) {
+  // Method to update CourseProvider dependency (called by ProxyProvider in main.dart)
+  void updateCourseProvider(CourseProvider courseProvider) {
     _courseProvider = courseProvider;
-    // Optionally fetch quizzes immediately when course provider is available
-    // fetchProfessorQuizzes(); // Avoid fetching automatically on update for now
+    // Optionally trigger fetch if needed, but usually done by the screen
   }
 
-  // Fetch available quizzes for all enrolled courses
+  // Fetch all quizzes created by the professor and sort them
   Future<void> fetchProfessorQuizzes() async {
-    if (_courseProvider == null) {
-      print("QuizProvider: CourseProvider not available yet.");
-      return; // Cannot fetch without enrolled courses
-    }
+    _isLoading = true;
+    _professorQuizzes = []; // Clear previous quizzes
+    notifyListeners();
 
-    // Ensure enrolled courses are loaded in CourseProvider first
-    // Use a short delay or check CourseProvider's loading state if necessary
-    if (_courseProvider!.isLoading) {
-      print("QuizProvider: Waiting for CourseProvider to finish loading...");
-      // Listen to CourseProvider changes or use a callback if more robust handling is needed
-      await Future.delayed(const Duration(
-          milliseconds: 500)); // Simple wait, might need improvement
-      if (_courseProvider!.isLoading) {
-        print("QuizProvider: CourseProvider still loading after wait.");
-        // Handle timeout or persistent loading state if necessary
-        return;
+    try {
+      final response = await _apiService.getProfessorQuizzes();
+
+      if (response['success'] && response['data'] != null) {
+        final List<dynamic> quizzesData = response['data'];
+        List<Quiz> allQuizzes =
+            quizzesData.map((json) => Quiz.fromJson(json)).toList();
+
+        // Sort all fetched quizzes, e.g., by end date descending
+        allQuizzes.sort((a, b) {
+          // Handle potential null dates if necessary, though API seems consistent
+          return b.endDate.compareTo(a.endDate); // Descending order
+        });
+
+        _professorQuizzes = allQuizzes; // Assign the sorted list directly
+        // This line is incorrect and should be removed as active/past separation was removed.
+
+        print(
+            "QuizProvider: Fetched and sorted ${_professorQuizzes.length} professor quizzes."); // Corrected print statement
+      } else {
+        print(
+            "QuizProvider: Failed to fetch professor quizzes: ${response['message']}");
+        _professorQuizzes = []; // Ensure list is empty on failure
       }
+    } catch (e) {
+      _professorQuizzes = []; // Clear list on error
+      print('QuizProvider: Error fetching professor quizzes: $e');
+    } finally {
+      _isLoading = false;
+      notifyListeners();
     }
-    // Call ensureEnrolledCoursesFetched if it exists and handles its own loading state
-    // If ensureEnrolledCoursesFetched doesn't exist or isn't sufficient, fetch directly
-    if (_courseProvider!.enrolledCourses.isEmpty) {
-      await _courseProvider!.fetchEnrolledCourses();
+  }
+
+  // Fetch available quizzes for the student based on their enrolled courses
+  Future<void> fetchStudentAvailableQuizzes() async {
+    if (_courseProvider == null) {
+      print("QuizProvider (Student): CourseProvider not available yet.");
+      _studentAvailableQuizzes = [];
+      notifyListeners();
+      return;
     }
+    // Ensure enrolled courses are loaded
+    await _courseProvider!
+        .ensureEnrolledCoursesFetched(); // Assuming this method exists and works
 
     final enrolledCourses = _courseProvider!.enrolledCourses;
     if (enrolledCourses.isEmpty) {
-      print("QuizProvider: No enrolled courses found for the user.");
-      _professorQuizzes = [];
-      _isLoading = false; // Ensure loading is false if returning early
+      print("QuizProvider (Student): No enrolled courses found.");
+      _studentAvailableQuizzes = [];
+      _isLoading = false;
       notifyListeners();
       return;
     }
 
     _isLoading = true;
-    _professorQuizzes = []; // Clear previous quizzes before fetching new ones
-    notifyListeners(); // Notify UI about loading start and cleared list
+    _studentAvailableQuizzes = []; // Clear previous list
+    notifyListeners();
 
-    List<Quiz> allQuizzes = [];
-    Set<int> fetchedQuizIds = {}; // To avoid duplicates
+    List<Quiz> availableQuizzes = [];
+    Set<int> fetchedQuizIds =
+        {}; // Avoid duplicates if a quiz is in multiple courses
 
     try {
-      // Fetch quizzes for each enrolled course
       for (var course in enrolledCourses) {
-        print("QuizProvider: Fetching quizzes for course ${course.id}");
-        final response = await _apiService
-            .getAvailableQuizzes(course.id); // Use getAvailableQuizzes
+        print(
+            "QuizProvider (Student): Fetching available quizzes for course ${course.id}");
+        final response = await _apiService.getAvailableQuizzes(course.id);
 
         if (response['success'] && response['data'] != null) {
           final List<dynamic> quizzesData = response['data'];
           for (var quizJson in quizzesData) {
             final quiz = Quiz.fromJson(quizJson);
-            // Add only if not already added (handles quizzes linked to multiple courses)
+            // Add only if not already added. The API /available endpoint handles the time check.
             if (quiz.id != null && !fetchedQuizIds.contains(quiz.id!)) {
-              allQuizzes.add(quiz);
+              // Set the course name here since the API doesn't provide it directly
+              final quizWithCourseName = Quiz(
+                // Create a new instance with the name
+                id: quiz.id,
+                title: quiz.title,
+                description: quiz.description,
+                courseId:
+                    quiz.courseId, // Keep original courseId if needed elsewhere
+                startDate: quiz.startDate,
+                endDate: quiz.endDate,
+                durationMinutes: quiz.durationMinutes,
+                questions: quiz.questions,
+                isPublished: quiz.isPublished,
+                courseName: course.courseName, // Set the name
+              );
+              availableQuizzes.add(quizWithCourseName);
               fetchedQuizIds.add(quiz.id!);
             }
           }
         } else {
           print(
-              "QuizProvider: Failed to fetch quizzes for course ${course.id}: ${response['message']}");
-          // Decide if one failure should stop the whole process or just skip
+              "QuizProvider (Student): Failed to fetch quizzes for course ${course.id}: ${response['message']}");
         }
       }
-      _professorQuizzes = allQuizzes;
+      // Sort available quizzes by end date ascending
+      availableQuizzes.sort((a, b) {
+        if (a.endDate == null && b.endDate == null) return 0;
+        return a.endDate.compareTo(b.endDate);
+      });
+
+      _studentAvailableQuizzes = availableQuizzes;
       print(
-          "QuizProvider: Fetched total ${_professorQuizzes.length} unique quizzes.");
+          "QuizProvider (Student): Fetched ${_studentAvailableQuizzes.length} available quizzes.");
     } catch (e) {
-      _professorQuizzes = []; // Clear list on error
-      print('QuizProvider: Error fetching quizzes: $e');
+      _studentAvailableQuizzes = [];
+      print('QuizProvider (Student): Error fetching available quizzes: $e');
     } finally {
       _isLoading = false;
       notifyListeners();

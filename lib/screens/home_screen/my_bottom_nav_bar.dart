@@ -1,4 +1,3 @@
-import 'package:fci_edutrack/screens/home_screen/QR_code/qr_scanner.dart';
 import 'package:fci_edutrack/screens/home_screen/courses_screen.dart';
 import 'package:fci_edutrack/screens/home_screen/drawer/my_drawer.dart';
 import 'package:fci_edutrack/screens/home_screen/home_screen.dart';

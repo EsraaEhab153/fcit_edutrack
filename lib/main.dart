@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
+import 'package:timezone/data/latest.dart' as tz; // Import timezone data
+import 'package:timezone/timezone.dart' as tz; // Import timezone library
 // Auth imports
 import 'package:fci_edutrack/auth/login_or_register_screen.dart';
 import 'package:fci_edutrack/auth/login_screen.dart';
@@ -20,9 +22,6 @@ import 'package:fci_edutrack/screens/admin/admin_home_screen.dart';
 // Screen imports - Professor
 import 'package:fci_edutrack/screens/professor/quiz_management_screen.dart';
 import 'package:fci_edutrack/screens/professor/quiz_creation_screen.dart';
-import 'package:fci_edutrack/screens/professor/quiz_submissions_screen.dart';
-import 'package:fci_edutrack/screens/professor/quiz_submission_details_screen.dart';
-import 'package:fci_edutrack/screens/professor/attendance_recording_screen.dart';
 import 'package:fci_edutrack/screens/professor/professor_home_screen.dart';
 // Screen imports - Student
 import 'package:fci_edutrack/screens/student/student_quiz_list_screen.dart';
@@ -41,8 +40,10 @@ import 'package:fci_edutrack/screens/register_attendance.dart';
 import 'package:fci_edutrack/screens/settings_screen.dart';
 import 'package:fci_edutrack/screens/attendance_history_screen.dart';
 
-void main() {
+Future<void> main() async {
+  // Make main async
   WidgetsFlutterBinding.ensureInitialized();
+  tz.initializeTimeZones(); // Initialize timezone data
   SystemChrome.setPreferredOrientations([
     DeviceOrientation.portraitUp,
     DeviceOrientation.portraitDown,
@@ -61,12 +62,12 @@ void main() {
     ChangeNotifierProvider(
       create: (context) => AttendanceProvider(),
     ),
-    // Use ChangeNotifierProxyProvider to inject CourseProvider into QuizProvider
+    // QuizProvider needs CourseProvider for fetching student quizzes
     ChangeNotifierProxyProvider<CourseProvider, QuizProvider>(
       create: (context) => QuizProvider(), // Initial creation
       update: (context, courseProvider, previousQuizProvider) {
-        // Update QuizProvider whenever CourseProvider changes (or initially)
-        previousQuizProvider?.update(courseProvider);
+        // Update QuizProvider with the latest CourseProvider instance
+        previousQuizProvider?.updateCourseProvider(courseProvider);
         return previousQuizProvider ??
             QuizProvider(); // Return existing or new instance
       },
@@ -110,7 +111,7 @@ class MyApp extends StatelessWidget {
             const RegisterAttendanceScreen(),
         CameraPermissionScreen.routeName: (context) =>
             const CameraPermissionScreen(),
-        'attendance_history': (context) => AttendanceHistoryScreen(),
+        'attendance_history': (context) => const AttendanceHistoryScreen(),
 
         // Assignment routes
         AssignmentScreen.routeName: (context) => const AssignmentScreen(),

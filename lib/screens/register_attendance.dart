@@ -18,7 +18,7 @@ class RegisterAttendanceScreen extends StatefulWidget {
 }
 
 class _RegisterAttendanceScreenState extends State<RegisterAttendanceScreen> {
-  bool _isLoading = false;
+  final bool _isLoading = false;
   String? _error;
   String? _success;
 
@@ -82,13 +82,13 @@ class _RegisterAttendanceScreenState extends State<RegisterAttendanceScreen> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(
+            const Icon(
               Icons.school_outlined,
               size: 64,
               color: Colors.grey,
             ),
             const SizedBox(height: 16),
-            Text(
+            const Text(
               'You are not enrolled in any courses yet.\nPlease enroll in courses first.',
               style: TextStyle(color: Colors.grey, fontSize: 16),
               textAlign: TextAlign.center,
@@ -140,7 +140,7 @@ class _RegisterAttendanceScreenState extends State<RegisterAttendanceScreen> {
               leading: CircleAvatar(
                 backgroundColor: MyAppColors.primaryColor.withOpacity(0.1),
                 child:
-                    Icon(Icons.book_outlined, color: MyAppColors.primaryColor),
+                    const Icon(Icons.book_outlined, color: MyAppColors.primaryColor),
               ),
               title: Text(course.courseName),
               subtitle: Text(course.courseCode),
@@ -175,7 +175,7 @@ class _RegisterAttendanceScreenState extends State<RegisterAttendanceScreen> {
                 child: Column(
                   mainAxisSize: MainAxisSize.min, // Prevent excessive height
                   children: [
-                    Text(
+                    const Text(
                         'Enter the 6-character code provided by your professor:'),
                     const SizedBox(height: 16),
                     TextFormField(
@@ -215,13 +215,6 @@ class _RegisterAttendanceScreenState extends State<RegisterAttendanceScreen> {
                   },
                 ),
                 ElevatedButton(
-                  child: attendanceProvider.isLoading // Check loading state
-                      ? const SizedBox(
-                          width: 20,
-                          height: 20,
-                          child: CircularProgressIndicator(
-                              strokeWidth: 2, color: Colors.white))
-                      : const Text('Submit'),
                   onPressed: attendanceProvider.isLoading
                       ? null
                       : () async {
@@ -240,8 +233,9 @@ class _RegisterAttendanceScreenState extends State<RegisterAttendanceScreen> {
                                   .toUpperCase(), // Send uppercase code
                             );
 
-                            if (!dialogContext.mounted)
+                            if (!dialogContext.mounted) {
                               return; // Check if dialog context is still valid
+                            }
 
                             if (response['success']) {
                               Navigator.of(dialogContext)
@@ -262,6 +256,13 @@ class _RegisterAttendanceScreenState extends State<RegisterAttendanceScreen> {
                             }
                           }
                         },
+                  child: attendanceProvider.isLoading // Check loading state
+                      ? const SizedBox(
+                          width: 20,
+                          height: 20,
+                          child: CircularProgressIndicator(
+                              strokeWidth: 2, color: Colors.white))
+                      : const Text('Submit'),
                 ),
               ],
             );

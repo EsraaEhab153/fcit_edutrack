@@ -1,5 +1,52 @@
 import 'package:intl/intl.dart'; // For date parsing/formatting if needed directly
 
+// Helper function to parse date strings as UTC
+// Helper function to parse date strings reliably as UTC
+DateTime _parseUtc(String? dateString) {
+  if (dateString == null || dateString.isEmpty) {
+    print(
+        "Warning: Received null or empty date string. Defaulting to now UTC.");
+    return DateTime.now().toUtc();
+  }
+  try {
+    // Define the expected format from the API (without timezone info)
+    // Handle potential milliseconds by making them optional in the format
+    final format = DateFormat(
+        "yyyy-MM-ddTHH:mm:ss"); // Adjust if milliseconds are present: "yyyy-MM-ddTHH:mm:ss.SSS"
+
+    // Attempt to parse the string directly as UTC
+    // The 'true' argument tells parse() to interpret the string as UTC.
+    DateTime parsedUtc = format.parse(dateString, true);
+    return parsedUtc; // Should already be a UTC DateTime object
+  } catch (e) {
+    print("Error parsing date string '$dateString' explicitly as UTC: $e");
+    // Fallback: Try the previous method just in case format varies unexpectedly
+    try {
+      String processedString = dateString;
+      if (processedString.contains('T') &&
+          !processedString.endsWith('Z') &&
+          !processedString.contains('+') &&
+          !processedString.contains('-')) {
+        if (processedString.contains('.')) {
+          processedString =
+              processedString.substring(0, processedString.indexOf('.'));
+        }
+        processedString += 'Z';
+      }
+      DateTime parsed = DateTime.parse(processedString);
+      if (!parsed.isUtc) {
+        print(
+            "Fallback Warning: Date string '$dateString' (processed as '$processedString') was parsed as local. Converting to UTC instant.");
+        return parsed.toUtc();
+      }
+      return parsed;
+    } catch (e2) {
+      print("Fallback parsing also failed for '$dateString': $e2");
+      return DateTime.now().toUtc(); // Final fallback
+    }
+  }
+}
+
 // Enum for Question Type
 enum QuestionType {
   MULTIPLE_CHOICE,
@@ -124,6 +171,7 @@ class Quiz {
   final DateTime endDate;
   final int durationMinutes;
   final List<Question> questions;
+  final String? courseName; // Added field to hold course name
   // Add other fields if present in response, e.g., isPublished
   final bool? isPublished;
 
@@ -137,6 +185,7 @@ class Quiz {
     required this.durationMinutes,
     required this.questions,
     this.isPublished,
+    this.courseName, // Added to constructor parameters
   });
 
   factory Quiz.fromJson(Map<String, dynamic> json) {
@@ -149,14 +198,16 @@ class Quiz {
       id: json['id'],
       title: json['title'] ?? '',
       description: json['description'] ?? '',
-      courseId: json['courseId'] ?? 0, // Provide default or handle error
-      startDate: DateTime.tryParse(json['startDate'] ?? '') ??
-          DateTime.now(), // Handle parsing error
-      endDate: DateTime.tryParse(json['endDate'] ?? '') ??
-          DateTime.now().add(const Duration(days: 1)), // Handle parsing error
+      // Use "course" key from API response logs, default to 0 if null/missing
+      courseId:
+          (json['course'] is int) ? json['course'] : (json['courseId'] ?? 0),
+      // Parse dates using the helper function to ensure UTC
+      startDate: _parseUtc(json['startDate']),
+      endDate: _parseUtc(json['endDate']),
       durationMinutes: json['durationMinutes'] ?? 0,
       questions: questionsList,
       isPublished: json['isPublished'], // May be null
+      // courseName is NOT expected from standard quiz JSON, will be populated later
     );
   }
 

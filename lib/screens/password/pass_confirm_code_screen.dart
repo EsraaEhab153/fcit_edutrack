@@ -132,7 +132,7 @@ class _PasswordConfirmationCodeState extends State<PasswordConfirmationCode> {
                   ),
                   focusedBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(10),
-                    borderSide: BorderSide(
+                    borderSide: const BorderSide(
                       color: MyAppColors.primaryColor,
                     ),
                   ),

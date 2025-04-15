@@ -59,6 +59,12 @@ android {
             signingConfig signingConfigs.debug
         }
     }
+
+    // Add this block for proper permission handling
+    aaptOptions {
+        noCompress 'tflite'
+        noCompress 'lite'
+    }
 }
 
 flutter {

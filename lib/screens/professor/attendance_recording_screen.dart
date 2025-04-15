@@ -27,17 +27,19 @@ class AttendanceRecordingScreen extends StatefulWidget {
 class _AttendanceRecordingScreenState extends State<AttendanceRecordingScreen> {
   bool _isLoadingApiCall = false;
   DateTime selectedDate = DateTime.now();
-  final _expiryMinutesController = TextEditingController(text: '15');
+  final _expiryMinutesController = TextEditingController(text: '5'); // Default to 5 minutes
   final _topicController = TextEditingController();
-  final _startTimeController =
-      TextEditingController(text: '10:00 AM'); // Keep defaults for now
-  final _endTimeController =
-      TextEditingController(text: '11:30 AM'); // Keep defaults for now
+  // Initialize controllers without default text here
+  final _startTimeController = TextEditingController();
+  final _endTimeController = TextEditingController();
+  // Store TimeOfDay for logic
+  TimeOfDay _selectedStartTime = TimeOfDay.now();
+  TimeOfDay _selectedEndTime = TimeOfDay.now();
 
   @override
   void initState() {
     super.initState();
-    // No need to load courses here anymore
+    _initializeTimeControllers();
   }
 
   @override
@@ -47,6 +49,22 @@ class _AttendanceRecordingScreenState extends State<AttendanceRecordingScreen> {
     _startTimeController.dispose();
     _endTimeController.dispose();
     super.dispose();
+  }
+
+  void _initializeTimeControllers() {
+    final now = DateTime.now();
+    // Default start time: previous hour sharp
+    final defaultStartTime = DateTime(now.year, now.month, now.day, now.hour);
+    // Default end time: start time + 90 minutes
+    final defaultEndTime = defaultStartTime.add(const Duration(minutes: 90));
+
+    _selectedStartTime = TimeOfDay.fromDateTime(defaultStartTime);
+    _selectedEndTime = TimeOfDay.fromDateTime(defaultEndTime);
+
+    // Format and set initial text for controllers
+    final timeFormatter = DateFormat('h:mm a'); // e.g., 10:00 AM
+    _startTimeController.text = timeFormatter.format(defaultStartTime);
+    _endTimeController.text = timeFormatter.format(defaultEndTime);
   }
 
   // Removed _loadProfessorCourses method as course is passed via constructor
@@ -75,9 +93,11 @@ class _AttendanceRecordingScreenState extends State<AttendanceRecordingScreen> {
   // Removed _buildCourseSelection widget as course is passed via constructor
 
   Widget _buildAttendanceRecorder() {
-    return Padding(
-      padding: const EdgeInsets.all(16.0),
-      child: Column(
+    // Wrap with SingleChildScrollView to prevent overflow
+    return SingleChildScrollView(
+      child: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           // Display Course Name - Use widget properties
@@ -138,25 +158,27 @@ class _AttendanceRecordingScreenState extends State<AttendanceRecordingScreen> {
             children: [
               Expanded(
                 child: TextFormField(
-                  controller: _startTimeController, // Use controller
+                  controller: _startTimeController,
+                  readOnly: true, // Make read-only
                   decoration: const InputDecoration(
                     labelText: 'Start Time',
                     border: OutlineInputBorder(),
                     prefixIcon: Icon(Icons.access_time),
                   ),
-                  // initialValue: '10:00 AM', // Removed initial value
+                  onTap: _selectStartTime, // Add onTap handler
                 ),
               ),
               const SizedBox(width: 12),
               Expanded(
                 child: TextFormField(
-                  controller: _endTimeController, // Use controller
+                  controller: _endTimeController,
+                  readOnly: true, // Make read-only
                   decoration: const InputDecoration(
                     labelText: 'End Time',
                     border: OutlineInputBorder(),
                     prefixIcon: Icon(Icons.access_time),
                   ),
-                  // initialValue: '11:30 AM', // Removed initial value
+                  onTap: _selectEndTime, // Add onTap handler
                 ),
               ),
             ],
@@ -212,7 +234,8 @@ class _AttendanceRecordingScreenState extends State<AttendanceRecordingScreen> {
               ),
             ],
           ),
-          const Spacer(), // Pushes button to bottom
+          // Use SizedBox instead of Spacer inside SingleChildScrollView
+          const SizedBox(height: 24),
 
           // Button
           SizedBox(
@@ -240,8 +263,9 @@ class _AttendanceRecordingScreenState extends State<AttendanceRecordingScreen> {
           ),
         ],
       ),
-    );
-  }
+    ) // Closes Padding
+  ); // Closes SingleChildScrollView
+}
 
   Future<void> _selectDate() async {
     final DateTime? picked = await showDatePicker(
@@ -253,6 +277,45 @@ class _AttendanceRecordingScreenState extends State<AttendanceRecordingScreen> {
     if (picked != null && picked != selectedDate) {
       setState(() {
         selectedDate = picked;
+      });
+    }
+  }
+
+  // Method to show time picker for Start Time
+  Future<void> _selectStartTime() async {
+    final TimeOfDay? picked = await showTimePicker(
+      context: context,
+      initialTime: _selectedStartTime,
+    );
+    if (picked != null && picked != _selectedStartTime) {
+      setState(() {
+        _selectedStartTime = picked;
+        // Update the text field
+        final now = DateTime.now();
+        final dt = DateTime(now.year, now.month, now.day, picked.hour, picked.minute);
+        _startTimeController.text = DateFormat('h:mm a').format(dt);
+
+        // Optional: Auto-adjust end time if needed, e.g., maintain 90 min duration
+        // final newEndTime = dt.add(const Duration(minutes: 90));
+        // _selectedEndTime = TimeOfDay.fromDateTime(newEndTime);
+        // _endTimeController.text = DateFormat('h:mm a').format(newEndTime);
+      });
+    }
+  }
+
+  // Method to show time picker for End Time
+  Future<void> _selectEndTime() async {
+    final TimeOfDay? picked = await showTimePicker(
+      context: context,
+      initialTime: _selectedEndTime,
+    );
+    if (picked != null && picked != _selectedEndTime) {
+      setState(() {
+        _selectedEndTime = picked;
+        // Update the text field
+        final now = DateTime.now();
+        final dt = DateTime(now.year, now.month, now.day, picked.hour, picked.minute);
+        _endTimeController.text = DateFormat('h:mm a').format(dt);
       });
     }
   }

@@ -311,7 +311,7 @@ class _ProfessorRequestScreenState extends State<ProfessorRequestScreen> {
                     ),
                     focusedBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(10),
-                      borderSide: BorderSide(
+                      borderSide: const BorderSide(
                         color: MyAppColors.primaryColor,
                       ),
                     ),

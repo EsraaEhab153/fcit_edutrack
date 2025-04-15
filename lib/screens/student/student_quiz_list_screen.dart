@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:intl/intl.dart';
+import 'package:timezone/timezone.dart' as tz; // Import timezone library
 
 import '../../providers/quiz_provider.dart';
 import '../../providers/course_provider.dart';
@@ -31,9 +32,8 @@ class _StudentQuizListScreenState extends State<StudentQuizListScreen> {
       final quizProvider = Provider.of<QuizProvider>(context, listen: false);
       courseProvider.ensureEnrolledCoursesFetched().then((_) {
         if (mounted) {
-          // Check if still mounted after async gap
-          quizProvider
-              .fetchProfessorQuizzes(); // Re-use the same fetch logic for available quizzes
+          // Fetch available quizzes specifically for the student
+          quizProvider.fetchStudentAvailableQuizzes();
         }
       });
     });
@@ -45,7 +45,7 @@ class _StudentQuizListScreenState extends State<StudentQuizListScreen> {
     // Ensure courses are fetched before fetching quizzes on refresh
     await courseProvider.ensureEnrolledCoursesFetched();
     if (mounted) {
-      await quizProvider.fetchProfessorQuizzes();
+      await quizProvider.fetchStudentAvailableQuizzes();
     }
   }
 
@@ -80,11 +80,13 @@ class _StudentQuizListScreenState extends State<StudentQuizListScreen> {
 
   Widget _buildQuizList(
       QuizProvider quizProvider, CourseProvider courseProvider) {
-    if (quizProvider.isLoading && quizProvider.professorQuizzes.isEmpty) {
+    // Use studentAvailableQuizzes list and check its loading state
+    if (quizProvider.isLoading &&
+        quizProvider.studentAvailableQuizzes.isEmpty) {
       return const Center(child: CircularProgressIndicator());
     }
 
-    final quizzes = quizProvider.professorQuizzes;
+    final quizzes = quizProvider.studentAvailableQuizzes;
 
     if (quizzes.isEmpty) {
       return Center(
@@ -117,8 +119,9 @@ class _StudentQuizListScreenState extends State<StudentQuizListScreen> {
               endTime: '',
               days: []), // Provide a default Course object
         );
-        final String courseName = course?.courseName ?? 'Unknown Course';
-        String courseIdentifier = 'Course ID: ${quiz.courseId}'; // Placeholder
+        // Create a display string with name and ID
+        final String courseNameDisplay =
+            '${course.courseName ?? 'Unknown'} (ID: ${quiz.courseId})';
 
         return Card(
           elevation: 2,
@@ -133,7 +136,7 @@ class _StudentQuizListScreenState extends State<StudentQuizListScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 const SizedBox(height: 8),
-                Text('Course: $courseName'), // Show actual course name
+                Text('Course: $courseNameDisplay'), // Display name and ID
                 const SizedBox(height: 4),
                 Text('Description: ${quiz.description}'),
                 const SizedBox(height: 4),
@@ -141,8 +144,7 @@ class _StudentQuizListScreenState extends State<StudentQuizListScreen> {
                 const SizedBox(height: 4),
                 Text('Duration: ${quiz.durationMinutes} minutes'),
                 const SizedBox(height: 4),
-                Text(
-                    'Available until: ${DateFormat('MMM d, yyyy h:mm a').format(quiz.endDate)}'),
+                Text('Available until: ${_formatDateTime(quiz.endDate)}'),
               ],
             ),
             trailing: ElevatedButton(
@@ -164,5 +166,26 @@ class _StudentQuizListScreenState extends State<StudentQuizListScreen> {
         );
       },
     );
+  }
+
+  // Helper function to format DateTime using timezone package
+  String _formatDateTime(DateTime utcDate) {
+    try {
+      // Ensure the input date is treated as UTC if it's not already
+      final DateTime ensuredUtcDate = utcDate.isUtc ? utcDate : utcDate.toUtc();
+
+      // Get the location for Africa/Cairo
+      final location = tz.getLocation('Africa/Cairo');
+
+      // Convert the UTC DateTime to a TZDateTime in the target location
+      final localDate = tz.TZDateTime.from(ensuredUtcDate, location);
+
+      // Format the TZDateTime
+      return DateFormat('MMM d, yyyy h:mm a').format(localDate);
+    } catch (e) {
+      print("Error formatting date with timezone: $e");
+      // Fallback to simple UTC display or local if timezone fails
+      return DateFormat('MMM d, yyyy h:mm a').format(utcDate) + ' (UTC)';
+    }
   }
 }

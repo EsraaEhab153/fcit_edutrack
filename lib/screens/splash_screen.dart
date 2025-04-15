@@ -1,4 +1,3 @@
-import 'package:fci_edutrack/auth/login_or_register_screen.dart';
 import 'package:fci_edutrack/auth/auth_wrapper.dart'; // Import AuthWrapper
 import 'package:fci_edutrack/style/my_app_colors.dart';
 import 'package:flutter/material.dart';

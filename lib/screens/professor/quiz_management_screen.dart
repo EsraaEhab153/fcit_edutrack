@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:fci_edutrack/style/my_app_colors.dart';
-import 'package:fci_edutrack/providers/auth_provider.dart'; // Keep if needed for permissions later
+// Keep if needed for permissions later
 import 'package:provider/provider.dart';
+import 'package:permission_handler/permission_handler.dart'; // Import permission_handler
 import '../../providers/quiz_provider.dart'; // Import QuizProvider
 import '../../models/quiz_models.dart';
 import '../../models/course_model.dart'; // Import Course model
@@ -9,6 +10,7 @@ import '../../providers/course_provider.dart'; // Import CourseProvider
 import 'quiz_creation_screen.dart'; // Import the creation screen
 import 'quiz_submissions_screen.dart'; // Import the submissions screen
 import 'package:intl/intl.dart'; // Import intl for date formatting
+import 'package:timezone/timezone.dart' as tz; // Import timezone library
 
 class QuizManagementScreen extends StatefulWidget {
   static const String routeName = 'quiz_management';
@@ -34,33 +36,91 @@ class _QuizManagementScreenState extends State<QuizManagementScreen> {
   }
 
   Future<void> _downloadSubmissions(Quiz quiz) async {
-    try {
-      final quizProvider = Provider.of<QuizProvider>(context, listen: false);
-      final result = await quizProvider.downloadQuizSubmissions(quiz.id!);
+    // Request both read and write permissions
+    var statusStorage = await Permission.storage.request();
+    var statusExternal = await Permission.manageExternalStorage.request();
 
-      if (result['success']) {
+    if (statusStorage.isGranted || statusExternal.isGranted) {
+      // 2. Permission Granted: Proceed with download
+      try {
+        // Show loading indicator
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
-            content: Text('Submissions downloaded successfully'),
-            backgroundColor: Colors.green,
+            content: Row(
+              children: [
+                CircularProgressIndicator(
+                  valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                ),
+                SizedBox(width: 16),
+                Text('Downloading submissions...'),
+              ],
+            ),
+            duration: Duration(seconds: 10), // Show longer for download
           ),
         );
-      } else {
+
+        final quizProvider = Provider.of<QuizProvider>(context, listen: false);
+        final result = await quizProvider.downloadQuizSubmissions(quiz.id!);
+
+        // Hide loading indicator
+        ScaffoldMessenger.of(context).hideCurrentSnackBar();
+
+        if (result['success']) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(
+                  'Submissions downloaded successfully to ${result['filePath'] ?? 'Downloads'}'),
+              backgroundColor: Colors.green,
+            ),
+          );
+        } else {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content:
+                  Text(result['message'] ?? 'Failed to download submissions'),
+              backgroundColor: Colors.red,
+            ),
+          );
+        }
+      } catch (e) {
+        ScaffoldMessenger.of(context)
+            .hideCurrentSnackBar(); // Hide loading on error
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content:
-                Text(result['message'] ?? 'Failed to download submissions'),
+            content: Text('Error downloading submissions: $e'),
             backgroundColor: Colors.red,
           ),
         );
       }
-    } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Error downloading submissions: $e'),
-          backgroundColor: Colors.red,
-        ),
-      );
+    } else if (statusStorage.isPermanentlyDenied ||
+        statusExternal.isPermanentlyDenied) {
+      // Permission Permanently Denied: Guide user to settings
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: const Text(
+                'Storage permission is permanently denied. Please enable it in app settings.'),
+            backgroundColor: Colors.red,
+            action: SnackBarAction(
+              label: 'Settings',
+              onPressed: () {
+                openAppSettings();
+              },
+            ),
+          ),
+        );
+      }
+    } else {
+      // Permission Denied: Show info message
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text(
+                'Storage permission is required to download files. Please grant the permission when requested.'),
+            backgroundColor: Colors.orange,
+          ),
+        );
+      }
     }
   }
 
@@ -158,24 +218,32 @@ class _QuizManagementScreenState extends State<QuizManagementScreen> {
 
   Widget _buildQuizList(
       QuizProvider quizProvider, CourseProvider courseProvider) {
-    final quizzes = quizProvider.professorQuizzes;
+    // Get the single sorted list from the provider
+    final allQuizzes = quizProvider.professorQuizzes;
+    // final now = DateTime.now(); // No longer needed for separation here
 
+    // Display all quizzes in a single list using ListView.builder
     return ListView.builder(
       padding: const EdgeInsets.all(16),
-      itemCount: quizzes.length,
+      itemCount: allQuizzes.length,
       itemBuilder: (context, index) {
-        final Quiz quiz = quizzes[index];
+        final quiz = allQuizzes[index];
+        // Reuse the item building logic directly here
         final course = courseProvider.enrolledCourses.firstWhere(
           (c) => c.id == quiz.courseId,
           orElse: () => Course(
-              id: 0,
+              // Default/fallback course object
+              id: quiz.courseId, // Use the ID from the quiz
               courseCode: 'N/A',
-              courseName: 'Unknown Course',
+              courseName: 'Unknown', // Keep it short
               description: '',
               startTime: '',
               endTime: '',
               days: []),
         );
+        // Create a display string with name and ID
+        final String courseNameDisplay =
+            '${course.courseName ?? 'Unknown'} (ID: ${quiz.courseId})';
 
         return Card(
           elevation: 2,
@@ -199,9 +267,15 @@ class _QuizManagementScreenState extends State<QuizManagementScreen> {
                       children: [
                         const Icon(Icons.school, size: 16, color: Colors.grey),
                         const SizedBox(width: 4),
-                        Text('Course: ${course.courseName}'),
-                      ],
-                    ),
+                        // Use Expanded to prevent overflow if course name is long
+                        Expanded(
+                          child: Text(
+                            'Course: $courseNameDisplay', // Display name and ID
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ), // Closing parenthesis for Expanded
+                      ], // Closing bracket for Row children
+                    ), // Closing parenthesis for Row
                     const SizedBox(height: 4),
                     Row(
                       children: [
@@ -238,17 +312,18 @@ class _QuizManagementScreenState extends State<QuizManagementScreen> {
                   children: [
                     TextButton.icon(
                       icon: const Icon(Icons.visibility),
-                      label: const Text('View Submissions'),
+                      label: const Text('Submissions'), // Shortened label
                       onPressed: () => _viewSubmissions(quiz),
                     ),
                     TextButton.icon(
                       icon: const Icon(Icons.download),
-                      label: const Text('Download CSV'),
+                      label: const Text('Download'), // Shortened label
                       onPressed: () => _downloadSubmissions(quiz),
                     ),
                     IconButton(
                       icon: const Icon(Icons.edit,
                           color: MyAppColors.primaryColor),
+                      tooltip: 'Edit Quiz (Coming Soon)',
                       onPressed: () {
                         ScaffoldMessenger.of(context).showSnackBar(
                           const SnackBar(
@@ -258,6 +333,7 @@ class _QuizManagementScreenState extends State<QuizManagementScreen> {
                     ),
                     IconButton(
                       icon: const Icon(Icons.delete, color: Colors.red),
+                      tooltip: 'Delete Quiz',
                       onPressed: () => _showDeleteConfirmation(quiz),
                     ),
                   ],
@@ -270,8 +346,24 @@ class _QuizManagementScreenState extends State<QuizManagementScreen> {
     );
   }
 
-  String _formatDateTime(DateTime date) {
-    return DateFormat('MMM d, yyyy h:mm a').format(date.toLocal());
+  String _formatDateTime(DateTime utcDate) {
+    try {
+      // Ensure the input date is treated as UTC if it's not already
+      final DateTime ensuredUtcDate = utcDate.isUtc ? utcDate : utcDate.toUtc();
+
+      // Get the location for Africa/Cairo
+      final location = tz.getLocation('Africa/Cairo');
+
+      // Convert the UTC DateTime to a TZDateTime in the target location
+      final localDate = tz.TZDateTime.from(ensuredUtcDate, location);
+
+      // Format the TZDateTime
+      return DateFormat('MMM d, yyyy h:mm a').format(localDate);
+    } catch (e) {
+      print("Error formatting date with timezone: $e");
+      // Fallback to simple UTC display or local if timezone fails
+      return DateFormat('MMM d, yyyy h:mm a').format(utcDate) + ' (UTC)';
+    }
   }
 
   void _showDeleteConfirmation(Quiz quiz) {

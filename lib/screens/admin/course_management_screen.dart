@@ -5,7 +5,6 @@ import 'package:provider/provider.dart';
 import 'package:fci_edutrack/services/api_service.dart';
 import 'package:fci_edutrack/providers/course_provider.dart';
 import 'package:fci_edutrack/models/course_model.dart';
-import 'package:intl/intl.dart';
 
 class CourseManagementScreen extends StatefulWidget {
   static const String routeName = 'admin_course_management';
@@ -649,11 +648,10 @@ class _CourseManagementScreenState extends State<CourseManagementScreen> {
                                             ),
                                           ],
                                         ),
-                                        if (course.description != null &&
-                                            course.description!.isNotEmpty) ...[
+                                        if (course.description.isNotEmpty) ...[
                                           const SizedBox(height: 8),
                                           Text(
-                                            course.description!,
+                                            course.description,
                                             style: TextStyle(
                                               color: isDark
                                                   ? Colors.grey.shade300

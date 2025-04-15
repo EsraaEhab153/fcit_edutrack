@@ -112,7 +112,7 @@ class _CoursesScreenState extends State<CoursesScreen>
               showEnrollButton
                   ? 'No courses available at the moment'
                   : 'You are not enrolled in any courses yet',
-              style: TextStyle(color: Colors.grey),
+              style: const TextStyle(color: Colors.grey),
             ),
           ],
         ),

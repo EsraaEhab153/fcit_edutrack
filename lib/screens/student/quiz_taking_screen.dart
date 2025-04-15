@@ -36,7 +36,7 @@ class _QuizTakingScreenState extends State<QuizTakingScreen> {
   String _startErrorMessage = ''; // Error message
 
   // Store student answers - Map question ID to StudentAnswer object
-  Map<int, StudentAnswer> _studentAnswers = {};
+  final Map<int, StudentAnswer> _studentAnswers = {};
 
   @override
   void initState() {
@@ -139,9 +139,9 @@ class _QuizTakingScreenState extends State<QuizTakingScreen> {
           ),
           ElevatedButton(
             onPressed: () => Navigator.pop(context, true),
-            child: const Text('Submit'),
             style: ElevatedButton.styleFrom(
                 backgroundColor: MyAppColors.primaryColor),
+            child: const Text('Submit'),
           ),
         ],
       ),
