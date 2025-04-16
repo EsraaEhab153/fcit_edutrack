@@ -4,6 +4,7 @@ import 'package:fci_edutrack/screens/password/reset_password_screen.dart';
 import 'package:fci_edutrack/style/my_app_colors.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'dart:async';
 
 import '../../themes/theme_provider.dart';
 
@@ -22,6 +23,9 @@ class _PasswordConfirmationCodeState extends State<PasswordConfirmationCode> {
   String? _email;
   bool _isForVerification = false;
   String? _errorMessage;
+  bool _isResendEnabled = true;
+  int _remainingSeconds = 0;
+  Timer? _resendTimer;
 
   @override
   void didChangeDependencies() {
@@ -33,6 +37,12 @@ class _PasswordConfirmationCodeState extends State<PasswordConfirmationCode> {
       _email = args['email'];
       _isForVerification = args['isForVerification'] ?? false;
     }
+  }
+
+  @override
+  void dispose() {
+    _resendTimer?.cancel();
+    super.dispose();
   }
 
   @override
@@ -138,6 +148,20 @@ class _PasswordConfirmationCodeState extends State<PasswordConfirmationCode> {
                   ),
                 ),
               ),
+              SizedBox(height: 10),
+              TextButton(
+                onPressed: _isResendEnabled ? _resendCode : null,
+                child: Text(
+                  _isResendEnabled
+                      ? 'Resend Code'
+                      : 'Wait $_remainingSeconds seconds to resend',
+                  style: TextStyle(
+                    color: _isResendEnabled
+                        ? MyAppColors.primaryColor
+                        : MyAppColors.greyColor,
+                  ),
+                ),
+              ),
               SizedBox(
                 height: MediaQuery.of(context).size.height * 0.03,
               ),
@@ -207,9 +231,10 @@ class _PasswordConfirmationCodeState extends State<PasswordConfirmationCode> {
       return;
     }
 
+    final authProvider = Provider.of<AuthProvider>(context, listen: false);
+
     if (_isForVerification) {
       // Handle email verification
-      final authProvider = Provider.of<AuthProvider>(context, listen: false);
       final success =
           await authProvider.verifyEmail(_email!, controller.text.trim());
 
@@ -224,16 +249,64 @@ class _PasswordConfirmationCodeState extends State<PasswordConfirmationCode> {
       }
     } else {
       // Handle password reset code verification
-      // Just navigate to reset password screen for now
-      if (!mounted) return;
-      Navigator.pushReplacementNamed(
-        context,
-        ResetPasswordScreen.routeName,
-        arguments: {
-          'email': _email,
-          'code': controller.text.trim(),
-        },
-      );
+      final success = await authProvider.verifyPasswordResetCode(
+          _email!, controller.text.trim());
+
+      if (success) {
+        if (!mounted) return;
+        // Only navigate to reset password screen if code is valid
+        Navigator.pushReplacementNamed(
+          context,
+          ResetPasswordScreen.routeName,
+          arguments: {
+            'email': _email,
+            'code': controller.text.trim(),
+          },
+        );
+      } else {
+        setState(() {
+          _errorMessage = "Invalid reset code. Please try again.";
+        });
+      }
     }
+  }
+
+  void _startResendTimer() {
+    _isResendEnabled = false;
+    _remainingSeconds = 30;
+    _resendTimer?.cancel();
+    _resendTimer = Timer.periodic(Duration(seconds: 1), (timer) {
+      setState(() {
+        if (_remainingSeconds > 0) {
+          _remainingSeconds--;
+        } else {
+          _isResendEnabled = true;
+          timer.cancel();
+        }
+      });
+    });
+  }
+
+  void _resendCode() async {
+    if (_email == null) {
+      setState(() {
+        _errorMessage = "Email is missing. Please go back and try again.";
+      });
+      return;
+    }
+
+    final authProvider = Provider.of<AuthProvider>(context, listen: false);
+    final result = _isForVerification
+        ? await authProvider.resendVerificationCode(_email!)
+        : await authProvider.resendPasswordResetCode(_email!);
+
+    setState(() {
+      if (result['success']) {
+        _errorMessage = null;
+        _startResendTimer();
+      } else {
+        _errorMessage = result['message'];
+      }
+    });
   }
 }

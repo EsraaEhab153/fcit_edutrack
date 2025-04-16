@@ -5,8 +5,15 @@ class Config {
 
   // Authentication endpoints
   static const String registerUrl = '$baseUrl/api/auth/register';
-  static const String verifyEmailUrl = '$baseUrl/api/auth/verify-email';
   static const String loginUrl = '$baseUrl/api/auth/login';
+
+  // Password management endpoints
+  static const String changePasswordUrl = '$baseUrl/api/auth/change-password';
+  static const String resetPasswordUrl = '$baseUrl/api/auth/reset-password';
+  static const String forgotPasswordUrl = '$baseUrl/api/auth/forgot-password';
+  static const String verifyEmailUrl = '$baseUrl/api/auth/verify-email';
+  static const String verifyResetCodeUrl =
+      '$baseUrl/api/auth/verify-reset-code';
 
   // Course endpoints
   static const String coursesUrl = '$baseUrl/api/courses';

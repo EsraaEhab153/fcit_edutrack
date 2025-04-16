@@ -422,4 +422,122 @@ class AuthProvider extends ChangeNotifier {
       return login(usernameOrEmail, password);
     }
   }
+
+  // Change password for authenticated user
+  Future<bool> changePassword(
+      String currentPassword, String newPassword) async {
+    try {
+      _isLoading = true;
+      notifyListeners();
+
+      final response =
+          await _apiService.changePassword(currentPassword, newPassword);
+      final bool success = response['success'] ?? false;
+
+      if (!success) {
+        throw response['message'] ?? 'Failed to change password';
+      }
+
+      return true;
+    } catch (e) {
+      print('Error changing password: $e');
+      return false;
+    } finally {
+      _isLoading = false;
+      notifyListeners();
+    }
+  }
+
+  // Initiate password reset
+  Future<bool> forgotPassword(String email) async {
+    _isLoading = true;
+    notifyListeners();
+
+    try {
+      final response = await _apiService.forgotPassword(email);
+      return response['success'] ?? false;
+    } catch (e) {
+      print('Forgot password error: $e');
+      return false;
+    } finally {
+      _isLoading = false;
+      notifyListeners();
+    }
+  }
+
+  // Reset password with code
+  Future<bool> resetPassword(
+      String email, String resetCode, String newPassword) async {
+    _isLoading = true;
+    notifyListeners();
+
+    try {
+      final response =
+          await _apiService.resetPassword(email, resetCode, newPassword);
+      return response['success'] ?? false;
+    } catch (e) {
+      print('Reset password error: $e');
+      return false;
+    } finally {
+      _isLoading = false;
+      notifyListeners();
+    }
+  }
+
+  // Resend verification code
+  Future<Map<String, dynamic>> resendVerificationCode(String email) async {
+    _isLoading = true;
+    notifyListeners();
+
+    try {
+      final response = await _apiService.resendVerificationCode(email);
+      return {
+        'success': response['success'] ?? false,
+        'message': response['message'] ?? 'Unknown error occurred'
+      };
+    } catch (e) {
+      print('Resend verification code error: $e');
+      return {'success': false, 'message': e.toString()};
+    } finally {
+      _isLoading = false;
+      notifyListeners();
+    }
+  }
+
+  // Resend password reset code
+  Future<Map<String, dynamic>> resendPasswordResetCode(String email) async {
+    _isLoading = true;
+    notifyListeners();
+
+    try {
+      final response = await _apiService.forgotPassword(email);
+      return {
+        'success': response['success'] ?? false,
+        'message': response['message'] ?? 'Unknown error occurred'
+      };
+    } catch (e) {
+      print('Resend password reset code error: $e');
+      return {'success': false, 'message': e.toString()};
+    } finally {
+      _isLoading = false;
+      notifyListeners();
+    }
+  }
+
+  // Verify password reset code
+  Future<bool> verifyPasswordResetCode(String email, String code) async {
+    _isLoading = true;
+    notifyListeners();
+
+    try {
+      final response = await _apiService.verifyResetCode(email, code);
+      return response['success'] ?? false;
+    } catch (e) {
+      print('Verify reset code error: $e');
+      return false;
+    } finally {
+      _isLoading = false;
+      notifyListeners();
+    }
+  }
 }

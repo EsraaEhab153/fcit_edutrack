@@ -8,6 +8,14 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../config.dart';
 
 class ApiService {
+  Future<Map<String, String>> _getAuthHeaders() async {
+    final token = await _getToken();
+    return {
+      'Authorization': 'Bearer $token',
+      'Content-Type': 'application/json',
+    };
+  }
+
   // Headers with content type
   Map<String, String> _headers({String? token}) {
     final headers = {
@@ -115,6 +123,79 @@ class ApiService {
     }
 
     return responseData;
+  }
+
+  // Change password for authenticated user
+  Future<Map<String, dynamic>> changePassword(
+      String currentPassword, String newPassword) async {
+    final response = await http.post(
+      Uri.parse(Config.changePasswordUrl),
+      headers: await _getAuthHeaders(),
+      body: jsonEncode({
+        'currentPassword': currentPassword,
+        'newPassword': newPassword,
+      }),
+    );
+
+    return jsonDecode(response.body);
+  }
+
+  // Initiate password reset
+  Future<Map<String, dynamic>> forgotPassword(String email) async {
+    final response = await http.post(
+      // Uri.parse('${Config.baseUrl}/api/auth/forgot-password'),
+      Uri.parse(Config.forgotPasswordUrl),
+      headers: _headers(),
+      body: jsonEncode({
+        'email': email,
+      }),
+    );
+
+    return jsonDecode(response.body);
+  }
+
+  // Reset password with code
+  Future<Map<String, dynamic>> resetPassword(
+      String email, String resetCode, String newPassword) async {
+    final response = await http.post(
+      Uri.parse(Config.resetPasswordUrl),
+      headers: _headers(),
+      body: jsonEncode({
+        'email': email,
+        'resetCode': resetCode,
+        'newPassword': newPassword,
+      }),
+    );
+
+    return jsonDecode(response.body);
+  }
+
+  // Verify password reset code without changing password
+  Future<Map<String, dynamic>> verifyResetCode(
+      String email, String code) async {
+    final response = await http.post(
+      Uri.parse(Config.verifyResetCodeUrl),
+      headers: _headers(),
+      body: jsonEncode({
+        'email': email,
+        'resetCode': code,
+      }),
+    );
+
+    return jsonDecode(response.body);
+  }
+
+  // Resend verification code
+  Future<Map<String, dynamic>> resendVerificationCode(String email) async {
+    final response = await http.post(
+      Uri.parse('${Config.baseUrl}/api/auth/resend-verification'),
+      headers: _headers(),
+      body: jsonEncode({
+        'email': email,
+      }),
+    );
+
+    return jsonDecode(response.body);
   }
 
   // Get all courses

@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
-import 'package:timezone/data/latest.dart' as tz; // Import timezone data
-import 'package:timezone/timezone.dart' as tz; // Import timezone library
 // Auth imports
 import 'package:fci_edutrack/auth/login_or_register_screen.dart';
 import 'package:fci_edutrack/auth/login_screen.dart';
@@ -35,6 +33,7 @@ import 'package:fci_edutrack/screens/home_screen/notifications_screen.dart';
 import 'package:fci_edutrack/screens/password/forget_password_screen.dart';
 import 'package:fci_edutrack/screens/password/pass_confirm_code_screen.dart';
 import 'package:fci_edutrack/screens/password/reset_password_screen.dart';
+import 'package:fci_edutrack/screens/password/change_password_screen.dart';
 import 'package:fci_edutrack/screens/professor_request_screen.dart';
 import 'package:fci_edutrack/screens/register_attendance.dart';
 import 'package:fci_edutrack/screens/settings_screen.dart';
@@ -43,7 +42,6 @@ import 'package:fci_edutrack/screens/attendance_history_screen.dart';
 Future<void> main() async {
   // Make main async
   WidgetsFlutterBinding.ensureInitialized();
-  tz.initializeTimeZones(); // Initialize timezone data
   SystemChrome.setPreferredOrientations([
     DeviceOrientation.portraitUp,
     DeviceOrientation.portraitDown,
@@ -100,6 +98,8 @@ class MyApp extends StatelessWidget {
         PasswordConfirmationCode.routeName: (context) =>
             const PasswordConfirmationCode(),
         ResetPasswordScreen.routeName: (context) => ResetPasswordScreen(),
+        ChangePasswordScreen.routeName: (context) =>
+            const ChangePasswordScreen(),
 
         // Main navigation routes
         MyBottomNavBar.routeName: (context) => const MyBottomNavBar(),
