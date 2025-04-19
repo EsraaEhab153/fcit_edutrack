@@ -184,8 +184,8 @@ class _StudentQuizListScreenState extends State<StudentQuizListScreen> {
       return DateFormat('MMM d, yyyy h:mm a').format(localDate);
     } catch (e) {
       print("Error formatting date with timezone: $e");
-      // Fallback to simple UTC display or local if timezone fails
-      return DateFormat('MMM d, yyyy h:mm a').format(utcDate) + ' (UTC)';
+      // Fallback to local time display without UTC suffix
+      return DateFormat('MMM d, yyyy h:mm a').format(utcDate.toLocal());
     }
   }
 }

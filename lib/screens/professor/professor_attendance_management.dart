@@ -334,7 +334,25 @@ class _ProfessorAttendanceManagementScreenState
   Widget _buildDailyReportsSection(CourseProvider courseProvider) {
     final enrolledCourses = courseProvider.enrolledCourses;
     if (enrolledCourses.isEmpty) {
-      return const SizedBox.shrink(); // Don't show if no courses
+      return const Center(
+        child: Padding(
+          padding: EdgeInsets.symmetric(vertical: 16.0),
+          child: Text("No courses available"),
+        ),
+      );
+    }
+
+    // Initialize selected course if needed
+    if (_selectedCourseForReport == null && enrolledCourses.isNotEmpty) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        setState(() {
+          _selectedCourseForReport = enrolledCourses.first;
+        });
+      });
+      return const Padding(
+        padding: EdgeInsets.symmetric(vertical: 16.0),
+        child: Text("Loading courses..."),
+      );
     }
 
     return Card(
@@ -346,20 +364,18 @@ class _ProfessorAttendanceManagementScreenState
           children: [
             // Course Dropdown
             DropdownButtonFormField<Course>(
-              // Ensure the value exists in the items list before assigning
-              value: enrolledCourses
-                      .any((c) => c.id == _selectedCourseForReport?.id)
-                  ? _selectedCourseForReport
+              // Use ID-based comparison to find the matching course
+              value: _selectedCourseForReport != null
+                  ? enrolledCourses.firstWhere(
+                      (c) => c.id == _selectedCourseForReport!.id,
+                      orElse: () => enrolledCourses.first)
                   : null,
               items: enrolledCourses.map((Course course) {
                 return DropdownMenuItem<Course>(
-                  value: course, // Keep using the Course object as value
-                  // Wrap with Flexible to handle potential overflow
-                  child: Flexible(
-                    child: Text(
-                      '${course.courseCode} - ${course.courseName}',
-                      // overflow: TextOverflow.ellipsis, // Remove overflow, Flexible handles it
-                    ),
+                  value: course,
+                  child: Text(
+                    '${course.courseCode} - ${course.courseName}',
+                    overflow: TextOverflow.ellipsis,
                   ),
                 );
               }).toList(),
@@ -372,8 +388,7 @@ class _ProfessorAttendanceManagementScreenState
                 labelText: 'Select Course',
                 border: OutlineInputBorder(),
               ),
-              validator: (value) =>
-                  value == null ? 'Please select a course' : null,
+              isExpanded: true,
             ),
             const SizedBox(height: 16),
             // Date Picker
@@ -407,7 +422,25 @@ class _ProfessorAttendanceManagementScreenState
   Widget _buildDownloadReportsSection(CourseProvider courseProvider) {
     final enrolledCourses = courseProvider.enrolledCourses;
     if (enrolledCourses.isEmpty) {
-      return const SizedBox.shrink(); // Don't show if no courses
+      return const Center(
+        child: Padding(
+          padding: EdgeInsets.symmetric(vertical: 16.0),
+          child: Text("No courses available"),
+        ),
+      );
+    }
+
+    // Initialize selected course if needed
+    if (_selectedCourseForReport == null && enrolledCourses.isNotEmpty) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        setState(() {
+          _selectedCourseForReport = enrolledCourses.first;
+        });
+      });
+      return const Padding(
+        padding: EdgeInsets.symmetric(vertical: 16.0),
+        child: Text("Loading courses..."),
+      );
     }
 
     return Card(
@@ -419,20 +452,18 @@ class _ProfessorAttendanceManagementScreenState
           children: [
             // Course Dropdown (similar to daily reports)
             DropdownButtonFormField<Course>(
-              // Ensure the value exists in the items list before assigning
-              value: enrolledCourses
-                      .any((c) => c.id == _selectedCourseForReport?.id)
-                  ? _selectedCourseForReport
+              // Use ID-based comparison to find the matching course
+              value: _selectedCourseForReport != null
+                  ? enrolledCourses.firstWhere(
+                      (c) => c.id == _selectedCourseForReport!.id,
+                      orElse: () => enrolledCourses.first)
                   : null,
               items: enrolledCourses.map((Course course) {
                 return DropdownMenuItem<Course>(
-                  value: course, // Keep using the Course object as value
-                  // Wrap with Flexible to handle potential overflow
-                  child: Flexible(
-                    child: Text(
-                      '${course.courseCode} - ${course.courseName}',
-                      // overflow: TextOverflow.ellipsis, // Remove overflow, Flexible handles it
-                    ),
+                  value: course,
+                  child: Text(
+                    '${course.courseCode} - ${course.courseName}',
+                    overflow: TextOverflow.ellipsis,
                   ),
                 );
               }).toList(),
@@ -445,8 +476,7 @@ class _ProfessorAttendanceManagementScreenState
                 labelText: 'Select Course',
                 border: OutlineInputBorder(),
               ),
-              validator: (value) =>
-                  value == null ? 'Please select a course' : null,
+              isExpanded: true,
             ),
             const SizedBox(height: 16),
             // Download Button

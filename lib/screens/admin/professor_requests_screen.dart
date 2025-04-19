@@ -4,6 +4,11 @@ import 'package:fci_edutrack/themes/theme_provider.dart';
 import 'package:provider/provider.dart';
 import 'package:fci_edutrack/services/api_service.dart';
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:fci_edutrack/config.dart';
+import 'dart:typed_data';
+import 'dart:io';
+import 'package:path_provider/path_provider.dart';
+import 'package:open_file/open_file.dart';
 
 class ProfessorRequestsScreen extends StatefulWidget {
   static const String routeName = 'admin_professor_requests_screen';
@@ -20,6 +25,8 @@ class _ProfessorRequestsScreenState extends State<ProfessorRequestsScreen> {
   bool _isLoading = true;
   String? _errorMessage;
   List<dynamic> _requests = [];
+  // Map to store loaded image bytes
+  final Map<String, Uint8List> _loadedImages = {};
 
   @override
   void initState() {
@@ -120,6 +127,29 @@ class _ProfessorRequestsScreenState extends State<ProfessorRequestsScreen> {
     }
   }
 
+  // Load an image with authentication
+  Future<bool> _loadImageWithAuth(String imageUrl, String requestId) async {
+    try {
+      // Check if already loaded
+      if (_loadedImages.containsKey(requestId)) {
+        return true;
+      }
+
+      final response = await _apiService.openFile(imageUrl, isImage: true);
+
+      if (response['success'] && response['bytes'] != null) {
+        setState(() {
+          _loadedImages[requestId] = response['bytes'];
+        });
+        return true;
+      }
+      return false;
+    } catch (e) {
+      print("Error loading image with auth: $e");
+      return false;
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final isDark = Provider.of<ThemeProvider>(context).isDark();
@@ -216,14 +246,12 @@ class _ProfessorRequestsScreenState extends State<ProfessorRequestsScreen> {
   }
 
   Widget _buildRequestCard(dynamic request, bool isDark) {
-    // Fix the image URL if needed
+    // Get the image URL and request ID
     String imageUrl = request['idImageUrl'] ?? '';
-    if (imageUrl.isNotEmpty && !imageUrl.startsWith('http')) {
-      // Add the base URL for relative paths
-      imageUrl = 'https://edutrack-backend-orms.onrender.com$imageUrl';
-    }
+    String requestId = request['id']?.toString() ?? '';
 
-    print("ID Image URL: $imageUrl"); // Debug the image URL
+    // Print for debugging
+    print("ID Image URL: $imageUrl");
 
     return Card(
       elevation: 2,
@@ -341,43 +369,49 @@ class _ProfessorRequestsScreenState extends State<ProfessorRequestsScreen> {
               const SizedBox(height: 8),
               ClipRRect(
                 borderRadius: BorderRadius.circular(8),
-                child: CachedNetworkImage(
-                  imageUrl: imageUrl,
-                  height: 120,
-                  width: double.infinity,
-                  fit: BoxFit.cover,
-                  placeholder: (context, url) => Container(
-                    height: 120,
-                    width: double.infinity,
-                    color: isDark ? Colors.grey.shade800 : Colors.grey.shade200,
-                    child: const Center(child: CircularProgressIndicator()),
-                  ),
-                  errorWidget: (context, url, error) {
-                    print("Error loading image: $url - $error");
-                    return Container(
-                      height: 120,
-                      width: double.infinity,
-                      color:
-                          isDark ? Colors.grey.shade800 : Colors.grey.shade200,
-                      child: Center(
-                        child: Column(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            const Icon(Icons.broken_image, size: 40),
-                            const SizedBox(height: 8),
-                            Text(
-                              'Failed to load image: $error',
-                              style: TextStyle(
-                                color: isDark
-                                    ? Colors.grey.shade300
-                                    : Colors.grey.shade700,
-                                fontSize: 12,
-                              ),
-                              textAlign: TextAlign.center,
-                            ),
-                          ],
+                child: FutureBuilder<bool>(
+                  future: _loadImageWithAuth(imageUrl, requestId),
+                  builder: (context, snapshot) {
+                    // If image is successfully loaded
+                    if (snapshot.connectionState == ConnectionState.done &&
+                        snapshot.data == true &&
+                        _loadedImages.containsKey(requestId)) {
+                      return GestureDetector(
+                        onTap: () {
+                          _showFullScreenImage(
+                              request['fullName'] ?? 'ID Image',
+                              _loadedImages[requestId]!);
+                        },
+                        child: Image.memory(
+                          _loadedImages[requestId]!,
+                          height: 120,
+                          width: double.infinity,
+                          fit: BoxFit.cover,
+                          errorBuilder: (context, error, stackTrace) {
+                            print("Error displaying image from memory: $error");
+                            return _buildImageErrorWidget(
+                                isDark, "Failed to display image: $error");
+                          },
                         ),
-                      ),
+                      );
+                    }
+
+                    // If loading
+                    if (snapshot.connectionState == ConnectionState.waiting) {
+                      return Container(
+                        height: 120,
+                        width: double.infinity,
+                        color: isDark
+                            ? Colors.grey.shade800
+                            : Colors.grey.shade200,
+                        child: const Center(child: CircularProgressIndicator()),
+                      );
+                    }
+
+                    // If error or no data
+                    return _buildImageErrorWidget(
+                      isDark,
+                      snapshot.error?.toString() ?? "Failed to load image",
                     );
                   },
                 ),
@@ -446,6 +480,32 @@ class _ProfessorRequestsScreenState extends State<ProfessorRequestsScreen> {
     );
   }
 
+  // Helper to build the error widget for images
+  Widget _buildImageErrorWidget(bool isDark, String errorMessage) {
+    return Container(
+      height: 120,
+      width: double.infinity,
+      color: isDark ? Colors.grey.shade800 : Colors.grey.shade200,
+      child: Center(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const Icon(Icons.broken_image, size: 40),
+            const SizedBox(height: 8),
+            Text(
+              errorMessage,
+              style: TextStyle(
+                color: isDark ? Colors.grey.shade300 : Colors.grey.shade700,
+                fontSize: 12,
+              ),
+              textAlign: TextAlign.center,
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
   void _showRejectDialog(String requestId) {
     final TextEditingController reasonController = TextEditingController();
 
@@ -491,6 +551,75 @@ class _ProfessorRequestsScreenState extends State<ProfessorRequestsScreen> {
             child: const Text('Reject'),
           ),
         ],
+      ),
+    );
+  }
+
+  // Method to show image in full screen dialog
+  void _showFullScreenImage(String title, Uint8List imageBytes) {
+    showDialog(
+      context: context,
+      builder: (ctx) => Dialog(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            AppBar(
+              title: Text(title),
+              automaticallyImplyLeading: false,
+              actions: [
+                IconButton(
+                  icon: Icon(Icons.close),
+                  onPressed: () => Navigator.of(ctx).pop(),
+                )
+              ],
+            ),
+            InteractiveViewer(
+              panEnabled: true,
+              boundaryMargin: EdgeInsets.all(20),
+              minScale: 0.5,
+              maxScale: 4,
+              child: Image.memory(
+                imageBytes,
+                fit: BoxFit.contain,
+              ),
+            ),
+            SizedBox(height: 16),
+            ElevatedButton.icon(
+              icon: Icon(Icons.open_in_new),
+              label: Text('Open in external app'),
+              onPressed: () async {
+                try {
+                  // Save to temporary file
+                  final tempDir = await getTemporaryDirectory();
+                  final fileName =
+                      'id_image_${DateTime.now().millisecondsSinceEpoch}.jpg';
+                  final tempFile = File('${tempDir.path}/$fileName');
+                  await tempFile.writeAsBytes(imageBytes);
+
+                  Navigator.of(ctx).pop(); // Close dialog
+
+                  // Open file
+                  final result = await OpenFile.open(tempFile.path);
+                  if (result.type != ResultType.done) {
+                    if (!mounted) return;
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                          content:
+                              Text('Could not open file: ${result.message}')),
+                    );
+                  }
+                } catch (e) {
+                  print('Error opening image in external app: $e');
+                  if (!mounted) return;
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(content: Text('Error opening image: $e')),
+                  );
+                }
+              },
+            ),
+            SizedBox(height: 8),
+          ],
+        ),
       ),
     );
   }

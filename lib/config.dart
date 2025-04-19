@@ -3,6 +3,14 @@ class Config {
   static const String baseUrl =
       'https://edutrack-backend-orms.onrender.com/api';
 
+  // Base URL without the /api suffix for direct resource access
+  static const String baseResourceUrl =
+      'https://edutrack-backend-orms.onrender.com';
+
+  // File access endpoints
+  static const String filesUrl = '$baseUrl/api/files';
+  static const String professorIdFilesUrl = '$baseUrl/api/files/professor-id';
+
   // Authentication endpoints
   static const String registerUrl = '$baseUrl/api/auth/register';
   static const String loginUrl = '$baseUrl/api/auth/login';
@@ -67,4 +75,33 @@ class Config {
 
   // Professor request endpoint
   static const String professorRequestUrl = '$baseUrl/api/professor-requests';
+
+  // Helper method to get the full URL for a file path
+  static String getFileUrl(String filePath) {
+    // If the path already contains the full URL, return it as is
+    if (filePath.startsWith('http')) {
+      return filePath;
+    }
+
+    // If path starts with "/api/files/professor-id", use the professor ID files URL
+    if (filePath.startsWith('/api/files/professor-id/')) {
+      String fileName = filePath.substring('/api/files/professor-id/'.length);
+      return '$professorIdFilesUrl/$fileName';
+    }
+
+    // For regular files that start with "/api/files/"
+    if (filePath.startsWith('/api/files/')) {
+      String fileName = filePath.substring('/api/files/'.length);
+      return '$filesUrl/$fileName';
+    }
+
+    // For any other path, just append to base URL
+    return '$baseResourceUrl$filePath';
+  }
+
+  // Get the file name from a file URL
+  static String getFileNameFromUrl(String fileUrl) {
+    Uri uri = Uri.parse(fileUrl);
+    return uri.pathSegments.last;
+  }
 }

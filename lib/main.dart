@@ -10,6 +10,7 @@ import 'package:fci_edutrack/auth/auth_wrapper.dart';
 import 'package:fci_edutrack/providers/attendance_provider.dart';
 import 'package:fci_edutrack/providers/auth_provider.dart';
 import 'package:fci_edutrack/providers/course_provider.dart';
+import 'package:fci_edutrack/providers/assignment_provider.dart';
 import 'package:fci_edutrack/providers/quiz_provider.dart';
 // Theme imports
 import 'package:fci_edutrack/themes/theme_provider.dart';
@@ -21,11 +22,18 @@ import 'package:fci_edutrack/screens/admin/admin_home_screen.dart';
 import 'package:fci_edutrack/screens/professor/quiz_management_screen.dart';
 import 'package:fci_edutrack/screens/professor/quiz_creation_screen.dart';
 import 'package:fci_edutrack/screens/professor/professor_home_screen.dart';
+import 'package:fci_edutrack/screens/professor/quiz_drafts_screen.dart';
 // Screen imports - Student
 import 'package:fci_edutrack/screens/student/student_quiz_list_screen.dart';
 // Screen imports - General
 import 'package:fci_edutrack/screens/assignment/assignment_details.dart';
 import 'package:fci_edutrack/screens/assignment/assignment_screen.dart';
+import 'package:fci_edutrack/screens/assignment/assignment_create_screen.dart';
+import 'package:fci_edutrack/screens/assignment/assignment_submission_screen.dart';
+import 'package:fci_edutrack/screens/assignment/assignment_submissions_screen.dart';
+import 'package:fci_edutrack/screens/assignment/assignment_grading_screen.dart';
+import 'package:fci_edutrack/screens/assignment/assignment_drafts_screen.dart';
+import 'package:fci_edutrack/models/assignment_model.dart';
 import 'package:fci_edutrack/screens/camera_permission_screen.dart';
 import 'package:fci_edutrack/screens/explain_screens.dart';
 import 'package:fci_edutrack/screens/home_screen/my_bottom_nav_bar.dart';
@@ -56,6 +64,9 @@ Future<void> main() async {
     ),
     ChangeNotifierProvider(
       create: (context) => CourseProvider(),
+    ),
+    ChangeNotifierProvider(
+      create: (context) => AssignmentProvider(),
     ),
     ChangeNotifierProvider(
       create: (context) => AttendanceProvider(),
@@ -116,6 +127,39 @@ class MyApp extends StatelessWidget {
         // Assignment routes
         AssignmentScreen.routeName: (context) => const AssignmentScreen(),
         AssignmentDetails.routeName: (context) => const AssignmentDetails(),
+        AssignmentCreateScreen.routeName: (context) =>
+            const AssignmentCreateScreen(),
+        AssignmentDraftsScreen.routeName: (context) =>
+            const AssignmentDraftsScreen(),
+        AssignmentSubmissionScreen.routeName: (context) {
+          final arguments = ModalRoute.of(context)?.settings.arguments;
+
+          if (arguments is Assignment) {
+            return AssignmentSubmissionScreen(assignment: arguments);
+          } else if (arguments is Map<String, dynamic>) {
+            return AssignmentSubmissionScreen(
+              assignment: arguments['assignment'],
+              existingSubmission: arguments['existingSubmission'],
+            );
+          } else {
+            return AssignmentSubmissionScreen(
+              assignment: Assignment(
+                id: 0,
+                title: 'Error',
+                description: 'Invalid arguments',
+                dueDate: '',
+                maxPoints: 0,
+              ),
+            );
+          }
+        },
+        AssignmentSubmissionsScreen.routeName: (context) =>
+            AssignmentSubmissionsScreen(
+                assignmentId:
+                    ModalRoute.of(context)!.settings.arguments as int),
+        AssignmentGradingScreen.routeName: (context) => AssignmentGradingScreen(
+            submission: ModalRoute.of(context)!.settings.arguments
+                as AssignmentSubmission),
 
         // Professor routes
         ProfessorRequestScreen.routeName: (context) =>
@@ -133,6 +177,7 @@ class MyApp extends StatelessWidget {
         QuizManagementScreen.routeName: (context) =>
             const QuizManagementScreen(),
         QuizCreationScreen.routeName: (context) => const QuizCreationScreen(),
+        QuizDraftsScreen.routeName: (context) => const QuizDraftsScreen(),
         StudentQuizListScreen.routeName: (context) =>
             const StudentQuizListScreen(),
 

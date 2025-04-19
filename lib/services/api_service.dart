@@ -524,6 +524,160 @@ class ApiService {
     return jsonDecode(response.body);
   }
 
+  // Get all assignments for a course (Professor Only)
+  Future<Map<String, dynamic>> getAllAssignments(int courseId) async {
+    final token = await _getToken();
+    final response = await http.get(
+      Uri.parse('${Config.assignmentsUrl}/all?courseId=$courseId'),
+      headers: _headers(token: token),
+    );
+    return jsonDecode(response.body);
+  }
+
+  // Create a new assignment (Professor Only)
+  Future<Map<String, dynamic>> createAssignment(
+      Map<String, dynamic> assignmentData) async {
+    final token = await _getToken();
+    print("Creating assignment with data: $assignmentData");
+    final response = await http.post(
+      Uri.parse(Config.assignmentsUrl),
+      headers: _headers(token: token),
+      body: jsonEncode(assignmentData),
+    );
+    print(
+        "Create assignment response status: " + response.statusCode.toString());
+    if (response.statusCode != 201) {
+      print("Error response body: ${response.body}");
+    }
+    return jsonDecode(response.body);
+  }
+
+  // Submit an assignment (Student Only)
+  Future<Map<String, dynamic>> submitAssignment(
+      int assignmentId, Map<String, dynamic> submissionData) async {
+    final token = await _getToken();
+    final url = '${Config.assignmentsUrl}/$assignmentId/submit';
+    print(
+        "Submitting assignment $assignmentId to URL: $url with data: $submissionData");
+    final response = await http.post(
+      Uri.parse(url),
+      headers: _headers(token: token),
+      body: jsonEncode(submissionData),
+    );
+    print("Submit assignment response status: ${response.statusCode}");
+    if (response.statusCode != 201) {
+      print("Error response body: ${response.body}");
+    }
+    return jsonDecode(response.body);
+  }
+
+  // Edit an assignment submission (Student Only)
+  Future<Map<String, dynamic>> editSubmission(
+      int submissionId, Map<String, dynamic> submissionData) async {
+    final token = await _getToken();
+    final url = '${Config.assignmentsUrl}/submissions/$submissionId';
+    print(
+        "Editing submission $submissionId at URL: $url with data: $submissionData");
+    final response = await http.put(
+      Uri.parse(url),
+      headers: _headers(token: token),
+      body: jsonEncode(submissionData),
+    );
+    print("Edit submission response status: ${response.statusCode}");
+    if (response.statusCode != 200) {
+      print("Error response body: ${response.body}");
+    }
+    return jsonDecode(response.body);
+  }
+
+  // Edit an assignment (Professor Only)
+  Future<Map<String, dynamic>> editAssignment(
+      int assignmentId, Map<String, dynamic> assignmentData) async {
+    final token = await _getToken();
+    final url = '${Config.assignmentsUrl}/$assignmentId';
+    print(
+        "Editing assignment $assignmentId at URL: $url with data: $assignmentData");
+    final response = await http.put(
+      Uri.parse(url),
+      headers: _headers(token: token),
+      body: jsonEncode(assignmentData),
+    );
+    print("Edit assignment response status: ${response.statusCode}");
+    if (response.statusCode != 200) {
+      print("Error response body: ${response.body}");
+    }
+    return jsonDecode(response.body);
+  }
+
+  // Fetch submissions for a specific assignment (Professor Only)
+  Future<Map<String, dynamic>> getAssignmentSubmissions(
+      int assignmentId) async {
+    final token = await _getToken();
+    final url = '${Config.assignmentsUrl}/$assignmentId/submissions';
+    print(
+        "Getting assignment submissions for assignment $assignmentId from URL: $url");
+    final response = await http.get(
+      Uri.parse(url),
+      headers: _headers(token: token),
+    );
+    print("Get assignment submissions response status: ${response.statusCode}");
+    if (response.statusCode != 200) {
+      print("Error response body: ${response.body}");
+    }
+    return jsonDecode(response.body);
+  }
+
+  // New method to fetch current student's submissions across all assignments
+  Future<Map<String, dynamic>> getStudentSubmissions() async {
+    final token = await _getToken();
+    final url = '${Config.assignmentsUrl}/submissions/student';
+    print("Getting current student submissions from URL: $url");
+    final response = await http.get(
+      Uri.parse(url),
+      headers: _headers(token: token),
+    );
+    print("Get student submissions response status: ${response.statusCode}");
+    if (response.statusCode != 200) {
+      print("Error response body: ${response.body}");
+    }
+    return jsonDecode(response.body);
+  }
+
+  // Get details for a specific assignment
+  Future<Map<String, dynamic>> getAssignmentDetails(int assignmentId) async {
+    final token = await _getToken();
+    final url = '${Config.assignmentsUrl}/$assignmentId';
+    print("Getting assignment details for ID $assignmentId from URL: $url");
+    final response = await http.get(
+      Uri.parse(url),
+      headers: _headers(token: token),
+    );
+    print("Get assignment details response status: ${response.statusCode}");
+    if (response.statusCode != 200) {
+      print("Error response body: ${response.body}");
+    }
+    return jsonDecode(response.body);
+  }
+
+  // Grade an assignment submission (Professor Only)
+  Future<Map<String, dynamic>> gradeAssignmentSubmission(
+      int submissionId, Map<String, dynamic> gradeData) async {
+    final token = await _getToken();
+    final url = '${Config.assignmentsUrl}/submissions/$submissionId/grade';
+    print("Grading assignment submission $submissionId with data: $gradeData");
+    final response = await http.post(
+      Uri.parse(url),
+      headers: _headers(token: token),
+      body: jsonEncode(gradeData),
+    );
+    print(
+        "Grade assignment submission response status: ${response.statusCode}");
+    if (response.statusCode != 200) {
+      print("Error response body: ${response.body}");
+    }
+    return jsonDecode(response.body);
+  }
+
   // Submit professor request
   Future<dynamic> submitProfessorRequest(
     String fullName,
@@ -565,6 +719,24 @@ class ApiService {
     print("Create quiz response status: ${response.statusCode}");
     if (response.statusCode != 201) {
       // Expect 201 Created
+      print("Error response body: ${response.body}");
+    }
+    return jsonDecode(response.body);
+  }
+
+  // Edit Quiz (Professor Only)
+  Future<Map<String, dynamic>> editQuiz(
+      int quizId, Map<String, dynamic> quizData) async {
+    final token = await _getToken();
+    final url = '${Config.quizzesUrl}/$quizId';
+    print("Editing quiz $quizId at URL: $url with data: $quizData");
+    final response = await http.put(
+      Uri.parse(url),
+      headers: _headers(token: token),
+      body: jsonEncode(quizData),
+    );
+    print("Edit quiz response status: ${response.statusCode}");
+    if (response.statusCode != 200) {
       print("Error response body: ${response.body}");
     }
     return jsonDecode(response.body);
@@ -760,11 +932,101 @@ class ApiService {
     }
   }
 
-  // Upload file
-  Future<dynamic> uploadFile(File file) async {
+  // Get file data with authentication
+  Future<http.Response> getFileWithAuth(String fileUrl) async {
+    try {
+      final token = await _getToken();
+
+      // If the URL is already absolute, use it as is
+      final url =
+          fileUrl.startsWith('http') ? fileUrl : Config.getFileUrl(fileUrl);
+
+      print("Getting file from URL with auth: $url");
+
+      final response = await http.get(
+        Uri.parse(url),
+        headers: {
+          'Authorization': 'Bearer $token',
+        },
+      );
+
+      print("File response status: ${response.statusCode}");
+      return response;
+    } catch (e) {
+      print("Error getting file: $e");
+      // Return a fake response with error status
+      return http.Response('{"error": "$e"}', 500);
+    }
+  }
+
+  // Open a file with proper authentication
+  Future<Map<String, dynamic>> openFile(String fileUrl,
+      {bool isImage = false}) async {
+    try {
+      final response = await getFileWithAuth(fileUrl);
+
+      if (response.statusCode == 200) {
+        // For images, we return the response with bytes for direct display
+        if (isImage) {
+          return {
+            'success': true,
+            'isImage': true,
+            'bytes': response.bodyBytes,
+            'contentType':
+                response.headers['content-type'] ?? 'application/octet-stream',
+          };
+        }
+
+        // For other files, save to temp directory and open
+        final fileName = Config.getFileNameFromUrl(fileUrl);
+        final dir = await getTemporaryDirectory();
+        final file = File('${dir.path}/$fileName');
+        await file.writeAsBytes(response.bodyBytes);
+
+        // Open the file
+        final result = await OpenFile.open(file.path);
+        if (result.type == ResultType.done) {
+          return {
+            'success': true,
+            'message': 'File opened successfully',
+            'filePath': file.path
+          };
+        } else {
+          return {
+            'success': false,
+            'message': 'Failed to open file: ${result.message}'
+          };
+        }
+      } else if (response.statusCode == 403) {
+        return {
+          'success': false,
+          'message': 'You do not have permission to access this file',
+          'statusCode': 403
+        };
+      } else {
+        return {
+          'success': false,
+          'message': 'Failed to retrieve file (Status: ${response.statusCode})',
+          'statusCode': response.statusCode
+        };
+      }
+    } catch (e) {
+      print("Exception opening file: $e");
+      return {
+        'success': false,
+        'message': 'Error accessing file: $e',
+      };
+    }
+  }
+
+  // Upload file with optional file type parameter
+  Future<dynamic> uploadFile(File file, {String? fileType}) async {
     try {
       print("Uploading file to ${Config.publicFileUploadUrl}");
       print("File path: ${file.path}");
+      if (fileType != null) {
+        print("File type: $fileType");
+      }
 
       // Determine content type based on file extension
       String extension = file.path.split('.').last.toLowerCase();
@@ -805,6 +1067,11 @@ class ApiService {
       );
 
       request.files.add(multipartFile);
+
+      // Add the file type if provided
+      if (fileType != null) {
+        request.fields['fileType'] = fileType;
+      }
 
       print(
           "Created multipart request with file: ${multipartFile.filename}, contentType: ${multipartFile.contentType}");

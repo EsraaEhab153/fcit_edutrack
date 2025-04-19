@@ -346,12 +346,67 @@ class _ProfessorRequestScreenState extends State<ProfessorRequestScreen> {
                     borderRadius: BorderRadius.circular(8),
                   ),
                   child: _idImage != null
-                      ? ClipRRect(
-                          borderRadius: BorderRadius.circular(8),
-                          child: Image.file(
-                            _idImage!,
-                            fit: BoxFit.cover,
-                          ),
+                      ? Stack(
+                          children: [
+                            ClipRRect(
+                              borderRadius: BorderRadius.circular(8),
+                              child: Image.file(
+                                _idImage!,
+                                fit: BoxFit.cover,
+                                width: double.infinity,
+                                height: double.infinity,
+                              ),
+                            ),
+                            Positioned(
+                              top: 8,
+                              right: 8,
+                              child: Row(
+                                children: [
+                                  // Edit button
+                                  Container(
+                                    decoration: BoxDecoration(
+                                      color: Colors.black.withOpacity(0.6),
+                                      borderRadius: BorderRadius.circular(20),
+                                    ),
+                                    child: IconButton(
+                                      icon: const Icon(Icons.edit,
+                                          color: Colors.white),
+                                      onPressed: _pickImage,
+                                      tooltip: 'Change image',
+                                    ),
+                                  ),
+                                  const SizedBox(width: 8),
+                                  // Delete button
+                                  Container(
+                                    decoration: BoxDecoration(
+                                      color: Colors.black.withOpacity(0.6),
+                                      borderRadius: BorderRadius.circular(20),
+                                    ),
+                                    child: IconButton(
+                                      icon: const Icon(Icons.delete,
+                                          color: Colors.red),
+                                      onPressed: () {
+                                        setState(() {
+                                          _idImage = null;
+                                          _uploadedImageUrl = null;
+                                        });
+                                      },
+                                      tooltip: 'Remove image',
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                            // Add click handler to change image
+                            Positioned.fill(
+                              child: Material(
+                                color: Colors.transparent,
+                                child: InkWell(
+                                  onTap: _pickImage,
+                                ),
+                              ),
+                            ),
+                          ],
                         )
                       : Center(
                           child: Column(

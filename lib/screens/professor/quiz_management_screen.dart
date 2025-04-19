@@ -9,6 +9,7 @@ import '../../models/course_model.dart'; // Import Course model
 import '../../providers/course_provider.dart'; // Import CourseProvider
 import 'quiz_creation_screen.dart'; // Import the creation screen
 import 'quiz_submissions_screen.dart'; // Import the submissions screen
+import 'quiz_drafts_screen.dart'; // Import the drafts screen
 import 'package:intl/intl.dart'; // Import intl for date formatting
 import 'package:timezone/timezone.dart' as tz; // Import timezone library
 
@@ -150,6 +151,38 @@ class _QuizManagementScreenState extends State<QuizManagementScreen> {
         backgroundColor: Colors.transparent,
         elevation: 0,
         iconTheme: const IconThemeData(color: MyAppColors.primaryColor),
+        actions: [
+          Consumer<QuizProvider>(
+            builder: (context, quizProvider, _) {
+              if (quizProvider.hasDraft) {
+                return Padding(
+                  padding: const EdgeInsets.only(right: 8.0),
+                  child: Badge(
+                    label: Text("1"),
+                    child: IconButton(
+                      icon: Icon(Icons.description),
+                      tooltip: 'View Drafts',
+                      onPressed: () {
+                        Navigator.pushNamed(
+                          context,
+                          QuizDraftsScreen.routeName,
+                        ).then((value) {
+                          // Refresh the view when returning from drafts screen
+                          if (value == true) {
+                            quizProvider.fetchProfessorQuizzes();
+                          }
+                          // Force refresh to update UI based on draft status
+                          setState(() {});
+                        });
+                      },
+                    ),
+                  ),
+                );
+              }
+              return SizedBox.shrink();
+            },
+          ),
+        ],
       ),
       body: Consumer<QuizProvider>(
         builder: (context, quizProvider, child) {
@@ -169,9 +202,14 @@ class _QuizManagementScreenState extends State<QuizManagementScreen> {
       floatingActionButton: FloatingActionButton(
         backgroundColor: MyAppColors.primaryColor,
         onPressed: () {
-          Navigator.pushNamed(context, QuizCreationScreen.routeName);
+          Navigator.pushNamed(context, QuizCreationScreen.routeName)
+              .then((value) {
+            // Refresh UI when returning from quiz creation
+            setState(() {});
+          });
         },
         child: const Icon(Icons.add),
+        tooltip: 'Create Quiz',
       ),
     );
   }
@@ -223,126 +261,122 @@ class _QuizManagementScreenState extends State<QuizManagementScreen> {
     // final now = DateTime.now(); // No longer needed for separation here
 
     // Display all quizzes in a single list using ListView.builder
-    return ListView.builder(
-      padding: const EdgeInsets.all(16),
-      itemCount: allQuizzes.length,
-      itemBuilder: (context, index) {
-        final quiz = allQuizzes[index];
-        // Reuse the item building logic directly here
-        final course = courseProvider.enrolledCourses.firstWhere(
-          (c) => c.id == quiz.courseId,
-          orElse: () => Course(
-              // Default/fallback course object
-              id: quiz.courseId, // Use the ID from the quiz
-              courseCode: 'N/A',
-              courseName: 'Unknown', // Keep it short
-              description: '',
-              startTime: '',
-              endTime: '',
-              days: []),
-        );
-        // Create a display string with name and ID
-        final String courseNameDisplay =
-            '${course.courseName ?? 'Unknown'} (ID: ${quiz.courseId})';
-
-        return Card(
-          elevation: 2,
-          margin: const EdgeInsets.only(bottom: 16),
-          child: Column(
-            children: [
-              ListTile(
-                contentPadding: const EdgeInsets.all(16),
-                title: Text(
-                  quiz.title,
-                  style: const TextStyle(
-                    fontWeight: FontWeight.bold,
-                    fontSize: 18,
-                  ),
-                ),
-                subtitle: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const SizedBox(height: 8),
-                    Row(
-                      children: [
-                        const Icon(Icons.school, size: 16, color: Colors.grey),
-                        const SizedBox(width: 4),
-                        // Use Expanded to prevent overflow if course name is long
-                        Expanded(
-                          child: Text(
-                            'Course: $courseNameDisplay', // Display name and ID
-                            overflow: TextOverflow.ellipsis,
-                          ),
-                        ), // Closing parenthesis for Expanded
-                      ], // Closing bracket for Row children
-                    ), // Closing parenthesis for Row
-                    const SizedBox(height: 4),
-                    Row(
-                      children: [
-                        const Icon(Icons.question_answer,
-                            size: 16, color: Colors.grey),
-                        const SizedBox(width: 4),
-                        Text('Questions: ${quiz.questions.length}'),
-                        const SizedBox(width: 16),
-                        const Icon(Icons.timer, size: 16, color: Colors.grey),
-                        const SizedBox(width: 4),
-                        Text('${quiz.durationMinutes} minutes'),
-                      ],
-                    ),
-                    const SizedBox(height: 4),
-                    Row(
-                      children: [
-                        const Icon(Icons.calendar_today,
-                            size: 16, color: Colors.grey),
-                        const SizedBox(width: 4),
-                        Text('Ends: ${_formatDateTime(quiz.endDate)}'),
-                      ],
-                    ),
-                  ],
-                ),
-              ),
-              Container(
-                decoration: BoxDecoration(
-                  border: Border(
-                    top: BorderSide(color: Colors.grey.shade300),
-                  ),
-                ),
-                child: ButtonBar(
-                  alignment: MainAxisAlignment.spaceAround,
-                  children: [
-                    TextButton.icon(
-                      icon: const Icon(Icons.visibility),
-                      label: const Text('Submissions'), // Shortened label
-                      onPressed: () => _viewSubmissions(quiz),
-                    ),
-                    TextButton.icon(
-                      icon: const Icon(Icons.download),
-                      label: const Text('Download'), // Shortened label
-                      onPressed: () => _downloadSubmissions(quiz),
-                    ),
-                    IconButton(
-                      icon: const Icon(Icons.edit,
-                          color: MyAppColors.primaryColor),
-                      tooltip: 'Edit Quiz (Coming Soon)',
-                      onPressed: () {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(
-                              content: Text('Edit quiz coming soon!')),
-                        );
-                      },
-                    ),
-                    IconButton(
-                      icon: const Icon(Icons.delete, color: Colors.red),
-                      tooltip: 'Delete Quiz',
-                      onPressed: () => _showDeleteConfirmation(quiz),
-                    ),
-                  ],
-                ),
-              ),
-            ],
-          ),
-        );
+    return RefreshIndicator(
+      onRefresh: () async {
+        await _fetchQuizzes();
       },
+      child: ListView.builder(
+        padding: const EdgeInsets.all(16),
+        itemCount: allQuizzes.length,
+        itemBuilder: (context, index) {
+          final quiz = allQuizzes[index];
+          // Reuse the item building logic directly here
+          final course = courseProvider.enrolledCourses.firstWhere(
+            (c) => c.id == quiz.courseId,
+            orElse: () => Course(
+                // Default/fallback course object
+                id: quiz.courseId, // Use the ID from the quiz
+                courseCode: 'N/A',
+                courseName: 'Unknown', // Keep it short
+                description: '',
+                startTime: '',
+                endTime: '',
+                days: []),
+          );
+          // Create a display string with name and ID
+          final String courseNameDisplay =
+              '${course.courseName ?? 'Unknown'} (ID: ${quiz.courseId})';
+
+          return Card(
+            elevation: 2,
+            margin: const EdgeInsets.only(bottom: 16),
+            child: Column(
+              children: [
+                ListTile(
+                  contentPadding: const EdgeInsets.all(16),
+                  title: Text(
+                    quiz.title,
+                    style: const TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 18,
+                    ),
+                  ),
+                  subtitle: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const SizedBox(height: 8),
+                      Row(
+                        children: [
+                          const Icon(Icons.school,
+                              size: 16, color: Colors.grey),
+                          const SizedBox(width: 4),
+                          // Use Expanded to prevent overflow if course name is long
+                          Expanded(
+                            child: Text(
+                              'Course: $courseNameDisplay', // Display name and ID
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ), // Closing parenthesis for Expanded
+                        ], // Closing bracket for Row children
+                      ), // Closing parenthesis for Row
+                      const SizedBox(height: 4),
+                      Row(
+                        children: [
+                          const Icon(Icons.question_answer,
+                              size: 16, color: Colors.grey),
+                          const SizedBox(width: 4),
+                          Text('Questions: ${quiz.questions.length}'),
+                          const SizedBox(width: 16),
+                          const Icon(Icons.timer, size: 16, color: Colors.grey),
+                          const SizedBox(width: 4),
+                          Text('${quiz.durationMinutes} minutes'),
+                        ],
+                      ),
+                      const SizedBox(height: 4),
+                      Row(
+                        children: [
+                          const Icon(Icons.calendar_today,
+                              size: 16, color: Colors.grey),
+                          const SizedBox(width: 4),
+                          Text('Ends: ${_formatDateTime(quiz.endDate)}'),
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+                Container(
+                  decoration: BoxDecoration(
+                    border: Border(
+                      top: BorderSide(color: Colors.grey.shade300),
+                    ),
+                  ),
+                  child: ButtonBar(
+                    alignment: MainAxisAlignment.spaceAround,
+                    children: [
+                      TextButton.icon(
+                        icon: const Icon(Icons.visibility),
+                        label: const Text('Submissions'), // Shortened label
+                        onPressed: () => _viewSubmissions(quiz),
+                      ),
+                      TextButton.icon(
+                        icon: const Icon(Icons.download),
+                        label: const Text('Download'), // Shortened label
+                        onPressed: () => _downloadSubmissions(quiz),
+                      ),
+                      IconButton(
+                        icon: const Icon(Icons.edit,
+                            color: MyAppColors.primaryColor),
+                        tooltip: 'Edit Quiz',
+                        onPressed: () => _editQuiz(quiz),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          );
+        },
+      ),
     );
   }
 
@@ -361,8 +395,8 @@ class _QuizManagementScreenState extends State<QuizManagementScreen> {
       return DateFormat('MMM d, yyyy h:mm a').format(localDate);
     } catch (e) {
       print("Error formatting date with timezone: $e");
-      // Fallback to simple UTC display or local if timezone fails
-      return DateFormat('MMM d, yyyy h:mm a').format(utcDate) + ' (UTC)';
+      // Fallback to local time display without UTC suffix
+      return DateFormat('MMM d, yyyy h:mm a').format(utcDate.toLocal());
     }
   }
 
@@ -395,5 +429,20 @@ class _QuizManagementScreenState extends State<QuizManagementScreen> {
         ],
       ),
     );
+  }
+
+  void _editQuiz(Quiz quiz) {
+    // Navigate to the QuizCreationScreen with the quiz to edit
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => QuizCreationScreen(quizToEdit: quiz),
+      ),
+    ).then((value) {
+      // Refresh the quiz list when returning from editing
+      if (value == true) {
+        _fetchQuizzes();
+      }
+    });
   }
 }

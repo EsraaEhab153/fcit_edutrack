@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 class MyAppColors {
+  // static const Color professorPrimary = Color(0xFF512DA8); // Deep Purple for professor UI
   static const Color primaryColor = Color(0xff0066CC);
   static const Color darkBlueColor = Color(0xff003772);
   static const Color secondaryBlueColor = Color(0xff015bb7);

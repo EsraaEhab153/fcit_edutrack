@@ -9,9 +9,12 @@ import '../../providers/course_provider.dart';
 import '../../style/my_app_colors.dart';
 
 class QuizCreationScreen extends StatefulWidget {
-  static const String routeName = 'quiz_creation';
+  static const String routeName = 'quiz_creation_screen';
 
-  const QuizCreationScreen({Key? key}) : super(key: key);
+  // Add quizToEdit parameter for editing existing quizzes
+  final Quiz? quizToEdit;
+
+  const QuizCreationScreen({Key? key, this.quizToEdit}) : super(key: key);
 
   @override
   _QuizCreationScreenState createState() => _QuizCreationScreenState();
@@ -20,6 +23,10 @@ class QuizCreationScreen extends StatefulWidget {
 class _QuizCreationScreenState extends State<QuizCreationScreen> {
   final _formKey = GlobalKey<FormState>();
   bool _isLoading = false;
+  bool _isLoadingFromDraft = false;
+  bool _loadedFromDraft = false;
+  bool _isEditMode = false;
+  Quiz? _quizToEdit;
 
   // Controllers for basic quiz info
   final _titleController = TextEditingController();
@@ -30,15 +37,152 @@ class _QuizCreationScreenState extends State<QuizCreationScreen> {
   final _durationController = TextEditingController();
 
   // List to hold questions being built
-  final List<Question> _questions = [];
+  List<Question> _questions = [];
+  int _questionIdCounter = 1;
+  int _optionIdCounter = 1;
 
   @override
   void initState() {
     super.initState();
-    // Fetch courses for the dropdown if not already loaded
+
     WidgetsBinding.instance.addPostFrameCallback((_) {
+      // Load course list first
       Provider.of<CourseProvider>(context, listen: false)
-          .ensureEnrolledCoursesFetched();
+          .fetchEnrolledCourses();
+
+      // Check if we're editing an existing quiz
+      if (widget.quizToEdit != null) {
+        _loadExistingQuiz(widget.quizToEdit!);
+      } else {
+        // Check if there's a draft to load
+        _checkAndLoadDraft();
+      }
+    });
+  }
+
+  void _checkAndLoadDraft() async {
+    setState(() {
+      _isLoadingFromDraft = true;
+    });
+
+    // Delay to ensure that we have courses loaded
+    await Future.delayed(Duration(milliseconds: 500));
+
+    final quizProvider = Provider.of<QuizProvider>(context, listen: false);
+    if (quizProvider.hasDraft) {
+      final draftData = quizProvider.localDraft;
+
+      // Populate form fields from draft
+      _titleController.text = draftData['title'] ?? '';
+      _descriptionController.text = draftData['description'] ?? '';
+      _durationController.text =
+          (draftData['durationMinutes'] ?? '').toString();
+
+      // Parse dates
+      if (draftData['startDate'] != null) {
+        _startDate = DateTime.parse(draftData['startDate']);
+      }
+      if (draftData['endDate'] != null) {
+        _endDate = DateTime.parse(draftData['endDate']);
+      }
+
+      // Load questions if available
+      if (draftData['questions'] != null) {
+        // Convert the JSON questions to QuizQuestion objects
+        List<dynamic> questionsList = draftData['questions'];
+        _questions = questionsList.map((q) => Question.fromJson(q)).toList();
+
+        // Find the highest question and option IDs for counter initialization
+        int highestQuestionId = 0;
+        int highestOptionId = 0;
+
+        for (var question in _questions) {
+          if (question.id != null && question.id! > highestQuestionId) {
+            highestQuestionId = question.id!;
+          }
+
+          if (question.options != null) {
+            for (var option in question.options!) {
+              if (option.id != null && option.id! > highestOptionId) {
+                highestOptionId = option.id!;
+              }
+            }
+          }
+        }
+
+        _questionIdCounter = highestQuestionId + 1;
+        _optionIdCounter = highestOptionId + 1;
+      }
+
+      // Set selected course
+      if (draftData['courseId'] != null) {
+        final courseProvider =
+            Provider.of<CourseProvider>(context, listen: false);
+        try {
+          _selectedCourse = courseProvider.enrolledCourses
+              .firstWhere((course) => course.id == draftData['courseId']);
+        } catch (e) {
+          print('Failed to find course with ID ${draftData['courseId']}');
+        }
+      }
+
+      setState(() {
+        _loadedFromDraft = true;
+        _isLoadingFromDraft = false;
+      });
+    } else {
+      setState(() {
+        _isLoadingFromDraft = false;
+      });
+    }
+  }
+
+  void _loadExistingQuiz(Quiz quiz) {
+    setState(() {
+      _isEditMode = true;
+      _quizToEdit = quiz;
+
+      // Populate form fields with existing quiz data
+      _titleController.text = quiz.title;
+      _descriptionController.text = quiz.description;
+      _durationController.text = quiz.durationMinutes.toString();
+      _startDate = quiz.startDate;
+      _endDate = quiz.endDate;
+      _questions = quiz.questions;
+
+      // Set up course selection
+      final courseProvider =
+          Provider.of<CourseProvider>(context, listen: false);
+      try {
+        _selectedCourse = courseProvider.enrolledCourses
+            .firstWhere((c) => c.id == quiz.courseId);
+      } catch (e) {
+        // If course not found, use first available course
+        if (courseProvider.enrolledCourses.isNotEmpty) {
+          _selectedCourse = courseProvider.enrolledCourses.first;
+        }
+      }
+
+      // Initialize question and option counters
+      int highestQuestionId = 0;
+      int highestOptionId = 0;
+
+      for (var question in _questions) {
+        if (question.id != null && question.id! > highestQuestionId) {
+          highestQuestionId = question.id!;
+        }
+
+        if (question.options != null) {
+          for (var option in question.options!) {
+            if (option.id != null && option.id! > highestOptionId) {
+              highestOptionId = option.id!;
+            }
+          }
+        }
+      }
+
+      _questionIdCounter = highestQuestionId + 1;
+      _optionIdCounter = highestOptionId + 1;
     });
   }
 
@@ -57,15 +201,18 @@ class _QuizCreationScreenState extends State<QuizCreationScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text(
-          'Create New Quiz',
-          style: TextStyle(
-            fontSize: 20,
-            fontWeight: FontWeight.w600,
-            color: Colors.white,
-          ),
-        ),
+        title: Text(_isEditMode
+            ? 'Edit Quiz'
+            : (_loadedFromDraft ? 'Edit Draft Quiz' : 'Create Quiz')),
         backgroundColor: MyAppColors.primaryColor,
+        foregroundColor: Colors.white,
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.save),
+            tooltip: 'Save as Draft',
+            onPressed: _saveQuizAsDraft,
+          ),
+        ],
       ),
       body: Form(
         key: _formKey,
@@ -108,38 +255,64 @@ class _QuizCreationScreenState extends State<QuizCreationScreen> {
               : null,
         ),
         const SizedBox(height: 12),
-        Consumer<CourseProvider>(// Use Consumer to get courses
-            builder: (context, courseProvider, child) {
-          // Handle loading state for courses
-          if (courseProvider.isLoading &&
-              courseProvider.enrolledCourses.isEmpty) {
-            return const Center(child: CircularProgressIndicator());
-          }
-          if (courseProvider.enrolledCourses.isEmpty) {
-            return const Text(
-                'No courses available. Please enroll in a course first.');
-          }
-          return DropdownButtonFormField<Course>(
-            value: _selectedCourse,
-            items: courseProvider.enrolledCourses.map((Course course) {
-              return DropdownMenuItem<Course>(
-                value: course,
-                child: Text('${course.courseCode} - ${course.courseName}'),
+        Consumer<CourseProvider>(
+          builder: (context, courseProvider, _) {
+            // Only show dropdown after courses are loaded
+            if (courseProvider.enrolledCourses.isEmpty) {
+              return const Center(
+                child: Padding(
+                  padding: EdgeInsets.symmetric(vertical: 16.0),
+                  child: CircularProgressIndicator(),
+                ),
               );
-            }).toList(),
-            onChanged: (Course? newValue) {
-              setState(() {
-                _selectedCourse = newValue;
+            }
+
+            // Reset selected course if courses loaded and no course selected
+            if (_selectedCourse == null &&
+                courseProvider.enrolledCourses.isNotEmpty) {
+              WidgetsBinding.instance.addPostFrameCallback((_) {
+                setState(() {
+                  _selectedCourse = courseProvider.enrolledCourses.first;
+                });
               });
-            },
-            decoration: const InputDecoration(
-              labelText: 'Select Course',
-              border: OutlineInputBorder(),
-            ),
-            validator: (value) =>
-                value == null ? 'Please select a course' : null,
-          );
-        }),
+              // Return a placeholder while we wait for setState to complete
+              return const Padding(
+                padding: EdgeInsets.symmetric(vertical: 16.0),
+                child: Text("Loading courses..."),
+              );
+            }
+
+            return DropdownButtonFormField<Course>(
+              decoration: const InputDecoration(
+                labelText: 'Course',
+                border: OutlineInputBorder(),
+              ),
+              isExpanded: true,
+              value: _selectedCourse != null
+                  ? courseProvider.enrolledCourses.firstWhere(
+                      (c) => c.id == _selectedCourse!.id,
+                      orElse: () => courseProvider.enrolledCourses.first)
+                  : (_selectedCourse = courseProvider.enrolledCourses.first),
+              items: courseProvider.enrolledCourses.map((course) {
+                return DropdownMenuItem<Course>(
+                  value: course,
+                  child: Text(
+                    '${course.courseName} (${course.courseCode})',
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                );
+              }).toList(),
+              onChanged: _isEditMode
+                  ? null // Disable in edit mode
+                  : (course) {
+                      setState(() {
+                        _selectedCourse = course;
+                      });
+                    },
+              validator: (val) => val == null ? 'Please select a course' : null,
+            );
+          },
+        ),
         const SizedBox(height: 12),
         Row(
           children: [
@@ -277,7 +450,7 @@ class _QuizCreationScreenState extends State<QuizCreationScreen> {
     return SizedBox(
       width: double.infinity,
       child: ElevatedButton(
-        onPressed: _isLoading ? null : _submitQuiz,
+        onPressed: _isLoading ? null : _saveQuiz,
         style: ElevatedButton.styleFrom(
           backgroundColor: MyAppColors.primaryColor,
           padding: const EdgeInsets.symmetric(vertical: 16),
@@ -321,7 +494,7 @@ class _QuizCreationScreenState extends State<QuizCreationScreen> {
             .map((opt) => TextEditingController(text: opt.text))
             .toList();
         correctOptionIndex =
-            existingQuestion.options!.indexWhere((opt) => opt.correct);
+            existingQuestion.options!.indexWhere((opt) => opt.isCorrect);
         if (correctOptionIndex == -1) {
           correctOptionIndex =
               null; // Handle case where no correct option was marked
@@ -467,7 +640,7 @@ class _QuizCreationScreenState extends State<QuizCreationScreen> {
                             TextEditingController ctrl = entry.value;
                             return Option(
                                 text: ctrl.text,
-                                correct: idx == correctOptionIndex);
+                                isCorrect: idx == correctOptionIndex);
                           }).toList()
                         : null,
                     correctAnswer: selectedType == QuestionType.TEXT_ANSWER
@@ -588,53 +761,95 @@ class _QuizCreationScreenState extends State<QuizCreationScreen> {
     _showQuestionDialog();
   }
 
-  Future<void> _submitQuiz() async {
+  // New method to save quiz as draft
+  void _saveQuizAsDraft() {
     if (!_formKey.currentState!.validate()) {
+      // Show error for required fields
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Please fix errors in the form.')),
+        const SnackBar(
+            content: Text('Please fill in all required fields'),
+            backgroundColor: Colors.orange),
       );
       return;
     }
-    if (_selectedCourse == null) {
+
+    // Create map of quiz data
+    final quizData = {
+      'title': _titleController.text,
+      'description': _descriptionController.text,
+      'courseId': _selectedCourse?.id,
+      'startDate': _startDate?.toIso8601String(),
+      'endDate': _endDate?.toIso8601String(),
+      'durationMinutes': int.tryParse(_durationController.text) ?? 60,
+      'questions': _questions.map((q) => q.toJson()).toList(),
+    };
+
+    // Save to provider
+    final quizProvider = Provider.of<QuizProvider>(context, listen: false);
+    quizProvider.saveLocalDraft(quizData);
+
+    // Show confirmation and go back
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+          content: Text('Quiz saved as draft'), backgroundColor: Colors.green),
+    );
+    Navigator.pop(context, true);
+  }
+
+  // Update saveQuiz method
+  void _saveQuiz() async {
+    if (!_formKey.currentState!.validate()) {
+      // Show errors for required fields
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Please select a course.')),
-      );
-      return;
-    }
-    if (_startDate == null || _endDate == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Please select start and end dates.')),
-      );
-      return;
-    }
-    if (_startDate!.isAfter(_endDate!)) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Start date must be before end date.')),
-      );
-      return;
-    }
-    if (_questions.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Please add at least one question.')),
+        const SnackBar(
+            content: Text('Please fill in all required fields'),
+            backgroundColor: Colors.orange),
       );
       return;
     }
 
     setState(() => _isLoading = true);
 
+    // When editing, make sure we preserve question IDs
+    final questions = _isEditMode
+        ? _questions // Keep original questions with IDs preserved
+        : _questions.map((q) {
+            // For new quizzes, remove IDs to let backend assign them
+            return Question(
+              text: q.text,
+              type: q.type,
+              points: q.points,
+              options: q.options,
+              correctAnswer: q.correctAnswer,
+            );
+          }).toList();
+
     final quiz = Quiz(
+      id: _isEditMode ? _quizToEdit!.id : null, // Include ID for editing
       title: _titleController.text,
       description: _descriptionController.text,
       courseId: _selectedCourse!.id,
       startDate: _startDate!,
       endDate: _endDate!,
       durationMinutes: int.parse(_durationController.text),
-      questions: _questions,
-      // isPublished: false, // Default to draft? Depends on API/requirements
+      questions: questions,
     );
 
     final quizProvider = Provider.of<QuizProvider>(context, listen: false);
-    final response = await quizProvider.createQuiz(quiz);
+    final response;
+
+    if (_isEditMode) {
+      // Edit existing quiz
+      response = await quizProvider.editQuiz(_quizToEdit!.id!, quiz);
+    } else {
+      // Create new quiz
+      response = await quizProvider.createQuiz(quiz);
+    }
+
+    // Clear draft if we were editing one
+    if (_loadedFromDraft) {
+      quizProvider.clearLocalDraft();
+    }
 
     if (!mounted) return; // Check if widget is still mounted
 
@@ -642,16 +857,18 @@ class _QuizCreationScreenState extends State<QuizCreationScreen> {
 
     if (response['success']) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-            content: Text('Quiz created successfully!'),
+        SnackBar(
+            content: Text(_isEditMode
+                ? 'Quiz updated successfully!'
+                : 'Quiz created successfully!'),
             backgroundColor: Colors.green),
       );
-      Navigator.pop(context); // Go back to management screen
+      Navigator.pop(context, true); // Go back to management screen
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
             content: Text(
-                'Failed to create quiz: ${response['message'] ?? 'Unknown error'}'),
+                'Failed to ${_isEditMode ? 'update' : 'create'} quiz: ${response['message'] ?? 'Unknown error'}'),
             backgroundColor: Colors.red),
       );
     }

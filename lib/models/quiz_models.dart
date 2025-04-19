@@ -80,30 +80,32 @@ String questionTypeToString(QuestionType type) {
 
 // Model for Quiz Option (for Multiple Choice questions)
 class Option {
-  final int? id; // Optional ID from backend response
+  final int? id;
   final String text;
-  final bool correct;
+  final bool isCorrect;
 
   Option({
     this.id,
     required this.text,
-    required this.correct,
+    required this.isCorrect,
   });
 
   factory Option.fromJson(Map<String, dynamic> json) {
     return Option(
-      id: json['id'], // May be null when creating
+      id: json['id'],
       text: json['text'] ?? '',
-      correct: json['correct'] ?? false,
+      isCorrect: json['isCorrect'] ?? json['correct'] ?? false,
     );
   }
 
   Map<String, dynamic> toJson() {
-    return {
-      // Don't include 'id' when sending for creation unless backend requires it
+    final Map<String, dynamic> data = {
+      if (id != null)
+        'id': id, // Include ID for existing options during updates
       'text': text,
-      'correct': correct,
+      'correct': isCorrect, // Use 'correct' for the backend
     };
+    return data;
   }
 }
 
@@ -146,7 +148,8 @@ class Question {
 
   Map<String, dynamic> toJson() {
     final Map<String, dynamic> data = {
-      // Don't include 'id' when sending for creation
+      // Include 'id' when it exists (essential for updates)
+      if (id != null) 'id': id,
       'text': text,
       'type': questionTypeToString(type),
       'points': points,
@@ -225,7 +228,6 @@ class Quiz {
       'endDate': formatter.format(endDate.toUtc()), // Send as UTC ISO string
       'durationMinutes': durationMinutes,
       'questions': questions.map((q) => q.toJson()).toList(),
-      // 'isPublished' might not be sent during creation, depends on API
     };
   }
 }

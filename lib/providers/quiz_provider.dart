@@ -1,4 +1,7 @@
 import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
+import 'package:intl/intl.dart'; // Import for DateFormat
+import 'dart:convert';
 import '../models/quiz_models.dart'; // Import the quiz models
 import '../services/api_service.dart';
 import 'course_provider.dart'; // Import CourseProvider
@@ -12,6 +15,11 @@ class QuizProvider extends ChangeNotifier {
   final ApiService _apiService = ApiService();
   CourseProvider? _courseProvider; // Needed again for student view
 
+  // Add local drafts storage
+  Map<String, dynamic> _localDraft = {};
+  bool get hasDraft => _localDraft.isNotEmpty;
+  Map<String, dynamic> get localDraft => _localDraft;
+
   bool get isLoading => _isLoading;
   List<Quiz> get professorQuizzes => _professorQuizzes;
   List<Quiz> get studentAvailableQuizzes => _studentAvailableQuizzes;
@@ -20,6 +28,30 @@ class QuizProvider extends ChangeNotifier {
   void updateCourseProvider(CourseProvider courseProvider) {
     _courseProvider = courseProvider;
     // Optionally trigger fetch if needed, but usually done by the screen
+  }
+
+  // Save quiz as local draft
+  void saveLocalDraft(Map<String, dynamic> quizData) {
+    _localDraft = quizData;
+    notifyListeners();
+  }
+
+  // Clear local draft
+  void clearLocalDraft() {
+    _localDraft = {};
+    notifyListeners();
+  }
+
+  // Publish local draft
+  Future<Map<String, dynamic>> publishLocalDraft() async {
+    if (!hasDraft) {
+      return {
+        'success': false,
+        'message': 'No draft available to publish',
+      };
+    }
+
+    return await createQuiz(Quiz.fromJson(_localDraft));
   }
 
   // Fetch all quizzes created by the professor and sort them
@@ -152,6 +184,12 @@ class QuizProvider extends ChangeNotifier {
     try {
       // Convert the Quiz object to JSON using its toJson method
       final quizData = quiz.toJson();
+
+      // Remove any isDraft reference before sending to backend
+      if (quizData.containsKey('isDraft')) {
+        quizData.remove('isDraft');
+      }
+
       final response = await _apiService.createQuiz(quizData);
 
       if (response['success']) {
@@ -164,6 +202,45 @@ class QuizProvider extends ChangeNotifier {
       return {
         'success': false,
         'message': 'Network error or failed to create quiz.',
+      };
+    } finally {
+      _isLoading = false;
+      notifyListeners();
+    }
+  }
+
+  // Edit an existing quiz
+  Future<Map<String, dynamic>> editQuiz(int quizId, Quiz quiz) async {
+    _isLoading = true;
+    notifyListeners();
+
+    try {
+      // Create a safe version of the update data that won't disturb relationships
+      final updateData = {
+        'title': quiz.title,
+        'description': quiz.description,
+        'courseId': quiz.courseId,
+        'startDate':
+            DateFormat("yyyy-MM-ddTHH:mm:ss").format(quiz.startDate.toUtc()),
+        'endDate':
+            DateFormat("yyyy-MM-ddTHH:mm:ss").format(quiz.endDate.toUtc()),
+        'durationMinutes': quiz.durationMinutes,
+        // Omit questions from the update for now to avoid orphan deletion issues
+      };
+
+      // Try updating without touching questions
+      final response = await _apiService.editQuiz(quizId, updateData);
+
+      if (response['success']) {
+        // Refresh the list of quizzes after successful edit
+        await fetchProfessorQuizzes();
+      }
+      return response;
+    } catch (e) {
+      print('Error editing quiz: $e');
+      return {
+        'success': false,
+        'message': 'Network error or failed to edit quiz: $e',
       };
     } finally {
       _isLoading = false;
