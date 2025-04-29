@@ -1,11 +1,12 @@
-import 'package:flutter/material.dart';
-import 'package:fci_edutrack/screens/professor/professor_attendance_management.dart'; // Import the correct screen
-import 'package:fci_edutrack/screens/professor/quiz_management_screen.dart'; // Placeholder for quiz management
+import 'package:fci_edutrack/auth/login_screen.dart'; // Import LoginScreen for navigation
+import 'package:fci_edutrack/providers/auth_provider.dart'; // Import AuthProvider
 import 'package:fci_edutrack/screens/assignment/assignment_screen.dart'; // Placeholder for assignment management
 import 'package:fci_edutrack/screens/home_screen/courses_screen.dart'; // For enrolling/viewing courses
-import 'package:fci_edutrack/providers/auth_provider.dart'; // Import AuthProvider
+import 'package:fci_edutrack/screens/professor/professor_attendance_management.dart'; // Import the correct screen
+import 'package:fci_edutrack/screens/professor/quiz_management_screen.dart'; // Placeholder for quiz management
+import 'package:fci_edutrack/style/my_app_colors.dart';
+import 'package:flutter/material.dart';
 import 'package:provider/provider.dart'; // Import Provider
-import 'package:fci_edutrack/auth/login_screen.dart'; // Import LoginScreen for navigation
 
 // TODO: Implement actual screens for professor features
 
@@ -61,9 +62,21 @@ class _ProfessorHomeScreenState extends State<ProfessorHomeScreen> {
         Provider.of<AuthProvider>(context, listen: false); // Get AuthProvider
 
     return Scaffold(
+      backgroundColor: Colors.blue.shade50,
       appBar: AppBar(
         title: const Text('Professor Dashboard',
             style: TextStyle(fontSize: 20)), // Adjust font size
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.only(
+            bottomLeft:
+                Radius.circular(MediaQuery.of(context).size.width * 0.1),
+            bottomRight:
+                Radius.circular(MediaQuery.of(context).size.width * 0.1),
+          ),
+        ),
+        backgroundColor: MyAppColors.primaryColor,
+        elevation: 0,
+        centerTitle: true,
         actions: [
           IconButton(
             icon: const Icon(Icons.logout),
@@ -83,13 +96,68 @@ class _ProfessorHomeScreenState extends State<ProfessorHomeScreen> {
         index: _selectedIndex,
         children: _screens,
       ),
-      bottomNavigationBar: BottomNavigationBar(
-        items: _navItems,
-        currentIndex: _selectedIndex,
-        selectedItemColor: Theme.of(context).primaryColor,
-        unselectedItemColor: Colors.grey,
-        onTap: _onItemTapped,
-        type: BottomNavigationBarType.fixed, // Ensure all labels are visible
+      bottomNavigationBar: Container(
+        decoration: BoxDecoration(
+          color: MyAppColors.primaryColor,
+          borderRadius: BorderRadius.only(
+            topLeft: Radius.circular(MediaQuery.of(context).size.width * 0.1),
+            topRight: Radius.circular(MediaQuery.of(context).size.width * 0.1),
+          ),
+        ),
+        child: BottomNavigationBar(
+          backgroundColor: Colors.transparent,
+          elevation: 0,
+          currentIndex: _selectedIndex,
+          onTap: _onItemTapped,
+          type: BottomNavigationBarType.fixed,
+          selectedItemColor: Colors.white,
+          unselectedItemColor: Colors.white,
+          showSelectedLabels: true,
+          showUnselectedLabels: true,
+          items: List.generate(4, (index) {
+            IconData icon;
+            String label;
+
+            switch (index) {
+              case 0:
+                icon = Icons.school_outlined;
+                label = 'Courses';
+                break;
+              case 1:
+                icon = Icons.timer_outlined;
+                label = 'Attendance';
+                break;
+              case 2:
+                icon = Icons.quiz_outlined;
+                label = 'Quizzes';
+                break;
+              default:
+                icon = Icons.assignment_outlined;
+                label = 'Assignments';
+            }
+
+            bool isSelected = _selectedIndex == index;
+
+            return BottomNavigationBarItem(
+              label: label,
+              icon: Container(
+                padding: const EdgeInsets.all(6),
+                decoration: isSelected
+                    ? const BoxDecoration(
+                        color: Colors.white, //circle background color
+                        shape: BoxShape.circle,
+                      )
+                    : null,
+                child: Icon(
+                  icon,
+                  color: isSelected
+                      ? MyAppColors.primaryColor
+                      : MyAppColors.whiteColor,
+                ),
+              ),
+            );
+          }),
+        ),
       ),
     );
   }

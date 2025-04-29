@@ -11,7 +11,7 @@ class HomeScreen extends StatelessWidget {
     return Container(
       color: Provider.of<ThemeProvider>(context).isDark()
           ? MyAppColors.primaryDarkColor
-          : MyAppColors.whiteColor,
+          : Colors.blue.shade50,
     );
   }
 }

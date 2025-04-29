@@ -42,15 +42,28 @@ class _CoursesScreenState extends State<CoursesScreen>
 
     return Scaffold(
       backgroundColor:
-          isDark ? MyAppColors.primaryDarkColor : MyAppColors.whiteColor,
+          isDark ? MyAppColors.primaryDarkColor : Colors.blue.shade50,
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
-        title: Text(
-          'Courses',
-          style: TextStyle(
-            color: isDark ? MyAppColors.whiteColor : MyAppColors.blackColor,
-          ),
+        title: Row(
+          children: [
+            const Icon(
+              Icons.school,
+              size: 27,
+              color: MyAppColors.primaryColor,
+            ),
+            SizedBox(
+              width: MediaQuery.of(context).size.width * 0.026,
+            ),
+            Text(
+              'Courses',
+              style: TextStyle(
+                color:
+                    isDark ? MyAppColors.whiteColor : MyAppColors.primaryColor,
+              ),
+            ),
+          ],
         ),
         bottom: TabBar(
           controller: _tabController,
@@ -126,6 +139,8 @@ class _CoursesScreenState extends State<CoursesScreen>
         final course = courses[index];
         return Card(
           elevation: 2,
+          shape:
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
           margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 4),
           color: isDark ? MyAppColors.darkCardColor : Colors.white,
           child: ListTile(
@@ -135,7 +150,7 @@ class _CoursesScreenState extends State<CoursesScreen>
               style: TextStyle(
                 fontWeight: FontWeight.bold,
                 fontSize: 18,
-                color: isDark ? Colors.white : Colors.black87,
+                color: isDark ? Colors.white : MyAppColors.darkBlueColor,
               ),
             ),
             subtitle: Column(
@@ -177,6 +192,8 @@ class _CoursesScreenState extends State<CoursesScreen>
                   ElevatedButton(
                     onPressed: () => _enrollInCourse(course),
                     style: ElevatedButton.styleFrom(
+                      shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(13)),
                       backgroundColor: MyAppColors.primaryColor,
                       padding: const EdgeInsets.symmetric(
                           vertical: 8, horizontal: 16),
@@ -222,6 +239,8 @@ class _CoursesScreenState extends State<CoursesScreen>
           showDialog(
             context: context,
             builder: (context) => AlertDialog(
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(20)),
               title: const Text('Success'),
               content: Text(
                   'You have successfully enrolled in ${course.courseName}'),

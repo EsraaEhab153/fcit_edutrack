@@ -1,10 +1,11 @@
-import 'package:flutter/material.dart';
+import 'package:fci_edutrack/providers/attendance_provider.dart';
+import 'package:fci_edutrack/providers/course_provider.dart';
+import 'package:fci_edutrack/screens/home_screen/my_bottom_nav_bar.dart'; // For navigation
 import 'package:fci_edutrack/style/my_app_colors.dart';
 import 'package:fci_edutrack/themes/theme_provider.dart';
+import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:fci_edutrack/providers/course_provider.dart';
-import 'package:fci_edutrack/providers/attendance_provider.dart';
-import 'package:fci_edutrack/screens/home_screen/my_bottom_nav_bar.dart'; // For navigation
+
 import '../models/course_model.dart'; // Import Course model
 
 class RegisterAttendanceScreen extends StatefulWidget {
@@ -47,7 +48,7 @@ class _RegisterAttendanceScreenState extends State<RegisterAttendanceScreen> {
 
     return Scaffold(
       backgroundColor:
-          isDark ? MyAppColors.primaryDarkColor : MyAppColors.whiteColor,
+          isDark ? MyAppColors.primaryDarkColor : Colors.blue.shade50,
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
@@ -169,6 +170,7 @@ class _RegisterAttendanceScreenState extends State<RegisterAttendanceScreen> {
         return StatefulBuilder(
           builder: (context, setDialogState) {
             return AlertDialog(
+              scrollable: true,
               title: Text('Record Attendance for ${course.courseCode}'),
               content: Form(
                 key: formKey,

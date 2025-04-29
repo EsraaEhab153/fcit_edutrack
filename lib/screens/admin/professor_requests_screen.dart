@@ -1,14 +1,13 @@
-import 'package:flutter/material.dart';
+import 'dart:io';
+import 'dart:typed_data';
+
+import 'package:fci_edutrack/services/api_service.dart';
 import 'package:fci_edutrack/style/my_app_colors.dart';
 import 'package:fci_edutrack/themes/theme_provider.dart';
-import 'package:provider/provider.dart';
-import 'package:fci_edutrack/services/api_service.dart';
-import 'package:cached_network_image/cached_network_image.dart';
-import 'package:fci_edutrack/config.dart';
-import 'dart:typed_data';
-import 'dart:io';
-import 'package:path_provider/path_provider.dart';
+import 'package:flutter/material.dart';
 import 'package:open_file/open_file.dart';
+import 'package:path_provider/path_provider.dart';
+import 'package:provider/provider.dart';
 
 class ProfessorRequestsScreen extends StatefulWidget {
   static const String routeName = 'admin_professor_requests_screen';
@@ -156,20 +155,30 @@ class _ProfessorRequestsScreenState extends State<ProfessorRequestsScreen> {
 
     return Scaffold(
       backgroundColor:
-          isDark ? MyAppColors.primaryDarkColor : MyAppColors.whiteColor,
+          isDark ? MyAppColors.primaryDarkColor : Colors.blue.shade50,
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
-        title: Text(
-          'Professor Requests',
-          style: TextStyle(
-            fontSize: 22,
-            fontWeight: FontWeight.bold,
-            color: isDark ? MyAppColors.whiteColor : MyAppColors.blackColor,
-          ),
+        title: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            const Icon(
+              Icons.person_search,
+              size: 27,
+            ),
+            Text(
+              'Professor Requests',
+              style: TextStyle(
+                fontSize: 20,
+                fontWeight: FontWeight.bold,
+                color:
+                    isDark ? MyAppColors.whiteColor : MyAppColors.darkBlueColor,
+              ),
+            ),
+          ],
         ),
         iconTheme: IconThemeData(
-          color: isDark ? MyAppColors.whiteColor : MyAppColors.blackColor,
+          color: isDark ? MyAppColors.whiteColor : MyAppColors.darkBlueColor,
         ),
         actions: [
           IconButton(
@@ -258,7 +267,7 @@ class _ProfessorRequestsScreenState extends State<ProfessorRequestsScreen> {
       margin: const EdgeInsets.only(bottom: 16),
       color: isDark ? MyAppColors.secondaryDarkColor : MyAppColors.whiteColor,
       shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(20),
       ),
       child: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -425,6 +434,8 @@ class _ProfessorRequestsScreenState extends State<ProfessorRequestsScreen> {
                     onPressed: () =>
                         _showRejectDialog(request['id'].toString()),
                     style: OutlinedButton.styleFrom(
+                      shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(15)),
                       foregroundColor: Colors.red,
                       side: const BorderSide(color: Colors.red),
                       padding: const EdgeInsets.symmetric(vertical: 12),
@@ -440,10 +451,19 @@ class _ProfessorRequestsScreenState extends State<ProfessorRequestsScreen> {
                       showDialog(
                         context: context,
                         builder: (context) => AlertDialog(
-                          title: const Text('Approve Request'),
+                          shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(20)),
+                          title: const Text(
+                            'Approve Request',
+                            style: TextStyle(
+                                fontSize: 20, fontWeight: FontWeight.bold),
+                          ),
                           content: const Text(
                             'Are you sure you want to approve this professor request? '
                             'This will create a new professor account with access to the system.',
+                            style: TextStyle(
+                              fontSize: 15,
+                            ),
                           ),
                           actions: [
                             TextButton(
@@ -468,7 +488,8 @@ class _ProfessorRequestsScreenState extends State<ProfessorRequestsScreen> {
                       backgroundColor: MyAppColors.primaryColor,
                       foregroundColor: Colors.white,
                       padding: const EdgeInsets.symmetric(vertical: 12),
-                    ),
+                        shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(15))),
                     child: const Text('Approve'),
                   ),
                 ),
@@ -512,25 +533,42 @@ class _ProfessorRequestsScreenState extends State<ProfessorRequestsScreen> {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Reject Request'),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            const Text(
-              'Are you sure you want to reject this professor request?',
-              style: TextStyle(fontSize: 16),
-            ),
-            const SizedBox(height: 16),
-            TextField(
-              controller: reasonController,
-              decoration: const InputDecoration(
-                labelText: 'Reason for rejection (optional)',
-                hintText: 'Enter reason for rejection',
-                border: OutlineInputBorder(),
+        //scrollable: true,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
+        title: const Text(
+          'Reject Request',
+          style: TextStyle(fontSize: 20),
+        ),
+        content: SingleChildScrollView(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const Text(
+                'Are you sure you want to reject this professor request?',
+                style: TextStyle(fontSize: 16),
               ),
-              maxLines: 3,
-            ),
-          ],
+              const SizedBox(height: 16),
+              TextField(
+                style: const TextStyle(
+                    fontSize: 16, color: MyAppColors.primaryColor),
+                controller: reasonController,
+                decoration: const InputDecoration(
+                  labelText: 'Reason for rejection (optional)',
+                  labelStyle:
+                      TextStyle(fontSize: 16, color: MyAppColors.primaryColor),
+                  hintText: 'Enter reason for rejection',
+                  hintStyle: TextStyle(fontSize: 16),
+                  border: OutlineInputBorder(
+                      borderSide: BorderSide(color: MyAppColors.primaryColor)),
+                  focusedBorder: OutlineInputBorder(
+                      borderSide: BorderSide(color: MyAppColors.primaryColor)),
+                  enabledBorder: OutlineInputBorder(
+                      borderSide: BorderSide(color: MyAppColors.primaryColor)),
+                ),
+                maxLines: 3,
+              ),
+            ],
+          ),
         ),
         actions: [
           TextButton(

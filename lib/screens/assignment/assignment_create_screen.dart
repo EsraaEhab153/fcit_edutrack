@@ -1,13 +1,15 @@
-import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
+import 'package:fci_edutrack/models/assignment_model.dart';
+import 'package:fci_edutrack/models/course_model.dart';
 import 'package:fci_edutrack/providers/assignment_provider.dart';
 import 'package:fci_edutrack/providers/course_provider.dart';
-import 'package:fci_edutrack/models/course_model.dart';
-import 'package:fci_edutrack/models/assignment_model.dart';
+import 'package:fci_edutrack/services/api_service.dart';
 import 'package:fci_edutrack/style/my_app_colors.dart';
 import 'package:file_picker/file_picker.dart';
+import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'package:fci_edutrack/services/api_service.dart';
+import 'package:provider/provider.dart';
+
+import '../../themes/my_theme_data.dart';
 
 class AssignmentCreateScreen extends StatefulWidget {
   static const String routeName = 'assignment_create_screen';
@@ -170,9 +172,30 @@ class _AssignmentCreateScreenState extends State<AssignmentCreateScreen> {
     }
 
     return Scaffold(
+      backgroundColor: Colors.blue.shade50,
       appBar: AppBar(
-        title: Text(screenTitle),
+        title: Text(
+          screenTitle,
+          style: MyThemeData.lightModeStyle.textTheme.titleMedium!
+              .copyWith(color: MyAppColors.whiteColor),
+        ),
+        elevation: 0,
+        centerTitle: true,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.only(
+            bottomLeft:
+                Radius.circular(MediaQuery.of(context).size.width * 0.1),
+            bottomRight:
+                Radius.circular(MediaQuery.of(context).size.width * 0.1),
+          ),
+        ),
         backgroundColor: MyAppColors.primaryColor,
+        leading: IconButton(
+          onPressed: () {
+            Navigator.pop(context);
+          },
+          icon: const Icon(Icons.arrow_back_ios),
+        ),
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -190,7 +213,19 @@ class _AssignmentCreateScreenState extends State<AssignmentCreateScreen> {
                 items: courseProvider.enrolledCourses
                     .map((course) => DropdownMenuItem<Course>(
                           value: course,
-                          child: Text(course.courseName),
+                          child: Container(
+                            width: MediaQuery.of(context).size.width * 0.7,
+                            child: Text(
+                              course.courseName,
+                              style: Theme.of(context)
+                                  .textTheme
+                                  .bodyMedium!
+                                  .copyWith(
+                                      color: MyAppColors.darkBlueColor,
+                                      fontSize: 16),
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ),
                         ))
                     .toList(),
                 onChanged: _isEditMode
@@ -204,12 +239,14 @@ class _AssignmentCreateScreenState extends State<AssignmentCreateScreen> {
                     val == null ? 'Please select a course' : null,
               ),
               TextFormField(
+                style: const TextStyle(fontSize: 16),
                 controller: _titleController,
                 decoration: const InputDecoration(labelText: 'Title'),
                 validator: (val) =>
                     val == null || val.isEmpty ? 'Title required' : null,
               ),
               TextFormField(
+                style: const TextStyle(fontSize: 16),
                 controller: _descriptionController,
                 decoration: const InputDecoration(labelText: 'Description'),
                 validator: (val) =>
@@ -217,6 +254,7 @@ class _AssignmentCreateScreenState extends State<AssignmentCreateScreen> {
                 maxLines: 3,
               ),
               TextFormField(
+                style: const TextStyle(fontSize: 16),
                 controller: _maxPointsController,
                 decoration: const InputDecoration(labelText: 'Max Points'),
                 keyboardType: TextInputType.number,

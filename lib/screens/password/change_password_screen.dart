@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import '../../modules/custom_text_formfield.dart';
 import '../../providers/auth_provider.dart';
 import '../../style/my_app_colors.dart';
+import '../../themes/my_theme_data.dart';
 
 class ChangePasswordScreen extends StatefulWidget {
   static const String routeName = 'change_password_screen';
@@ -72,17 +73,30 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.blue.shade50,
       appBar: AppBar(
-        title: const Text(
+        title: Text(
           'Change Password',
-          style: const TextStyle(
-            color: Colors.white,
-            fontSize: 18, // Set a smaller font size
-            fontWeight: FontWeight.w600, // Optional: make it semi-bold
+          style: MyThemeData.lightModeStyle.textTheme.titleMedium!
+              .copyWith(color: MyAppColors.whiteColor),
+        ),
+        elevation: 0,
+        centerTitle: true,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.only(
+            bottomLeft:
+                Radius.circular(MediaQuery.of(context).size.width * 0.1),
+            bottomRight:
+                Radius.circular(MediaQuery.of(context).size.width * 0.1),
           ),
         ),
         backgroundColor: MyAppColors.primaryColor,
-        iconTheme: const IconThemeData(color: Colors.white),
+        leading: IconButton(
+          onPressed: () {
+            Navigator.pop(context);
+          },
+          icon: const Icon(Icons.arrow_back_ios),
+        ),
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16.0),

@@ -1,8 +1,9 @@
-import 'package:flutter/material.dart';
+import 'package:fci_edutrack/auth/login_screen.dart'; // Added import
+import 'package:fci_edutrack/providers/auth_provider.dart';
 import 'package:fci_edutrack/screens/admin/course_management_screen.dart';
 import 'package:fci_edutrack/screens/admin/professor_requests_screen.dart';
-import 'package:fci_edutrack/providers/auth_provider.dart';
-import 'package:fci_edutrack/auth/login_screen.dart'; // Added import
+import 'package:fci_edutrack/style/my_app_colors.dart';
+import 'package:flutter/material.dart';
 import 'package:provider/provider.dart'; // Import Provider
 
 class AdminHomeScreen extends StatefulWidget {
@@ -47,9 +48,22 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
         Provider.of<AuthProvider>(context, listen: false); // Get AuthProvider
 
     return Scaffold(
+      backgroundColor: Colors.blue.shade50,
       appBar: AppBar(
         title: const Text('Admin Dashboard',
-            style: TextStyle(fontSize: 20)), // Adjust font size
+          style: TextStyle(fontSize: 20),
+        ),
+        // Adjust font size
+        elevation: 0,
+        backgroundColor: MyAppColors.primaryColor,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.only(
+            bottomLeft:
+                Radius.circular(MediaQuery.of(context).size.width * 0.1),
+            bottomRight:
+                Radius.circular(MediaQuery.of(context).size.width * 0.1),
+          ),
+        ),
         actions: [
           IconButton(
             icon: const Icon(Icons.logout),
@@ -70,9 +84,11 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
         children: _screens,
       ),
       bottomNavigationBar: BottomNavigationBar(
+        backgroundColor: Colors.blue.shade50,
+        elevation: 0,
         items: _navItems,
         currentIndex: _selectedIndex,
-        selectedItemColor: Theme.of(context).primaryColor,
+        selectedItemColor: MyAppColors.primaryColor,
         unselectedItemColor: Colors.grey,
         onTap: _onItemTapped,
       ),

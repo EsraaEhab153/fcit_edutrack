@@ -1,11 +1,14 @@
-import 'package:flutter/material.dart';
-import 'package:fci_edutrack/style/my_app_colors.dart';
-import 'package:fci_edutrack/themes/theme_provider.dart';
-import 'package:provider/provider.dart';
+import 'dart:io';
+
 import 'package:fci_edutrack/modules/custom_text_formfield.dart';
 import 'package:fci_edutrack/services/api_service.dart';
+import 'package:fci_edutrack/style/my_app_colors.dart';
+import 'package:fci_edutrack/themes/theme_provider.dart';
+import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
-import 'dart:io';
+import 'package:provider/provider.dart';
+
+import '../themes/my_theme_data.dart';
 
 class ProfessorRequestScreen extends StatefulWidget {
   static const String routeName = 'professor_request_screen';
@@ -158,18 +161,27 @@ class _ProfessorRequestScreenState extends State<ProfessorRequestScreen> {
       backgroundColor:
           isDark ? MyAppColors.primaryDarkColor : MyAppColors.whiteColor,
       appBar: AppBar(
-        backgroundColor: Colors.transparent,
-        elevation: 0,
         title: Text(
           'Professor Access Request',
-          style: TextStyle(
-            fontSize: 20,
-            fontWeight: FontWeight.bold,
-            color: isDark ? MyAppColors.whiteColor : MyAppColors.blackColor,
+          style: MyThemeData.lightModeStyle.textTheme.titleMedium!
+              .copyWith(color: MyAppColors.whiteColor, fontSize: 17),
+        ),
+        elevation: 0,
+        centerTitle: true,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.only(
+            bottomLeft:
+                Radius.circular(MediaQuery.of(context).size.width * 0.1),
+            bottomRight:
+                Radius.circular(MediaQuery.of(context).size.width * 0.1),
           ),
         ),
-        iconTheme: IconThemeData(
-          color: isDark ? MyAppColors.whiteColor : MyAppColors.blackColor,
+        backgroundColor: MyAppColors.primaryColor,
+        leading: IconButton(
+          onPressed: () {
+            Navigator.pop(context);
+          },
+          icon: const Icon(Icons.arrow_back_ios),
         ),
       ),
       body: SingleChildScrollView(

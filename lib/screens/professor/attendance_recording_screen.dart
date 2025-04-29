@@ -1,7 +1,8 @@
-import 'package:flutter/material.dart';
 import 'package:fci_edutrack/style/my_app_colors.dart';
+import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart'; // Import Provider
+
 import '../../providers/attendance_provider.dart'; // Import AttendanceProvider
 
 class AttendanceRecordingScreen extends StatefulWidget {
@@ -27,11 +28,14 @@ class AttendanceRecordingScreen extends StatefulWidget {
 class _AttendanceRecordingScreenState extends State<AttendanceRecordingScreen> {
   bool _isLoadingApiCall = false;
   DateTime selectedDate = DateTime.now();
-  final _expiryMinutesController = TextEditingController(text: '5'); // Default to 5 minutes
+  final _expiryMinutesController =
+      TextEditingController(text: '5'); // Default to 5 minutes
   final _topicController = TextEditingController();
+
   // Initialize controllers without default text here
   final _startTimeController = TextEditingController();
   final _endTimeController = TextEditingController();
+
   // Store TimeOfDay for logic
   TimeOfDay _selectedStartTime = TimeOfDay.now();
   TimeOfDay _selectedEndTime = TimeOfDay.now();
@@ -95,14 +99,15 @@ class _AttendanceRecordingScreenState extends State<AttendanceRecordingScreen> {
   Widget _buildAttendanceRecorder() {
     // Wrap with SingleChildScrollView to prevent overflow
     return SingleChildScrollView(
-      child: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
+        child: Padding(
+      padding: const EdgeInsets.all(16.0),
+      child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           // Display Course Name - Use widget properties
           Text(
-            '${widget.courseCode} - ${widget.courseName}', // Access via widget
+            '${widget.courseCode} - ${widget.courseName}',
+            // Access via widget
             style: const TextStyle(
               fontSize: 20, // Increased size
               fontWeight: FontWeight.bold,
@@ -127,7 +132,7 @@ class _AttendanceRecordingScreenState extends State<AttendanceRecordingScreen> {
                 children: [
                   Text(
                     'Date: ${DateFormat('EEEE, MMMM d, yyyy').format(selectedDate)}',
-                    style: const TextStyle(fontSize: 16),
+                    style: const TextStyle(fontSize: 14),
                   ),
                   const Icon(Icons.calendar_today, color: Colors.grey),
                 ],
@@ -218,7 +223,8 @@ class _AttendanceRecordingScreenState extends State<AttendanceRecordingScreen> {
           const SizedBox(height: 24),
           // Info Text (Keep as is)
           Row(
-            crossAxisAlignment: CrossAxisAlignment.start, // Align text better
+            crossAxisAlignment: CrossAxisAlignment.start,
+            // Align text better
             children: [
               const Icon(Icons.info_outline,
                   color: Colors.blue, size: 20), // Slightly smaller icon
@@ -242,6 +248,8 @@ class _AttendanceRecordingScreenState extends State<AttendanceRecordingScreen> {
             width: double.infinity,
             child: ElevatedButton(
               style: ElevatedButton.styleFrom(
+                shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(13)),
                 backgroundColor: MyAppColors.primaryColor,
                 padding:
                     const EdgeInsets.symmetric(vertical: 16), // More padding
@@ -264,8 +272,8 @@ class _AttendanceRecordingScreenState extends State<AttendanceRecordingScreen> {
         ],
       ),
     ) // Closes Padding
-  ); // Closes SingleChildScrollView
-}
+        ); // Closes SingleChildScrollView
+  }
 
   Future<void> _selectDate() async {
     final DateTime? picked = await showDatePicker(
@@ -292,7 +300,8 @@ class _AttendanceRecordingScreenState extends State<AttendanceRecordingScreen> {
         _selectedStartTime = picked;
         // Update the text field
         final now = DateTime.now();
-        final dt = DateTime(now.year, now.month, now.day, picked.hour, picked.minute);
+        final dt =
+            DateTime(now.year, now.month, now.day, picked.hour, picked.minute);
         _startTimeController.text = DateFormat('h:mm a').format(dt);
 
         // Optional: Auto-adjust end time if needed, e.g., maintain 90 min duration
@@ -314,7 +323,8 @@ class _AttendanceRecordingScreenState extends State<AttendanceRecordingScreen> {
         _selectedEndTime = picked;
         // Update the text field
         final now = DateTime.now();
-        final dt = DateTime(now.year, now.month, now.day, picked.hour, picked.minute);
+        final dt =
+            DateTime(now.year, now.month, now.day, picked.hour, picked.minute);
         _endTimeController.text = DateFormat('h:mm a').format(dt);
       });
     }
@@ -344,6 +354,8 @@ class _AttendanceRecordingScreenState extends State<AttendanceRecordingScreen> {
       final response = await attendanceProvider.createAttendanceSession(
           widget.courseId, expiryMinutes); // Access courseId via widget
 
+      if (!mounted) return;
+
       if (response['success'] && response['data'] != null) {
         final sessionData = response['data'];
         final verificationCode = sessionData['verificationCode'];
@@ -355,58 +367,66 @@ class _AttendanceRecordingScreenState extends State<AttendanceRecordingScreen> {
         showDialog(
           context: context,
           builder: (context) => AlertDialog(
+            shape:
+                RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+            insetPadding: EdgeInsets.symmetric(
+                horizontal: MediaQuery.of(context).size.width * 0.035),
             title: const Text('Session Created'),
-            content: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                const Text(
-                  'Verification Code for Student Attendance',
-                  style: TextStyle(fontWeight: FontWeight.bold),
-                ),
-                const SizedBox(height: 16),
-                Container(
-                  width: 200,
-                  padding:
-                      const EdgeInsets.symmetric(vertical: 20, horizontal: 16),
-                  decoration: BoxDecoration(
-                    color: Colors.grey.shade100,
-                    borderRadius: BorderRadius.circular(12),
-                    border:
-                        Border.all(color: MyAppColors.primaryColor, width: 2),
+            content: SingleChildScrollView(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  const Text(
+                    'Verification Code for Student Attendance',
+                    style: TextStyle(fontWeight: FontWeight.bold),
                   ),
-                  child: Center(
-                    child: Text(
-                      verificationCode ?? 'N/A', // Handle null code
-                      style: const TextStyle(
-                        fontSize: 32,
-                        fontWeight: FontWeight.bold,
-                        letterSpacing: 4,
-                        color: MyAppColors.primaryColor,
+                  const SizedBox(height: 16),
+                  Container(
+                    width: MediaQuery.of(context).size.width * 0.7,
+                    padding: const EdgeInsets.symmetric(
+                        vertical: 20, horizontal: 16),
+                    decoration: BoxDecoration(
+                      color: Colors.grey.shade100,
+                      borderRadius: BorderRadius.circular(12),
+                      border:
+                          Border.all(color: MyAppColors.primaryColor, width: 2),
+                    ),
+                    child: Center(
+                      child: Text(
+                        verificationCode ?? 'N/A', // Handle null code
+                        style: const TextStyle(
+                          fontSize: 32,
+                          fontWeight: FontWeight.bold,
+                          letterSpacing: 4,
+                          color: MyAppColors.primaryColor,
+                        ),
                       ),
                     ),
                   ),
-                ),
-                const SizedBox(height: 16),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    const Icon(Icons.timer_off_outlined, color: Colors.orange),
-                    const SizedBox(width: 8),
-                    Text(
-                      'Expires at: $formattedExpiry', // Show actual expiry time
-                      style: TextStyle(
-                        color: Colors.grey[700],
-                        fontWeight: FontWeight.bold,
+                  const SizedBox(height: 16),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      const Icon(Icons.timer_off_outlined,
+                          color: Colors.orange),
+                      const SizedBox(width: 8),
+                      Text(
+                        'Expires at: $formattedExpiry',
+                        // Show actual expiry time
+                        style: TextStyle(
+                            color: Colors.grey[700],
+                            fontWeight: FontWeight.bold,
+                            fontSize: 16),
                       ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 16),
-                const Text(
-                  'Students must enter this code to record their attendance for this session.',
-                  textAlign: TextAlign.center,
-                ),
-              ],
+                    ],
+                  ),
+                  const SizedBox(height: 16),
+                  const Text(
+                    'Students must enter this code to record their attendance for this session.',
+                    textAlign: TextAlign.center,
+                  ),
+                ],
+              ),
             ),
             actions: [
               TextButton(

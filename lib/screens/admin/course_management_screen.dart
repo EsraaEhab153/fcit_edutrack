@@ -1,10 +1,10 @@
-import 'package:flutter/material.dart';
+import 'package:fci_edutrack/models/course_model.dart';
+import 'package:fci_edutrack/providers/course_provider.dart';
+import 'package:fci_edutrack/services/api_service.dart';
 import 'package:fci_edutrack/style/my_app_colors.dart';
 import 'package:fci_edutrack/themes/theme_provider.dart';
+import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:fci_edutrack/services/api_service.dart';
-import 'package:fci_edutrack/providers/course_provider.dart';
-import 'package:fci_edutrack/models/course_model.dart';
 
 class CourseManagementScreen extends StatefulWidget {
   static const String routeName = 'admin_course_management';
@@ -196,9 +196,15 @@ class _CourseManagementScreenState extends State<CourseManagementScreen> {
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Confirm Delete'),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        title: const Text(
+          'Confirm Delete',
+          style: TextStyle(fontSize: 22),
+        ),
         content: const Text(
-            'Are you sure you want to delete this course? This action cannot be undone.'),
+          'Are you sure you want to delete this course? This action cannot be undone.',
+          style: TextStyle(fontSize: 18),
+        ),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(context).pop(false),
@@ -273,20 +279,27 @@ class _CourseManagementScreenState extends State<CourseManagementScreen> {
 
     return Scaffold(
       backgroundColor:
-          isDark ? MyAppColors.primaryDarkColor : MyAppColors.whiteColor,
+          isDark ? MyAppColors.primaryDarkColor : Colors.blue.shade50,
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
-        title: Text(
-          'Course Management',
-          style: TextStyle(
-            fontSize: 22,
-            fontWeight: FontWeight.bold,
-            color: isDark ? MyAppColors.whiteColor : MyAppColors.blackColor,
-          ),
+        title: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            const Icon(Icons.school, size: 27),
+            Text(
+              'Course Management',
+              style: TextStyle(
+                fontSize: 20,
+                fontWeight: FontWeight.bold,
+                color:
+                    isDark ? MyAppColors.whiteColor : MyAppColors.darkBlueColor,
+              ),
+            ),
+          ],
         ),
         iconTheme: IconThemeData(
-          color: isDark ? MyAppColors.whiteColor : MyAppColors.blackColor,
+          color: isDark ? MyAppColors.whiteColor : MyAppColors.darkBlueColor,
         ),
         actions: [
           IconButton(
@@ -323,7 +336,7 @@ class _CourseManagementScreenState extends State<CourseManagementScreen> {
                   ),
                 )
               : SingleChildScrollView(
-                  padding: const EdgeInsets.all(16.0),
+                  padding: const EdgeInsets.all(10.0),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
@@ -331,7 +344,7 @@ class _CourseManagementScreenState extends State<CourseManagementScreen> {
                       Card(
                         margin: const EdgeInsets.only(bottom: 24),
                         shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12),
+                          borderRadius: BorderRadius.circular(20),
                         ),
                         color: isDark
                             ? MyAppColors.secondaryDarkColor
@@ -350,8 +363,9 @@ class _CourseManagementScreenState extends State<CourseManagementScreen> {
                                   style: TextStyle(
                                     fontSize: 18,
                                     fontWeight: FontWeight.bold,
-                                    color:
-                                        isDark ? Colors.white : Colors.black87,
+                                    color: isDark
+                                        ? Colors.white
+                                        : MyAppColors.darkBlueColor,
                                   ),
                                 ),
                                 const SizedBox(height: 16),
@@ -458,8 +472,9 @@ class _CourseManagementScreenState extends State<CourseManagementScreen> {
                                   'Days of the Week',
                                   style: TextStyle(
                                     fontSize: 16,
-                                    color:
-                                        isDark ? Colors.white : Colors.black87,
+                                    color: isDark
+                                        ? Colors.white
+                                        : MyAppColors.darkBlueColor,
                                   ),
                                 ),
                                 const SizedBox(height: 8),
@@ -486,6 +501,7 @@ class _CourseManagementScreenState extends State<CourseManagementScreen> {
                                                 MyAppColors.primaryColor,
                                             checkmarkColor: Colors.white,
                                             labelStyle: TextStyle(
+                                              fontSize: 15,
                                               color: _selectedDays.contains(day)
                                                   ? Colors.white
                                                   : (isDark
@@ -517,6 +533,9 @@ class _CourseManagementScreenState extends State<CourseManagementScreen> {
                                         style: ElevatedButton.styleFrom(
                                           backgroundColor:
                                               MyAppColors.primaryColor,
+                                          shape: RoundedRectangleBorder(
+                                              borderRadius:
+                                                  BorderRadius.circular(15)),
                                           padding: const EdgeInsets.symmetric(
                                               vertical: 16),
                                         ),
@@ -540,7 +559,7 @@ class _CourseManagementScreenState extends State<CourseManagementScreen> {
                           fontWeight: FontWeight.bold,
                           color: isDark
                               ? MyAppColors.whiteColor
-                              : MyAppColors.blackColor,
+                              : MyAppColors.darkBlueColor,
                         ),
                       ),
                       const SizedBox(height: 16),
@@ -581,7 +600,7 @@ class _CourseManagementScreenState extends State<CourseManagementScreen> {
                                 return Card(
                                   margin: const EdgeInsets.only(bottom: 12),
                                   shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(12),
+                                    borderRadius: BorderRadius.circular(20),
                                   ),
                                   color: isDark
                                       ? MyAppColors.secondaryDarkColor
@@ -609,7 +628,8 @@ class _CourseManagementScreenState extends State<CourseManagementScreen> {
                                                           FontWeight.bold,
                                                       color: isDark
                                                           ? Colors.white
-                                                          : Colors.black87,
+                                                          : MyAppColors
+                                                              .darkBlueColor,
                                                     ),
                                                   ),
                                                   const SizedBox(height: 4),
@@ -632,10 +652,8 @@ class _CourseManagementScreenState extends State<CourseManagementScreen> {
                                                   onPressed: () =>
                                                       _editCourse(course),
                                                   tooltip: 'Edit',
-                                                  color: isDark
-                                                      ? Colors.white
-                                                      : Colors.black54,
-                                                ),
+                                                    color: MyAppColors
+                                                        .lightBlueColor),
                                                 IconButton(
                                                   icon:
                                                       const Icon(Icons.delete),

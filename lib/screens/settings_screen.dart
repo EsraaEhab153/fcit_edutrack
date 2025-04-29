@@ -15,6 +15,7 @@ class SettingsScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.blue.shade50,
       appBar: AppBar(
         title: Text(
           'Settings',
@@ -51,7 +52,7 @@ class SettingsScreen extends StatelessWidget {
                 border: Border.all(
                   color: Provider.of<ThemeProvider>(context).isDark()
                       ? Colors.blue.shade800
-                      : Colors.grey.shade200,
+                      : MyAppColors.primaryColor,
                 ),
               ),
               child: Row(
@@ -79,7 +80,7 @@ class SettingsScreen extends StatelessWidget {
                 border: Border.all(
                   color: Provider.of<ThemeProvider>(context).isDark()
                       ? Colors.blue.shade800
-                      : Colors.grey.shade200,
+                      : MyAppColors.primaryColor,
                 ),
               ),
               child: Column(
@@ -89,7 +90,10 @@ class SettingsScreen extends StatelessWidget {
                     children: [
                       const Text('Password Security'),
                       IconButton(
-                        icon: const Icon(Icons.arrow_forward_ios),
+                        icon: const Icon(
+                          Icons.arrow_forward_ios,
+                          color: MyAppColors.darkBlueColor,
+                        ),
                         onPressed: () {
                           Navigator.pushNamed(
                               context, ChangePasswordScreen.routeName);

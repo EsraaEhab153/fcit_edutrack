@@ -5,8 +5,10 @@ import 'package:fci_edutrack/providers/course_provider.dart';
 import 'package:fci_edutrack/style/my_app_colors.dart';
 import 'package:fci_edutrack/themes/theme_provider.dart';
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
 import 'package:intl/intl.dart';
+import 'package:provider/provider.dart';
+
+import '../themes/my_theme_data.dart';
 
 class AttendanceHistoryScreen extends StatefulWidget {
   static const String routeName = 'attendance_history';
@@ -105,20 +107,44 @@ class _AttendanceHistoryScreenState extends State<AttendanceHistoryScreen> {
 
     return Scaffold(
       backgroundColor:
-          isDark ? MyAppColors.primaryDarkColor : MyAppColors.whiteColor,
+          isDark ? MyAppColors.primaryDarkColor : Colors.blue.shade50,
+      // appBar: AppBar(
+      //   backgroundColor: Colors.transparent,
+      //   elevation: 0,
+      //   title: Text(
+      //     'My Attendance History',
+      //     style: TextStyle(
+      //       fontSize: 18,
+      //       fontWeight: FontWeight.bold,
+      //       color: isDark ? MyAppColors.whiteColor : MyAppColors.blackColor,
+      //     ),
+      //   ),
+      //   iconTheme: IconThemeData(
+      //     color: isDark ? MyAppColors.whiteColor : MyAppColors.blackColor,
+      //   ),
+      // ),
       appBar: AppBar(
-        backgroundColor: Colors.transparent,
-        elevation: 0,
         title: Text(
           'My Attendance History',
-          style: TextStyle(
-            fontSize: 18,
-            fontWeight: FontWeight.bold,
-            color: isDark ? MyAppColors.whiteColor : MyAppColors.blackColor,
+          style: MyThemeData.lightModeStyle.textTheme.titleMedium!
+              .copyWith(color: MyAppColors.whiteColor, fontSize: 18),
+        ),
+        elevation: 0,
+        centerTitle: true,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.only(
+            bottomLeft:
+                Radius.circular(MediaQuery.of(context).size.width * 0.1),
+            bottomRight:
+                Radius.circular(MediaQuery.of(context).size.width * 0.1),
           ),
         ),
-        iconTheme: IconThemeData(
-          color: isDark ? MyAppColors.whiteColor : MyAppColors.blackColor,
+        backgroundColor: MyAppColors.primaryColor,
+        leading: IconButton(
+          onPressed: () {
+            Navigator.pop(context);
+          },
+          icon: const Icon(Icons.arrow_back_ios),
         ),
       ),
       body: Padding(
@@ -131,7 +157,8 @@ class _AttendanceHistoryScreenState extends State<AttendanceHistoryScreen> {
               style: TextStyle(
                 fontSize: 18,
                 fontWeight: FontWeight.bold,
-                color: isDark ? MyAppColors.whiteColor : MyAppColors.blackColor,
+                color:
+                    isDark ? MyAppColors.whiteColor : MyAppColors.darkBlueColor,
               ),
             ),
             const SizedBox(height: 8),
@@ -287,9 +314,9 @@ class _AttendanceHistoryScreenState extends State<AttendanceHistoryScreen> {
                                     const SizedBox(height: 16),
                                     const Divider(height: 1),
                                     const SizedBox(height: 8),
-                                    Row(
+                                    Column(
                                       mainAxisAlignment:
-                                          MainAxisAlignment.spaceBetween,
+                                          MainAxisAlignment.spaceEvenly,
                                       children: [
                                         _buildAttendanceInfoItem(
                                             'Attended',
@@ -387,27 +414,32 @@ class _AttendanceHistoryScreenState extends State<AttendanceHistoryScreen> {
     return Column(
       children: [
         Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Icon(icon, color: color, size: 16),
-            const SizedBox(width: 4),
+            Row(
+              children: [
+                Icon(icon, color: color, size: 16),
+                const SizedBox(width: 4),
+                Text(
+                  label,
+                  style: TextStyle(
+                    color: isDark ? Colors.grey.shade400 : Colors.grey.shade700,
+                    fontSize: 12,
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 4),
             Text(
-              label,
+              value,
               style: TextStyle(
-                color: isDark ? Colors.grey.shade400 : Colors.grey.shade700,
-                fontSize: 12,
+                fontWeight: FontWeight.bold,
+                fontSize: 14,
+                color: isDark ? Colors.white : Colors.black87,
               ),
             ),
           ],
-        ),
-        const SizedBox(height: 4),
-        Text(
-          value,
-          style: TextStyle(
-            fontWeight: FontWeight.bold,
-            fontSize: 14,
-            color: isDark ? Colors.white : Colors.black87,
-          ),
-        ),
+        )
       ],
     );
   }

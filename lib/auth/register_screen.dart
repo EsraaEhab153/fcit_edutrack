@@ -278,29 +278,38 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    Text(
-                      "Need a professor account?",
-                      style: MyThemeData.lightModeStyle.textTheme.bodySmall!
-                          .copyWith(
-                        fontSize: 12,
-                      ),
-                    ),
-                    InkWell(
-                      onTap: () {
-                        Navigator.pushNamed(
-                            context, 'professor_request_screen');
-                      },
+                    Flexible(
                       child: Text(
-                        ' Request access',
+                        "Need a professor account?",
+                        overflow: TextOverflow.ellipsis,
+                        softWrap: true,
                         style: MyThemeData.lightModeStyle.textTheme.bodySmall!
                             .copyWith(
                           fontSize: 12,
-                          color: MyAppColors.primaryColor,
+                        ),
+                      ),
+                    ),
+                    Flexible(
+                      child: InkWell(
+                        onTap: () {
+                          Navigator.pushNamed(
+                              context, 'professor_request_screen');
+                        },
+                        child: Text(
+                          ' Request access',
+                          overflow: TextOverflow.ellipsis,
+                          softWrap: true,
+                          style: MyThemeData.lightModeStyle.textTheme.bodySmall!
+                              .copyWith(
+                            fontSize: 12,
+                            color: MyAppColors.primaryColor,
+                          ),
                         ),
                       ),
                     ),
                   ],
                 ),
+
                 const SizedBox(height: 20),
               ],
             ),

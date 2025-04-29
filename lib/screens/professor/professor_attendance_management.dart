@@ -1,16 +1,17 @@
-import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
 // For potential future use
 import 'dart:io'; // For file operations
 import 'dart:typed_data'; // For Uint8List
+
 import 'package:fci_edutrack/models/course_model.dart';
 import 'package:fci_edutrack/providers/attendance_provider.dart'; // Import AttendanceProvider
 import 'package:fci_edutrack/providers/course_provider.dart';
 import 'package:fci_edutrack/screens/professor/attendance_recording_screen.dart';
 import 'package:fci_edutrack/style/my_app_colors.dart';
+import 'package:flutter/material.dart';
 import 'package:intl/intl.dart'; // For date formatting
-import 'package:path_provider/path_provider.dart'; // For file path
 import 'package:open_file/open_file.dart'; // To open the downloaded file
+import 'package:path_provider/path_provider.dart'; // For file path
+import 'package:provider/provider.dart';
 // TODO: Import the screen containing the main course list if needed for "Browse Courses"
 // TODO: Import or create screen/widget for displaying attendees
 
@@ -113,6 +114,7 @@ class _ProfessorAttendanceManagementScreenState
   Widget build(BuildContext context) {
     // Use multiple Consumers or nested Consumers if needed, or read providers directly in build methods
     return Scaffold(
+      backgroundColor: Colors.blue.shade50,
       // AppBar might be handled by MyBottomNavBar, or add one here if needed
       body: RefreshIndicator(
         onRefresh: _refreshData, // Use combined refresh method
@@ -233,6 +235,8 @@ class _ProfessorAttendanceManagementScreenState
       // Use Column instead of ListView directly if parent is already scrollable
       children: enrolledCourses.map((course) {
         return Card(
+          shape:
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
           elevation: 2,
           margin: const EdgeInsets.only(bottom: 12),
           child: ListTile(
@@ -250,6 +254,8 @@ class _ProfessorAttendanceManagementScreenState
             trailing: ElevatedButton(
               style: ElevatedButton.styleFrom(
                   backgroundColor: MyAppColors.primaryColor,
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(13)),
                   padding:
                       const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                   textStyle: const TextStyle(fontSize: 14)),
@@ -356,6 +362,7 @@ class _ProfessorAttendanceManagementScreenState
     }
 
     return Card(
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
       elevation: 2,
       child: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -444,6 +451,7 @@ class _ProfessorAttendanceManagementScreenState
     }
 
     return Card(
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
       elevation: 2,
       child: Padding(
         padding: const EdgeInsets.all(16.0),

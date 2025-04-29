@@ -1,23 +1,20 @@
-import 'package:fci_edutrack/screens/assignment/assignment_card.dart';
-import 'package:fci_edutrack/models/assignment_model.dart';
+import 'dart:io';
+import 'dart:typed_data';
 
+import 'package:fci_edutrack/models/assignment_model.dart';
 import 'package:fci_edutrack/providers/assignment_provider.dart';
 import 'package:fci_edutrack/providers/auth_provider.dart';
 import 'package:fci_edutrack/providers/course_provider.dart';
+import 'package:fci_edutrack/screens/assignment/assignment_card.dart';
+import 'package:fci_edutrack/screens/assignment/assignment_drafts_screen.dart';
+import 'package:fci_edutrack/services/api_service.dart';
 import 'package:fci_edutrack/style/my_app_colors.dart';
-import 'package:fci_edutrack/themes/my_theme_data.dart';
 import 'package:fci_edutrack/themes/theme_provider.dart';
 import 'package:fci_edutrack/utils/date_formatter.dart';
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
-import 'package:fci_edutrack/services/api_service.dart';
-import 'package:url_launcher/url_launcher.dart';
-import 'package:fci_edutrack/config.dart';
-import 'dart:typed_data';
-import 'dart:io';
-import 'package:path_provider/path_provider.dart';
 import 'package:open_file/open_file.dart';
-import 'package:fci_edutrack/screens/assignment/assignment_drafts_screen.dart';
+import 'package:path_provider/path_provider.dart';
+import 'package:provider/provider.dart';
 
 class AssignmentScreen extends StatefulWidget {
   static const String routeName = 'assignment_screen';
@@ -156,6 +153,7 @@ class _AssignmentScreenState extends State<AssignmentScreen> {
         final hasDraft = provider.hasDraft;
 
         return Scaffold(
+          backgroundColor: Colors.blue.shade50,
           appBar: AppBar(
             title: const Text(
               'Assignments',
@@ -204,7 +202,7 @@ class _AssignmentScreenState extends State<AssignmentScreen> {
                 borderRadius: BorderRadius.circular(20),
                 color: isDark
                     ? MyAppColors.primaryDarkColor
-                    : MyAppColors.whiteColor),
+                    : Colors.blue.shade50),
             child: provider.isLoading
                 ? const Center(child: CircularProgressIndicator())
                 : _isProfessor

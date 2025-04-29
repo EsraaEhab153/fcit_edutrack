@@ -20,41 +20,44 @@ class CustomContainer extends StatelessWidget {
   Widget build(BuildContext context) {
     return InkWell(
       onTap: onContainerClick,
-      child: Container(
-        margin: EdgeInsets.symmetric(
-            vertical: MediaQuery.of(context).size.width * 0.02),
-        padding: EdgeInsets.symmetric(
-            horizontal: MediaQuery.of(context).size.width * 0.025),
-        decoration: BoxDecoration(
-            color: MyAppColors.babyBlueColor,
-            borderRadius: BorderRadius.circular(17)),
-        width: double.infinity,
-        height: MediaQuery.of(context).size.height * 0.06,
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Row(
-              children: [
-                Icon(
-                  icon,
-                  color: MyAppColors.primaryColor,
-                ),
-                SizedBox(
-                  width: MediaQuery.of(context).size.width * 0.02,
-                ),
-                Text(
-                  label,
-                  style: Provider.of<ThemeProvider>(context).isDark()
-                      ? MyThemeData.darkModeStyle.textTheme.bodyMedium
-                      : MyThemeData.lightModeStyle.textTheme.bodyMedium,
-                ),
-              ],
-            ),
-            const Icon(
-              Icons.arrow_forward_ios_rounded,
-              color: MyAppColors.darkBlueColor,
-            )
-          ],
+      child: Card(
+        shadowColor: Colors.blue.shade500,
+        elevation: 2,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        child: Container(
+          margin: EdgeInsets.symmetric(
+              vertical: MediaQuery.of(context).size.width * 0.02),
+          padding: EdgeInsets.symmetric(
+              horizontal: MediaQuery.of(context).size.width * 0.025),
+          decoration: BoxDecoration(borderRadius: BorderRadius.circular(16)),
+          width: double.infinity,
+          height: MediaQuery.of(context).size.height * 0.05,
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Row(
+                children: [
+                  Icon(
+                    icon,
+                    color: MyAppColors.primaryColor,
+                  ),
+                  SizedBox(
+                    width: MediaQuery.of(context).size.width * 0.02,
+                  ),
+                  Text(
+                    label,
+                    style: Provider.of<ThemeProvider>(context).isDark()
+                        ? MyThemeData.darkModeStyle.textTheme.bodyMedium
+                        : MyThemeData.lightModeStyle.textTheme.bodyMedium,
+                  ),
+                ],
+              ),
+              const Icon(
+                Icons.arrow_forward_ios_rounded,
+                color: MyAppColors.darkBlueColor,
+              )
+            ],
+          ),
         ),
       ),
     );
