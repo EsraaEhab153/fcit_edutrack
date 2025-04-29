@@ -64,32 +64,40 @@ class _ProfessorRequestScreenState extends State<ProfessorRequestScreen> {
 
     try {
       final apiService = ApiService();
-      print("Uploading image: ${_idImage!.path}");
+      print("Uploading ID image: ${_idImage!.path}");
 
-      // Check file extension to help debug content type issues
-      String fileExtension = _idImage!.path.split('.').last.toLowerCase();
-      print("File extension: $fileExtension");
+      // Use the new uploadFileToServer method for public upload
+      final response = await apiService.uploadFileToServer(
+        _idImage!,
+        requiresAuth: false, // This is a public upload endpoint
+      );
 
-      final response = await apiService.uploadFile(_idImage!);
       print("Upload response: $response");
 
       if (response['success'] == true && response['data'] != null) {
+        // Extract the fileUrl from the 'data' field in the response
         _uploadedImageUrl = response['data']['fileUrl'];
         setState(() {
           _successMessage = "ID image uploaded successfully";
+          _errorMessage = null; // Clear any previous error message
         });
-        print("Image uploaded successfully: $_uploadedImageUrl");
+        print("ID image uploaded successfully: $_uploadedImageUrl");
       } else {
+        // Handle upload failure
         setState(() {
-          _errorMessage = response['message'] ?? "Failed to upload image";
+          _errorMessage = response['message'] ?? "Failed to upload ID image";
+          _successMessage = null; // Clear any previous success message
         });
-        print("Failed to upload image: $_errorMessage");
+        print("Failed to upload ID image: $_errorMessage");
       }
     } catch (e) {
+      // Handle exceptions during upload
       setState(() {
-        _errorMessage = "Failed to upload image: ${e.toString()}";
+        _errorMessage =
+            "An error occurred during image upload: ${e.toString()}";
+        _successMessage = null; // Clear any previous success message
       });
-      print("Exception during image upload: $e");
+      print("Exception during ID image upload: $e");
     } finally {
       setState(() {
         _isLoading = false;

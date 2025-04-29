@@ -1019,10 +1019,158 @@ class ApiService {
     }
   }
 
+  // --- NEW File Upload Method ---
+
+  /// Uploads a file to the backend server.
+  ///
+  /// Handles both authenticated (`/api/upload`) and public (`/api/upload/public`) endpoints.
+  /// Returns a Map representing the FileInfo object on success, or an error map on failure.
+  Future<Map<String, dynamic>> uploadFileToServer(File file,
+      {bool requiresAuth = true}) async {
+    final String uploadUrl = requiresAuth
+        ? Config.authenticatedFileUploadUrl
+        : Config.publicFileUploadUrl;
+    final String? token = requiresAuth ? await _getToken() : null;
+
+    if (requiresAuth && token == null) {
+      print("Error: Authentication token required for upload but not found.");
+      return {'success': false, 'message': 'Authentication required.'};
+    }
+
+    print("Uploading file to $uploadUrl");
+    print("File path: ${file.path}");
+
+    try {
+      // Determine content type
+      String extension = file.path.split('.').last.toLowerCase();
+      String contentTypeString;
+      switch (extension) {
+        case 'jpg':
+        case 'jpeg':
+          contentTypeString = 'image/jpeg';
+          break;
+        case 'png':
+          contentTypeString = 'image/png';
+          break;
+        case 'gif':
+          contentTypeString = 'image/gif';
+          break;
+        case 'pdf':
+          contentTypeString = 'application/pdf';
+          break;
+        case 'doc':
+          contentTypeString = 'application/msword';
+          break;
+        case 'docx':
+          contentTypeString =
+              'application/vnd.openxmlformats-officedocument.wordprocessingml.document';
+          break;
+        case 'xls':
+          contentTypeString = 'application/vnd.ms-excel';
+          break;
+        case 'xlsx':
+          contentTypeString =
+              'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet';
+          break;
+        case 'zip':
+          contentTypeString = 'application/zip';
+          break;
+        // Add other common types as needed
+        default:
+          contentTypeString = 'application/octet-stream'; // Generic binary type
+      }
+      final contentType = MediaType.parse(contentTypeString);
+      print("Determined content type: $contentTypeString");
+
+      var request = http.MultipartRequest('POST', Uri.parse(uploadUrl));
+
+      // Add auth header if needed
+      if (requiresAuth && token != null) {
+        request.headers['Authorization'] = 'Bearer $token';
+      }
+
+      // Add the file
+      final multipartFile = await http.MultipartFile.fromPath(
+        'file', // Matches the @RequestParam("file") in the backend
+        file.path,
+        contentType: contentType,
+      );
+      request.files.add(multipartFile);
+
+      print("Sending multipart request...");
+      var streamedResponse = await request.send();
+      var response = await http.Response.fromStream(streamedResponse);
+
+      print("Upload response status: ${response.statusCode}");
+      print("Upload response body: ${response.body}");
+
+      if (response.statusCode == 200 || response.statusCode == 201) {
+        if (response.body.isEmpty) {
+          print("Error: Empty response body from upload endpoint.");
+          return {'success': false, 'message': 'Empty response from server'};
+        }
+        try {
+          final decodedResponse = jsonDecode(response.body);
+          // Check if the backend response indicates success and contains data
+          if (decodedResponse is Map<String, dynamic> &&
+              decodedResponse['success'] == true &&
+              decodedResponse['data'] != null) {
+            // Return the 'data' part which should be the FileInfo map
+            return {
+              'success': true,
+              'data': decodedResponse['data']
+                  as Map<String, dynamic> // Ensure data is a Map
+            };
+          } else {
+            print("Error: Upload response indicates failure or missing data.");
+            return {
+              'success': false,
+              'message': decodedResponse['message'] ??
+                  'Upload failed: Invalid server response format.',
+              'details': decodedResponse // Include full response for debugging
+            };
+          }
+        } catch (e) {
+          print("Error parsing upload JSON response: $e");
+          return {
+            'success': false,
+            'message': 'Failed to parse server response.'
+          };
+        }
+      } else {
+        // Handle backend error response
+        String errorMessage =
+            'File upload failed (Status: ${response.statusCode})';
+        try {
+          final decodedError = jsonDecode(response.body);
+          if (decodedError is Map<String, dynamic> &&
+              decodedError['message'] != null) {
+            errorMessage = decodedError['message'];
+          }
+        } catch (_) {
+          // Ignore parsing error if body is not JSON
+        }
+        return {
+          'success': false,
+          'message': errorMessage,
+          'statusCode': response.statusCode
+        };
+      }
+    } catch (e) {
+      print("Exception during file upload: $e");
+      return {
+        'success': false,
+        'message': 'An error occurred during upload: ${e.toString()}'
+      };
+    }
+  }
+
+  // --- Old Upload Method (kept for reference/potential other uses, but prefer uploadFileToServer) ---
   // Upload file with optional file type parameter
   Future<dynamic> uploadFile(File file, {String? fileType}) async {
     try {
-      print("Uploading file to ${Config.publicFileUploadUrl}");
+      print(
+          "[DEPRECATED] Uploading file to ${Config.publicFileUploadUrl}"); // Mark as deprecated
       print("File path: ${file.path}");
       if (fileType != null) {
         print("File type: $fileType");
