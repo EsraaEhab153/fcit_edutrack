@@ -185,24 +185,31 @@ class AssignmentProvider extends ChangeNotifier {
     _isLoading = true;
     notifyListeners();
     try {
-      // Upload files first
-      List<Map<String, dynamic>> uploadedFiles = [];
+      // Upload files first using the new method
+      List<Map<String, dynamic>> uploadedFilesInfo = [];
       for (var file in files) {
-        final uploadResult = await _apiService.uploadFile(File(file.path!));
+        // Use uploadFileToServer with requiresAuth: true for authenticated uploads
+        final uploadResult = await _apiService.uploadFileToServer(
+          File(file.path!),
+          requiresAuth: true,
+        );
+
         if (uploadResult['success'] == true && uploadResult['data'] != null) {
-          final fileData = uploadResult['data'];
-          uploadedFiles.add({
-            'fileName': fileData['fileName'] ?? file.name,
-            'fileUrl': fileData['fileUrl'],
-            'contentType': fileData['contentType'] ?? '',
-            'fileSize': fileData['fileSize'] ?? file.size
-          });
+          // The 'data' field contains the FileInfo map from the backend
+          uploadedFilesInfo.add(uploadResult['data']);
         } else {
+          // If any file upload fails, return an error immediately
           print(
-              'AssignmentProvider: File upload failed: ${uploadResult['message']}');
+              'AssignmentProvider: File upload failed for ${file.name}: ${uploadResult['message']}');
+          return {
+            'success': false,
+            'message':
+                'Failed to upload file ${file.name}: ${uploadResult['message']}',
+          };
         }
       }
-      assignmentData['files'] = uploadedFiles;
+      // Add the list of uploaded FileInfo maps to the assignment data
+      assignmentData['files'] = uploadedFilesInfo;
 
       // Remove any isDraft reference before sending to backend
       if (assignmentData.containsKey('isDraft')) {
@@ -232,26 +239,34 @@ class AssignmentProvider extends ChangeNotifier {
     _isLoading = true;
     notifyListeners();
     try {
-      List<Map<String, dynamic>> uploadedFiles = [];
+      // Upload files first using the new method
+      List<Map<String, dynamic>> uploadedFilesInfo = [];
       for (var file in files) {
-        final uploadResult = await _apiService.uploadFile(File(file.path!));
+        // Use uploadFileToServer with requiresAuth: true for authenticated uploads
+        final uploadResult = await _apiService.uploadFileToServer(
+          File(file.path!),
+          requiresAuth: true,
+        );
+
         if (uploadResult['success'] == true && uploadResult['data'] != null) {
-          final fileData = uploadResult['data'];
-          uploadedFiles.add({
-            'fileName': fileData['fileName'] ?? file.name,
-            'fileUrl': fileData['fileUrl'],
-            'contentType': fileData['contentType'] ?? '',
-            'fileSize': fileData['fileSize'] ?? file.size
-          });
+          // The 'data' field contains the FileInfo map from the backend
+          uploadedFilesInfo.add(uploadResult['data']);
         } else {
+          // If any file upload fails, return an error immediately
           print(
-              'AssignmentProvider: File upload failed: ${uploadResult['message']}');
+              'AssignmentProvider: File upload failed for ${file.name}: ${uploadResult['message']}');
+          return {
+            'success': false,
+            'message':
+                'Failed to upload file ${file.name}: ${uploadResult['message']}',
+          };
         }
       }
+      // Prepare submission data with uploaded file info
       final submissionData = {
         'assignmentId': assignmentId,
         'notes': notes,
-        'files': uploadedFiles,
+        'files': uploadedFilesInfo, // Use the list of uploaded FileInfo maps
       };
       final response =
           await _apiService.submitAssignment(assignmentId, submissionData);
@@ -260,7 +275,7 @@ class AssignmentProvider extends ChangeNotifier {
       print('AssignmentProvider: Error submitting assignment: $e');
       return {
         'success': false,
-        'message': 'Failed to submit assignment: $e',
+        'message': 'Failed to submit assignment: ${e.toString()}',
       };
     } finally {
       _isLoading = false;
@@ -275,25 +290,33 @@ class AssignmentProvider extends ChangeNotifier {
     _isLoading = true;
     notifyListeners();
     try {
-      List<Map<String, dynamic>> uploadedFiles = [];
+      // Upload files first using the new method
+      List<Map<String, dynamic>> uploadedFilesInfo = [];
       for (var file in files) {
-        final uploadResult = await _apiService.uploadFile(File(file.path!));
+        // Use uploadFileToServer with requiresAuth: true for authenticated uploads
+        final uploadResult = await _apiService.uploadFileToServer(
+          File(file.path!),
+          requiresAuth: true,
+        );
+
         if (uploadResult['success'] == true && uploadResult['data'] != null) {
-          final fileData = uploadResult['data'];
-          uploadedFiles.add({
-            'fileName': fileData['fileName'] ?? file.name,
-            'fileUrl': fileData['fileUrl'],
-            'contentType': fileData['contentType'] ?? '',
-            'fileSize': fileData['fileSize'] ?? file.size
-          });
+          // The 'data' field contains the FileInfo map from the backend
+          uploadedFilesInfo.add(uploadResult['data']);
         } else {
+          // If any file upload fails, return an error immediately
           print(
-              'AssignmentProvider: File upload failed: ${uploadResult['message']}');
+              'AssignmentProvider: File upload failed for ${file.name}: ${uploadResult['message']}');
+          return {
+            'success': false,
+            'message':
+                'Failed to upload file ${file.name}: ${uploadResult['message']}',
+          };
         }
       }
+      // Prepare submission data with uploaded file info
       final submissionData = {
         'notes': notes,
-        'files': uploadedFiles,
+        'files': uploadedFilesInfo, // Use the list of uploaded FileInfo maps
         'assignmentId': assignmentId,
       };
       final response =
@@ -303,7 +326,7 @@ class AssignmentProvider extends ChangeNotifier {
       print('AssignmentProvider: Error editing submission: $e');
       return {
         'success': false,
-        'message': 'Failed to edit submission: $e',
+        'message': 'Failed to edit submission: ${e.toString()}',
       };
     } finally {
       _isLoading = false;
@@ -317,24 +340,31 @@ class AssignmentProvider extends ChangeNotifier {
     _isLoading = true;
     notifyListeners();
     try {
-      // Upload files first
-      List<Map<String, dynamic>> uploadedFiles = [];
+      // Upload files first using the new method
+      List<Map<String, dynamic>> uploadedFilesInfo = [];
       for (var file in files) {
-        final uploadResult = await _apiService.uploadFile(File(file.path!));
+        // Use uploadFileToServer with requiresAuth: true for authenticated uploads
+        final uploadResult = await _apiService.uploadFileToServer(
+          File(file.path!),
+          requiresAuth: true,
+        );
+
         if (uploadResult['success'] == true && uploadResult['data'] != null) {
-          final fileData = uploadResult['data'];
-          uploadedFiles.add({
-            'fileName': fileData['fileName'] ?? file.name,
-            'fileUrl': fileData['fileUrl'],
-            'contentType': fileData['contentType'] ?? '',
-            'fileSize': fileData['fileSize'] ?? file.size
-          });
+          // The 'data' field contains the FileInfo map from the backend
+          uploadedFilesInfo.add(uploadResult['data']);
         } else {
+          // If any file upload fails, return an error immediately
           print(
-              'AssignmentProvider: File upload failed: ${uploadResult['message']}');
+              'AssignmentProvider: File upload failed for ${file.name}: ${uploadResult['message']}');
+          return {
+            'success': false,
+            'message':
+                'Failed to upload file ${file.name}: ${uploadResult['message']}',
+          };
         }
       }
-      assignmentData['files'] = uploadedFiles;
+      // Add the list of uploaded FileInfo maps to the assignment data
+      assignmentData['files'] = uploadedFilesInfo;
       final response =
           await _apiService.editAssignment(assignmentId, assignmentData);
       if (response['success']) {
@@ -345,7 +375,7 @@ class AssignmentProvider extends ChangeNotifier {
       print('AssignmentProvider: Error editing assignment: $e');
       return {
         'success': false,
-        'message': 'Failed to edit assignment: $e',
+        'message': 'Failed to edit assignment: ${e.toString()}',
       };
     } finally {
       _isLoading = false;

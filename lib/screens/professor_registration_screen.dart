@@ -165,7 +165,7 @@ class _ProfessorRegistrationScreenState
             children: [
               Text(
                 'Apply to become a professor',
-                style: Theme.of(context).textTheme.headline5,
+                style: Theme.of(context).textTheme.headlineSmall,
               ),
               const SizedBox(height: 24.0),
               TextFormField(

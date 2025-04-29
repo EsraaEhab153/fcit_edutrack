@@ -69,8 +69,9 @@ class Config {
   // Assignment endpoints
   static const String assignmentsUrl = '$baseUrl/api/assignments';
 
-  // File upload endpoint
-  static const String fileUploadUrl = '$baseUrl/api/upload';
+  // File upload endpoints
+  static const String authenticatedFileUploadUrl =
+      '$baseUrl/api/upload'; // Renamed for clarity
   static const String publicFileUploadUrl = '$baseUrl/api/upload/public';
 
   // Professor request endpoint
