@@ -1,13 +1,14 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
 import 'package:intl/intl.dart';
+import 'package:provider/provider.dart';
 import 'package:timezone/timezone.dart' as tz; // Import timezone library
 
-import '../../providers/quiz_provider.dart';
-import '../../providers/course_provider.dart';
-import '../../models/quiz_models.dart';
 import '../../models/course_model.dart'; // Import Course model
+import '../../models/quiz_models.dart';
+import '../../providers/course_provider.dart';
+import '../../providers/quiz_provider.dart';
 import '../../style/my_app_colors.dart';
+import '../../themes/my_theme_data.dart';
 import 'quiz_taking_screen.dart'; // Import the Quiz Taking Screen
 
 class StudentQuizListScreen extends StatefulWidget {
@@ -52,16 +53,30 @@ class _StudentQuizListScreenState extends State<StudentQuizListScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.blue.shade50,
       appBar: AppBar(
-        title: const Text(
+        title: Text(
           'Available Quizzes',
-          style: TextStyle(
-            fontSize: 20,
-            fontWeight: FontWeight.w600,
-            color: Colors.white,
+          style: MyThemeData.lightModeStyle.textTheme.titleMedium!
+              .copyWith(color: MyAppColors.whiteColor),
+        ),
+        elevation: 0,
+        centerTitle: true,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.only(
+            bottomLeft:
+                Radius.circular(MediaQuery.of(context).size.width * 0.1),
+            bottomRight:
+                Radius.circular(MediaQuery.of(context).size.width * 0.1),
           ),
         ),
         backgroundColor: MyAppColors.primaryColor,
+        leading: IconButton(
+          onPressed: () {
+            Navigator.pop(context);
+          },
+          icon: const Icon(Icons.arrow_back_ios),
+        ),
       ),
       body: Consumer<QuizProvider>(
         builder: (context, quizProvider, child) {
