@@ -6,7 +6,6 @@ import 'package:fci_edutrack/providers/assignment_provider.dart';
 import 'package:fci_edutrack/providers/auth_provider.dart';
 import 'package:fci_edutrack/providers/course_provider.dart';
 import 'package:fci_edutrack/screens/assignment/assignment_card.dart';
-import 'package:fci_edutrack/screens/assignment/assignment_drafts_screen.dart';
 import 'package:fci_edutrack/services/api_service.dart';
 import 'package:fci_edutrack/style/my_app_colors.dart';
 import 'package:fci_edutrack/themes/theme_provider.dart';
@@ -15,6 +14,8 @@ import 'package:flutter/material.dart';
 import 'package:open_file/open_file.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:provider/provider.dart';
+
+import '../../themes/my_theme_data.dart';
 
 class AssignmentScreen extends StatefulWidget {
   static const String routeName = 'assignment_screen';
@@ -154,49 +155,41 @@ class _AssignmentScreenState extends State<AssignmentScreen> {
 
         return Scaffold(
           backgroundColor: Colors.blue.shade50,
-          appBar: AppBar(
-            title: const Text(
-              'Assignments',
-              style: TextStyle(
-                color: MyAppColors.primaryColor,
-                fontWeight: FontWeight.bold,
-                fontSize: 20,
-              ),
+          appBar: _isProfessor
+              ? AppBar(
+                  backgroundColor: Colors.transparent,
+                  elevation: 0,
+                  title: Text(
+                    'Assignments',
+                    style: MyThemeData.lightModeStyle.textTheme.titleMedium!
+                        .copyWith(
+                            color: MyAppColors.primaryColor, fontSize: 24),
             ),
-            backgroundColor: Colors.transparent,
-            elevation: 0,
-            iconTheme: const IconThemeData(color: MyAppColors.primaryColor),
-            // Add actions for professor mode only
-            actions: _isProfessor
-                ? [
-                    // Add a button to access local drafts
-                    if (hasDraft)
-                      Padding(
-                        padding: const EdgeInsets.only(right: 8.0),
-                        child: Badge(
-                          label: Text("1"),
-                          child: IconButton(
-                            icon: Icon(Icons.description),
-                            tooltip: 'View Drafts',
-                            onPressed: () {
-                              Navigator.pushNamed(
-                                context,
-                                AssignmentDraftsScreen.routeName,
-                              ).then((value) {
-                                // Refresh the view when returning from drafts screen
-                                if (value == true) {
-                                  provider.fetchProfessorAssignments();
-                                }
-                                // Force refresh to update UI based on draft status
-                                setState(() {});
-                              });
-                            },
-                          ),
-                        ),
-                      ),
-                  ]
-                : null,
-          ),
+                )
+              : AppBar(
+                  title: Text(
+                    'Assignments',
+                    style: MyThemeData.lightModeStyle.textTheme.titleMedium!
+                        .copyWith(color: MyAppColors.whiteColor),
+                  ),
+                  elevation: 0,
+                  centerTitle: true,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.only(
+                      bottomLeft: Radius.circular(
+                          MediaQuery.of(context).size.width * 0.1),
+                      bottomRight: Radius.circular(
+                          MediaQuery.of(context).size.width * 0.1),
+                    ),
+                  ),
+                  backgroundColor: MyAppColors.primaryColor,
+                  leading: IconButton(
+                    onPressed: () {
+                      Navigator.pop(context);
+                    },
+                    icon: const Icon(Icons.arrow_back_ios),
+                  ),
+                ),
           body: Container(
             decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(20),

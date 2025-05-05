@@ -55,6 +55,7 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
         ),
         // Adjust font size
         elevation: 0,
+        centerTitle: true,
         backgroundColor: MyAppColors.primaryColor,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.only(

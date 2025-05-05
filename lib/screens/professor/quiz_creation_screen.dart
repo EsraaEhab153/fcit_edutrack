@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
 import 'package:intl/intl.dart';
+import 'package:provider/provider.dart';
 
-import '../../models/quiz_models.dart';
 import '../../models/course_model.dart';
-import '../../providers/quiz_provider.dart';
+import '../../models/quiz_models.dart';
 import '../../providers/course_provider.dart';
+import '../../providers/quiz_provider.dart';
 import '../../style/my_app_colors.dart';
 
 class QuizCreationScreen extends StatefulWidget {
@@ -200,10 +200,26 @@ class _QuizCreationScreenState extends State<QuizCreationScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.blue.shade50,
       appBar: AppBar(
         title: Text(_isEditMode
             ? 'Edit Quiz'
             : (_loadedFromDraft ? 'Edit Draft Quiz' : 'Create Quiz')),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.only(
+            bottomLeft:
+                Radius.circular(MediaQuery.of(context).size.width * 0.1),
+            bottomRight:
+                Radius.circular(MediaQuery.of(context).size.width * 0.1),
+          ),
+        ),
+        leading: IconButton(
+          onPressed: () {
+            Navigator.pop(context);
+          },
+          icon: const Icon(Icons.arrow_back_ios),
+        ),
+        elevation: 0,
         backgroundColor: MyAppColors.primaryColor,
         foregroundColor: Colors.white,
         actions: [
@@ -452,6 +468,8 @@ class _QuizCreationScreenState extends State<QuizCreationScreen> {
       child: ElevatedButton(
         onPressed: _isLoading ? null : _saveQuiz,
         style: ElevatedButton.styleFrom(
+          shape:
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
           backgroundColor: MyAppColors.primaryColor,
           padding: const EdgeInsets.symmetric(vertical: 16),
           textStyle: const TextStyle(fontSize: 16),
@@ -514,6 +532,11 @@ class _QuizCreationScreenState extends State<QuizCreationScreen> {
         // Use StatefulBuilder to manage dialog's internal state (like dropdown)
         return StatefulBuilder(builder: (context, setDialogState) {
           return AlertDialog(
+            shape:
+                RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+            insetPadding: EdgeInsets.symmetric(
+                horizontal: MediaQuery.of(context).size.width * 0.04,
+                vertical: MediaQuery.of(context).size.width * 0.06),
             title: Text(isEditing ? 'Edit Question' : 'Add New Question'),
             content: SingleChildScrollView(
               // Allow scrolling if content overflows
@@ -825,7 +848,8 @@ class _QuizCreationScreenState extends State<QuizCreationScreen> {
           }).toList();
 
     final quiz = Quiz(
-      id: _isEditMode ? _quizToEdit!.id : null, // Include ID for editing
+      id: _isEditMode ? _quizToEdit!.id : null,
+      // Include ID for editing
       title: _titleController.text,
       description: _descriptionController.text,
       courseId: _selectedCourse!.id,

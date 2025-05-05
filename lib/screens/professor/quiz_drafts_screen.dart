@@ -1,10 +1,10 @@
-import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
-import 'package:fci_edutrack/providers/quiz_provider.dart';
 import 'package:fci_edutrack/providers/course_provider.dart';
-import 'package:fci_edutrack/style/my_app_colors.dart';
-import 'package:intl/intl.dart';
+import 'package:fci_edutrack/providers/quiz_provider.dart';
 import 'package:fci_edutrack/screens/professor/quiz_creation_screen.dart';
+import 'package:fci_edutrack/style/my_app_colors.dart';
+import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
+import 'package:provider/provider.dart';
 
 class QuizDraftsScreen extends StatefulWidget {
   static const String routeName = 'quiz_drafts_screen';
@@ -53,8 +53,24 @@ class _QuizDraftsScreenState extends State<QuizDraftsScreen> {
     final quizProvider = Provider.of<QuizProvider>(context);
 
     return Scaffold(
+      backgroundColor: Colors.blue.shade50,
       appBar: AppBar(
+        elevation: 0,
         title: const Text('Quiz Drafts'),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.only(
+            bottomLeft:
+                Radius.circular(MediaQuery.of(context).size.width * 0.1),
+            bottomRight:
+                Radius.circular(MediaQuery.of(context).size.width * 0.1),
+          ),
+        ),
+        leading: IconButton(
+          onPressed: () {
+            Navigator.pop(context);
+          },
+          icon: const Icon(Icons.arrow_back_ios),
+        ),
         backgroundColor: MyAppColors.primaryColor,
       ),
       body: !quizProvider.hasDraft
@@ -68,9 +84,10 @@ class _QuizDraftsScreenState extends State<QuizDraftsScreen> {
                 children: [
                   Card(
                     elevation: 3,
+                    shadowColor: Colors.purple,
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(12),
-                      side: BorderSide(color: Colors.purple.shade300, width: 1),
+                      // side: BorderSide(color: Colors.blue.shade100, width: 2),
                     ),
                     child: Padding(
                       padding: const EdgeInsets.all(16.0),
@@ -205,7 +222,10 @@ class _QuizDraftsScreenState extends State<QuizDraftsScreen> {
                               Expanded(
                                 child: ElevatedButton.icon(
                                   icon: const Icon(Icons.publish),
-                                  label: const Text('Publish'),
+                                  label: const Text(
+                                    'Publish',
+                                    style: TextStyle(fontSize: 11),
+                                  ),
                                   style: ElevatedButton.styleFrom(
                                     backgroundColor: Colors.green,
                                   ),
