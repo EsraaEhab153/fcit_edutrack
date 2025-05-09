@@ -141,6 +141,7 @@ class _QuizManagementScreenState extends State<QuizManagementScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: MyAppColors.lightBackgroundColor,
       appBar: AppBar(
         title: const Text(
           'Quiz Management',
@@ -289,6 +290,8 @@ class _QuizManagementScreenState extends State<QuizManagementScreen> {
               '${course.courseName ?? 'Unknown'} (ID: ${quiz.courseId})';
 
           return Card(
+            shape:
+                RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
             elevation: 2,
             margin: const EdgeInsets.only(bottom: 16),
             child: Column(

@@ -140,8 +140,8 @@ class _RegisterAttendanceScreenState extends State<RegisterAttendanceScreen> {
             child: ListTile(
               leading: CircleAvatar(
                 backgroundColor: MyAppColors.primaryColor.withOpacity(0.1),
-                child:
-                    const Icon(Icons.book_outlined, color: MyAppColors.primaryColor),
+                child: const Icon(Icons.book_outlined,
+                    color: MyAppColors.primaryColor),
               ),
               title: Text(course.courseName),
               subtitle: Text(course.courseCode),
@@ -228,36 +228,36 @@ class _RegisterAttendanceScreenState extends State<RegisterAttendanceScreen> {
                             });
 
                             final response = await attendanceProvider
-                                .recordAttendanceWithCode(
-                              course.id,
-                              codeController.text
-                                  .trim()
-                                  .toUpperCase(), // Send uppercase code
-                            );
+                          .recordAttendanceWithCode(
+                        course.id,
+                        codeController.text
+                            .trim()
+                            .toUpperCase(), // Send uppercase code
+                      );
 
                             if (!dialogContext.mounted) {
                               return; // Check if dialog context is still valid
                             }
 
                             if (response['success']) {
-                              Navigator.of(dialogContext)
-                                  .pop(); // Close the dialog
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                SnackBar(
-                                  content: Text(response['message'] ??
-                                      'Attendance recorded successfully!'),
-                                  backgroundColor: Colors.green,
-                                ),
-                              );
-                            } else {
-                              setDialogState(() {
-                                // Update dialog state with error
-                                dialogError = response['message'] ??
-                                    'Failed to record attendance.';
-                              });
-                            }
-                          }
-                        },
+                        Navigator.of(dialogContext)
+                            .pop(); // Close the dialog
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: Text(response['message'] ??
+                                'Attendance recorded successfully!'),
+                            backgroundColor: Colors.green,
+                          ),
+                        );
+                      } else {
+                        setDialogState(() {
+                          // Update dialog state with error
+                          dialogError = response['message'] ??
+                              'Failed to record attendance.';
+                        });
+                      }
+                    }
+                  },
                   child: attendanceProvider.isLoading // Check loading state
                       ? const SizedBox(
                           width: 20,
@@ -274,6 +274,6 @@ class _RegisterAttendanceScreenState extends State<RegisterAttendanceScreen> {
     );
   }
 
-  // Removed _submitVerificationCode as logic is now in the dialog
-  // Removed _buildQrCodeScanner and _buildScannerPrompt as they are no longer used
+// Removed _submitVerificationCode as logic is now in the dialog
+// Removed _buildQrCodeScanner and _buildScannerPrompt as they are no longer used
 }
