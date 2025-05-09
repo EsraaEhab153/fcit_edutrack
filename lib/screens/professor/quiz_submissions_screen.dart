@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+
 import '../../providers/quiz_provider.dart';
 import '../../style/my_app_colors.dart';
 import '../../themes/theme_provider.dart';
@@ -112,19 +113,26 @@ class _QuizSubmissionsScreenState extends State<QuizSubmissionsScreen> {
 
     return Scaffold(
       backgroundColor:
-          isDark ? MyAppColors.primaryDarkColor : MyAppColors.whiteColor,
+          isDark ? MyAppColors.primaryDarkColor : Colors.blue.shade50,
       appBar: AppBar(
-        backgroundColor: Colors.transparent,
+        backgroundColor: Colors.blue.shade50,
         elevation: 0,
+        leading: IconButton(
+          onPressed: () {
+            Navigator.pop(context);
+          },
+          icon: const Icon(Icons.arrow_back_ios),
+        ),
         title: Text(
           'Submissions: ${widget.quizTitle}',
           style: TextStyle(
-            color: isDark ? MyAppColors.whiteColor : MyAppColors.blackColor,
+            fontSize: 20,
+            color: isDark ? MyAppColors.whiteColor : MyAppColors.darkBlueColor,
             fontWeight: FontWeight.bold,
           ),
         ),
         iconTheme: IconThemeData(
-          color: isDark ? MyAppColors.whiteColor : MyAppColors.blackColor,
+          color: isDark ? MyAppColors.whiteColor : MyAppColors.darkBlueColor,
         ),
         actions: [
           IconButton(

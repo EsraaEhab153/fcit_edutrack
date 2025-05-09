@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
+
 import '../../providers/quiz_provider.dart';
 import '../../style/my_app_colors.dart';
 import '../../themes/theme_provider.dart';
-import 'package:intl/intl.dart';
 
 class QuizSubmissionDetailsScreen extends StatefulWidget {
   static const String routeName = 'quiz_submission_details_screen';
@@ -74,53 +75,57 @@ class _QuizSubmissionDetailsScreenState
     final pointsAwarded = answer['pointsAwarded'] ?? 0;
     final isCorrect = pointsAwarded == points;
 
-    return Card(
-      margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              questionText,
-              style: const TextStyle(
-                fontWeight: FontWeight.bold,
-                fontSize: 16,
-              ),
-            ),
-            const SizedBox(height: 8),
-            if (questionType == 'MULTIPLE_CHOICE') ...[
+    return SizedBox(
+      width: double.infinity,
+      child: Card(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
+        child: Padding(
+          padding: const EdgeInsets.all(16),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
               Text(
-                'Selected: ${answer['selectedOption']?['text'] ?? 'No answer'}',
+                questionText,
+                style: const TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 16,
+                    color: MyAppColors.darkBlueColor),
+              ),
+              const SizedBox(height: 8),
+              if (questionType == 'MULTIPLE_CHOICE') ...[
+                Text(
+                  'Selected: ${answer['selectedOption']?['text'] ?? 'No answer'}',
+                  style: TextStyle(
+                    color: isCorrect ? Colors.green : Colors.red,
+                  ),
+                ),
+                Text(
+                  'Correct: ${answer['correctOption']?['text'] ?? 'N/A'}',
+                  style: const TextStyle(color: Colors.green),
+                ),
+              ] else if (questionType == 'TEXT_ANSWER') ...[
+                Text(
+                  'Student Answer: ${answer['studentAnswer'] ?? 'No answer'}',
+                  style: TextStyle(
+                    color: isCorrect ? Colors.green : Colors.red,
+                  ),
+                ),
+                Text(
+                  'Correct Answer: ${answer['correctAnswer'] ?? 'N/A'}',
+                  style: const TextStyle(color: Colors.green),
+                ),
+              ],
+              const SizedBox(height: 8),
+              Text(
+                'Points: $pointsAwarded/$points',
                 style: TextStyle(
+                  fontWeight: FontWeight.bold,
                   color: isCorrect ? Colors.green : Colors.red,
                 ),
-              ),
-              Text(
-                'Correct: ${answer['correctOption']?['text'] ?? 'N/A'}',
-                style: const TextStyle(color: Colors.green),
-              ),
-            ] else if (questionType == 'TEXT_ANSWER') ...[
-              Text(
-                'Student Answer: ${answer['studentAnswer'] ?? 'No answer'}',
-                style: TextStyle(
-                  color: isCorrect ? Colors.green : Colors.red,
-                ),
-              ),
-              Text(
-                'Correct Answer: ${answer['correctAnswer'] ?? 'N/A'}',
-                style: const TextStyle(color: Colors.green),
               ),
             ],
-            const SizedBox(height: 8),
-            Text(
-              'Points: $pointsAwarded/$points',
-              style: TextStyle(
-                fontWeight: FontWeight.bold,
-                color: isCorrect ? Colors.green : Colors.red,
-              ),
-            ),
-          ],
+          ),
         ),
       ),
     );
@@ -131,18 +136,27 @@ class _QuizSubmissionDetailsScreenState
     final isDark = Provider.of<ThemeProvider>(context).isDark();
 
     return Scaffold(
-      backgroundColor:
-          isDark ? MyAppColors.primaryDarkColor : MyAppColors.whiteColor,
+      backgroundColor: isDark
+          ? MyAppColors.primaryDarkColor
+          : MyAppColors.lightBackgroundColor,
       appBar: AppBar(
-        backgroundColor: Colors.transparent,
+        backgroundColor: MyAppColors.primaryColor,
         elevation: 0,
-        title: Text(
-          'Submission Details: ${widget.studentName}',
-          style: TextStyle(
-            color: isDark ? MyAppColors.whiteColor : MyAppColors.blackColor,
-            fontWeight: FontWeight.bold,
+        leading: IconButton(
+          onPressed: () {
+            Navigator.pop(context);
+          },
+          icon: const Icon(
+            Icons.arrow_back_ios,
+            color: MyAppColors.whiteColor,
           ),
         ),
+        title: Text('Submission Details',
+            style: Theme.of(context)
+                .textTheme
+                .titleMedium!
+                .copyWith(color: MyAppColors.whiteColor)),
+        centerTitle: true,
         iconTheme: IconThemeData(
           color: isDark ? MyAppColors.whiteColor : MyAppColors.blackColor,
         ),
@@ -179,25 +193,32 @@ class _QuizSubmissionDetailsScreenState
                             padding: const EdgeInsets.all(16),
                             margin: const EdgeInsets.all(16),
                             decoration: BoxDecoration(
-                              color:
-                                  isDark ? Colors.grey[800] : Colors.grey[100],
+                              color: isDark
+                                  ? Colors.grey[800]
+                                  : MyAppColors.whiteColor,
                               borderRadius: BorderRadius.circular(8),
                             ),
                             child: Column(
                               children: [
                                 Text(
+                                  'Name : ${widget.studentName}',
+                                  style: const TextStyle(
+                                      fontSize: 17,
+                                      color: MyAppColors.darkBlueColor),
+                                ),
+                                Text(
                                   'Score: ${_submissionDetails!['score']}/${_submissionDetails!['maxScore']}',
                                   style: const TextStyle(
                                     fontSize: 24,
                                     fontWeight: FontWeight.bold,
-                                  ),
+                                      color: MyAppColors.darkBlueColor),
                                 ),
                                 Text(
                                   'Percentage: ${((_submissionDetails!['score'] / _submissionDetails!['maxScore']) * 100).toStringAsFixed(1)}%',
                                   style: const TextStyle(
                                     fontSize: 18,
                                     fontWeight: FontWeight.w500,
-                                  ),
+                                      color: MyAppColors.darkBlueColor),
                                 ),
                                 const SizedBox(height: 8),
                                 Text(
@@ -220,6 +241,7 @@ class _QuizSubmissionDetailsScreenState
                             child: Text(
                               'Answers',
                               style: TextStyle(
+                                color: MyAppColors.darkBlueColor,
                                 fontSize: 20,
                                 fontWeight: FontWeight.bold,
                               ),

@@ -1,7 +1,6 @@
 import 'package:fci_edutrack/auth/login_screen.dart';
 import 'package:fci_edutrack/modules/custome_container.dart';
 import 'package:fci_edutrack/providers/auth_provider.dart';
-import 'package:fci_edutrack/screens/home_screen/notifications_screen.dart';
 import 'package:fci_edutrack/screens/settings_screen.dart';
 import 'package:fci_edutrack/style/my_app_colors.dart';
 import 'package:fci_edutrack/themes/my_theme_data.dart';
@@ -50,13 +49,6 @@ class StudentProfileScreen extends StatelessWidget {
                 onContainerClick: () {
                   // Navigate to attendance history
                   Navigator.pushNamed(context, 'attendance_history');
-                },
-              ),
-              CustomContainer(
-                label: 'Notifications',
-                icon: Icons.notifications,
-                onContainerClick: () {
-                  Navigator.pushNamed(context, NotificationsScreen.routeName);
                 },
               ),
               CustomContainer(
