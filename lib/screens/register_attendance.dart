@@ -54,11 +54,7 @@ class _RegisterAttendanceScreenState extends State<RegisterAttendanceScreen> {
         elevation: 0,
         title: Text(
           'Record Attendance',
-          style: TextStyle(
-            fontSize: 20,
-            fontWeight: FontWeight.bold,
-            color: isDark ? MyAppColors.whiteColor : MyAppColors.blackColor,
-          ),
+          style: Theme.of(context).textTheme.titleMedium,
         ),
         iconTheme: IconThemeData(
           color: isDark ? MyAppColors.whiteColor : MyAppColors.blackColor,

@@ -232,12 +232,12 @@ class _AssignmentScreenState extends State<AssignmentScreen> {
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              const Padding(
+                              Padding(
                                 padding: EdgeInsets.all(8),
                                 child: Text('Active Assignments',
-                                    style: TextStyle(
-                                        fontSize: 18,
-                                        fontWeight: FontWeight.bold)),
+                                    style: Theme.of(context)
+                                        .textTheme
+                                        .titleMedium),
                               ),
                               ...assignments.map((assignment) => AssignmentCard(
                                   assignment: assignment,
@@ -245,12 +245,12 @@ class _AssignmentScreenState extends State<AssignmentScreen> {
                                   isDraft: false)),
                               const SizedBox(height: 16),
                               const Divider(),
-                              const Padding(
+                              Padding(
                                 padding: EdgeInsets.all(8),
                                 child: Text('Submission History',
-                                    style: TextStyle(
-                                        fontSize: 18,
-                                        fontWeight: FontWeight.bold)),
+                                    style: Theme.of(context)
+                                        .textTheme
+                                        .titleMedium),
                               ),
                               FutureBuilder<List<AssignmentSubmission>>(
                                 future: _historyFuture,
@@ -270,6 +270,9 @@ class _AssignmentScreenState extends State<AssignmentScreen> {
                                   return Column(
                                     children: history.map((sub) {
                                       return Card(
+                                        shape: RoundedRectangleBorder(
+                                            borderRadius:
+                                                BorderRadius.circular(16)),
                                         margin: const EdgeInsets.symmetric(
                                             horizontal: 16, vertical: 8),
                                         child: ExpansionTile(
@@ -318,11 +321,7 @@ class _AssignmentScreenState extends State<AssignmentScreen> {
                                                               ? Icons.image
                                                               : Icons
                                                                   .insert_drive_file,
-                                                          color: isImage
-                                                              ? Colors.blue
-                                                              : Colors
-                                                                  .grey[700],
-                                                        ),
+                                                            color: Colors.blue),
                                                         title: Text(
                                                           file.fileName,
                                                           style: TextStyle(

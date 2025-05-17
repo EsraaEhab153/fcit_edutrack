@@ -1,17 +1,18 @@
+import 'dart:io';
+import 'dart:typed_data';
+
 import 'package:fci_edutrack/models/assignment_model.dart';
 import 'package:fci_edutrack/providers/auth_provider.dart';
-import 'package:provider/provider.dart';
-import 'package:fci_edutrack/themes/theme_provider.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:open_file/open_file.dart';
-import '../../style/my_app_colors.dart';
+import 'package:path_provider/path_provider.dart';
+import 'package:provider/provider.dart';
+
 import '../../services/api_service.dart';
+import '../../style/my_app_colors.dart';
 import '../../utils/date_formatter.dart';
 import '../assignment/assignment_submission_screen.dart';
-import 'dart:typed_data';
-import 'dart:io';
-import 'package:path_provider/path_provider.dart';
 
 class AssignmentDetails extends StatefulWidget {
   static const String routeName = 'assignment_details';
@@ -244,6 +245,7 @@ class _AssignmentDetailsState extends State<AssignmentDetails> {
               .textTheme
               .titleMedium!
               .copyWith(color: MyAppColors.whiteColor),
+          overflow: TextOverflow.ellipsis,
         ),
         elevation: 0,
         centerTitle: true,
@@ -283,33 +285,27 @@ class _AssignmentDetailsState extends State<AssignmentDetails> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         // Assignment title
-                        Container(
-                          padding: EdgeInsets.all(
-                              MediaQuery.of(context).size.width * 0.019),
-                          decoration: BoxDecoration(
-                              color: MyAppColors.whiteColor,
-                              borderRadius: BorderRadius.circular(5)),
-                          child: Text(
-                            assignment.title,
-                            style: Theme.of(context)
-                                .textTheme
-                                .titleSmall!
-                                .copyWith(
-                                    color: MyAppColors.darkBlueColor,
-                                    fontWeight: FontWeight.bold,
-                                    fontSize: 18),
-                          ),
+                        Text(
+                          assignment.title,
+                          style: Theme.of(context).textTheme.titleMedium,
                         ),
                         SizedBox(
-                          height: MediaQuery.of(context).size.height * 0.01,
+                          height: MediaQuery.of(context).size.height * 0.02,
                         ),
                         // Description
+                        Text(
+                          'Description',
+                          style: Theme.of(context)
+                              .textTheme
+                              .bodyMedium!
+                              .copyWith(color: Colors.grey.shade500),
+                        ),
                         Text(
                           assignment.description,
                           style: Theme.of(context)
                               .textTheme
                               .bodyMedium!
-                              .copyWith(color: MyAppColors.lightBlueColor),
+                              .copyWith(color: MyAppColors.darkBlueColor),
                         ),
                         SizedBox(
                           height: MediaQuery.of(context).size.height * 0.02,
@@ -320,12 +316,18 @@ class _AssignmentDetailsState extends State<AssignmentDetails> {
                           children: [
                             Text(
                               'Due date',
-                              style: Theme.of(context).textTheme.bodyMedium,
+                              style: Theme.of(context)
+                                  .textTheme
+                                  .bodyMedium!
+                                  .copyWith(color: MyAppColors.darkBlueColor),
                             ),
                             Text(
                               DateFormatter.formatNonUtcDateString(
                                   assignment.dueDate),
-                              style: Theme.of(context).textTheme.bodyMedium,
+                              style: Theme.of(context)
+                                  .textTheme
+                                  .bodyMedium!
+                                  .copyWith(color: MyAppColors.darkBlueColor),
                             ),
                           ],
                         ),
@@ -338,11 +340,17 @@ class _AssignmentDetailsState extends State<AssignmentDetails> {
                           children: [
                             Text(
                               'Max Points',
-                              style: Theme.of(context).textTheme.bodyMedium,
+                              style: Theme.of(context)
+                                  .textTheme
+                                  .bodyMedium!
+                                  .copyWith(color: MyAppColors.darkBlueColor),
                             ),
                             Text(
                               assignment.maxPoints.toString(),
-                              style: Theme.of(context).textTheme.bodyMedium,
+                              style: Theme.of(context)
+                                  .textTheme
+                                  .bodyMedium!
+                                  .copyWith(color: MyAppColors.darkBlueColor),
                             ),
                           ],
                         ),
@@ -451,7 +459,7 @@ class _AssignmentDetailsState extends State<AssignmentDetails> {
                                           margin: EdgeInsets.only(bottom: 16),
                                           shape: RoundedRectangleBorder(
                                             borderRadius:
-                                                BorderRadius.circular(8),
+                                                BorderRadius.circular(20),
                                             side: BorderSide(
                                               color: submission.graded
                                                   ? Colors.green.shade200

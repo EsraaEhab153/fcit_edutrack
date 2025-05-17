@@ -112,10 +112,8 @@ class _QuizSubmissionsScreenState extends State<QuizSubmissionsScreen> {
     final isDark = Provider.of<ThemeProvider>(context).isDark();
 
     return Scaffold(
-      backgroundColor:
-          isDark ? MyAppColors.primaryDarkColor : Colors.blue.shade50,
       appBar: AppBar(
-        backgroundColor: Colors.blue.shade50,
+        backgroundColor: MyAppColors.primaryColor,
         elevation: 0,
         leading: IconButton(
           onPressed: () {
@@ -123,16 +121,23 @@ class _QuizSubmissionsScreenState extends State<QuizSubmissionsScreen> {
           },
           icon: const Icon(Icons.arrow_back_ios),
         ),
-        title: Text(
-          'Submissions: ${widget.quizTitle}',
-          style: TextStyle(
-            fontSize: 20,
-            color: isDark ? MyAppColors.whiteColor : MyAppColors.darkBlueColor,
-            fontWeight: FontWeight.bold,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.only(
+            bottomLeft:
+                Radius.circular(MediaQuery.of(context).size.width * 0.1),
+            bottomRight:
+                Radius.circular(MediaQuery.of(context).size.width * 0.1),
           ),
         ),
-        iconTheme: IconThemeData(
-          color: isDark ? MyAppColors.whiteColor : MyAppColors.darkBlueColor,
+        title: Text(
+          'Submissions: ${widget.quizTitle}',
+            style: Theme.of(context)
+                .textTheme
+                .titleMedium!
+                .copyWith(color: MyAppColors.whiteColor)),
+        centerTitle: true,
+        iconTheme: const IconThemeData(
+          color: MyAppColors.whiteColor,
         ),
         actions: [
           IconButton(
@@ -179,6 +184,10 @@ class _QuizSubmissionsScreenState extends State<QuizSubmissionsScreen> {
                       itemBuilder: (context, index) {
                         final submission = _submissions[index];
                         return Card(
+                          shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(16)),
+                          //shadowColor: Colors.blue,
+                          elevation: 2,
                           margin: const EdgeInsets.symmetric(
                             horizontal: 16,
                             vertical: 8,

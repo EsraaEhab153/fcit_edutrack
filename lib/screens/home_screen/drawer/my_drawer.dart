@@ -1,15 +1,16 @@
+import 'package:fci_edutrack/providers/auth_provider.dart';
+import 'package:fci_edutrack/screens/admin/course_management_screen.dart';
+import 'package:fci_edutrack/screens/admin/professor_requests_screen.dart';
 import 'package:fci_edutrack/screens/assignment/assignment_screen.dart';
+import 'package:fci_edutrack/screens/professor/attendance_recording_screen.dart';
+import 'package:fci_edutrack/screens/professor/quiz_management_screen.dart';
+import 'package:fci_edutrack/screens/student/student_quiz_list_screen.dart'; // Import student quiz list screen
 import 'package:fci_edutrack/style/my_app_colors.dart';
 import 'package:fci_edutrack/themes/theme_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:fci_edutrack/providers/auth_provider.dart';
-import 'package:fci_edutrack/screens/admin/professor_requests_screen.dart';
-import 'package:fci_edutrack/screens/admin/course_management_screen.dart';
-import 'package:fci_edutrack/screens/professor/quiz_management_screen.dart';
-import 'package:fci_edutrack/screens/professor/attendance_recording_screen.dart';
-import 'package:fci_edutrack/screens/student/student_quiz_list_screen.dart'; // Import student quiz list screen
 
+import '../../../auth/login_screen.dart';
 import '../../settings_screen.dart';
 import 'drawer_tile.dart';
 
@@ -21,7 +22,7 @@ class MyDrawer extends StatelessWidget {
     return Drawer(
       backgroundColor: Provider.of<ThemeProvider>(context).isDark()
           ? MyAppColors.primaryDarkColor
-          : MyAppColors.whiteColor,
+          : MyAppColors.lightBackgroundColor,
       child: Padding(
         padding: EdgeInsets.symmetric(
           vertical: MediaQuery.of(context).size.width * 0.2,
@@ -35,11 +36,11 @@ class MyDrawer extends StatelessWidget {
               color: MyAppColors.primaryColor,
               size: MediaQuery.of(context).size.width * 0.26,
             ),
-            Divider(
-              color: Provider.of<ThemeProvider>(context).isDark()
-                  ? MyAppColors.whiteColor
-                  : MyAppColors.blackColor,
-              thickness: 1.25,
+            const Divider(
+              color: MyAppColors.primaryColor,
+              thickness: 2,
+              indent: 15,
+              endIndent: 15,
             ),
             // home tile
             MyDrawerTile(
@@ -212,9 +213,6 @@ class MyDrawer extends StatelessWidget {
                 title: 'L O G O U T',
                 icon: Icons.logout,
                 onTap: () async {
-                  Navigator.pop(context); // Close drawer first
-
-                  // Show confirmation dialog
                   final shouldLogout = await showDialog<bool>(
                     context: context,
                     builder: (context) => AlertDialog(
@@ -237,9 +235,12 @@ class MyDrawer extends StatelessWidget {
                     final authProvider =
                         Provider.of<AuthProvider>(context, listen: false);
                     await authProvider.logout();
-                    // No explicit navigation needed here.
-                    // AuthWrapper will handle navigating to LoginScreen
-                    // when it detects the user is logged out after logout() completes.
+                    if (!context.mounted) return;
+
+                    Navigator.of(context).pushNamedAndRemoveUntil(
+                      LoginScreen.routeName,
+                      (route) => false,
+                    );
                   }
                 }),
           ],
