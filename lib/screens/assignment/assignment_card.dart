@@ -36,12 +36,9 @@ class AssignmentCard extends StatelessWidget {
         decoration: BoxDecoration(
             color: Colors.white,
             border: Border.all(
-                color: isDraft
-                    ? Colors.purple.shade300
-                    : (Provider.of<ThemeProvider>(context).isDark()
-                        ? Colors.blue.shade800
-                        : Colors.grey.shade300),
-                width: 2),
+              color:
+                  isDraft ? Colors.purple.shade300 : MyAppColors.primaryColor,
+            ),
             borderRadius: BorderRadius.circular(15)),
         width: double.infinity,
         child: Column(

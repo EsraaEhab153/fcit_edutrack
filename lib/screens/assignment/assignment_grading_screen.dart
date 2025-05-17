@@ -1,16 +1,15 @@
-import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
-import 'package:url_launcher/url_launcher.dart';
+import 'dart:io';
+import 'dart:typed_data';
+
 import 'package:fci_edutrack/models/assignment_model.dart';
 import 'package:fci_edutrack/providers/assignment_provider.dart';
-import 'package:fci_edutrack/config.dart';
-import '../../style/my_app_colors.dart';
-import '../../utils/date_formatter.dart';
-import '../../services/api_service.dart';
-import 'dart:typed_data';
-import 'dart:io';
-import 'package:path_provider/path_provider.dart';
+import 'package:flutter/material.dart';
 import 'package:open_file/open_file.dart';
+import 'package:path_provider/path_provider.dart';
+import 'package:provider/provider.dart';
+
+import '../../services/api_service.dart';
+import '../../style/my_app_colors.dart';
 
 class AssignmentGradingScreen extends StatefulWidget {
   static const String routeName = 'assignment_grading_screen';
@@ -195,8 +194,28 @@ class _AssignmentGradingScreenState extends State<AssignmentGradingScreen> {
     final sub = widget.submission;
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Grade Submission'),
+        title: Text(
+          'Grade Submission',
+          style: Theme.of(context)
+              .textTheme
+              .titleMedium!
+              .copyWith(color: MyAppColors.whiteColor),
+        ),
         backgroundColor: MyAppColors.primaryColor,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.only(
+            bottomLeft:
+                Radius.circular(MediaQuery.of(context).size.width * 0.1),
+            bottomRight:
+                Radius.circular(MediaQuery.of(context).size.width * 0.1),
+          ),
+        ),
+        leading: IconButton(
+          onPressed: () {
+            Navigator.pop(context);
+          },
+          icon: const Icon(Icons.arrow_back_ios),
+        ),
       ),
       body: Padding(
         padding: const EdgeInsets.all(16),

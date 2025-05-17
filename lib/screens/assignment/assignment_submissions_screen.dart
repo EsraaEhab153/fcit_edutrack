@@ -1,15 +1,16 @@
-import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
-import 'package:fci_edutrack/providers/assignment_provider.dart';
+import 'dart:io';
+import 'dart:typed_data';
+
 import 'package:fci_edutrack/config.dart';
-import 'package:url_launcher/url_launcher.dart';
+import 'package:fci_edutrack/providers/assignment_provider.dart';
+import 'package:flutter/material.dart';
+import 'package:open_file/open_file.dart';
+import 'package:path_provider/path_provider.dart';
+import 'package:provider/provider.dart';
+
+import '../../services/api_service.dart';
 import '../../style/my_app_colors.dart';
 import '../../utils/date_formatter.dart';
-import '../../services/api_service.dart';
-import 'dart:typed_data';
-import 'dart:io';
-import 'package:path_provider/path_provider.dart';
-import 'package:open_file/open_file.dart';
 
 class AssignmentSubmissionsScreen extends StatefulWidget {
   static const String routeName = 'assignment_submissions_screen';
@@ -39,8 +40,28 @@ class _AssignmentSubmissionsScreenState
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: MyAppColors.lightBackgroundColor,
       appBar: AppBar(
-        title: const Text('Assignment Submissions'),
+        title: Text('Assignment Submissions',
+            style: Theme.of(context)
+                .textTheme
+                .titleMedium!
+                .copyWith(color: MyAppColors.whiteColor)),
+        elevation: 0,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.only(
+            bottomLeft:
+                Radius.circular(MediaQuery.of(context).size.width * 0.1),
+            bottomRight:
+                Radius.circular(MediaQuery.of(context).size.width * 0.1),
+          ),
+        ),
+        leading: IconButton(
+          onPressed: () {
+            Navigator.pop(context);
+          },
+          icon: const Icon(Icons.arrow_back_ios),
+        ),
         backgroundColor: MyAppColors.primaryColor,
         actions: [
           IconButton(
@@ -100,7 +121,7 @@ class _AssignmentSubmissionsScreenState
                 margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                 elevation: 2,
                 shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(8),
+                  borderRadius: BorderRadius.circular(20),
                   side: BorderSide(
                     color: editedAfterGrading
                         ? Colors.blue

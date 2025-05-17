@@ -1,8 +1,9 @@
-import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
 import 'package:fci_edutrack/models/assignment_model.dart';
 import 'package:fci_edutrack/providers/assignment_provider.dart';
 import 'package:file_picker/file_picker.dart';
+import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+
 import '../../style/my_app_colors.dart';
 import '../../utils/date_formatter.dart';
 
@@ -43,8 +44,29 @@ class _AssignmentSubmissionScreenState
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(_isEditMode ? 'Edit Submission' : 'Submit Assignment'),
+        title: Text(
+          _isEditMode ? 'Edit Submission' : 'Submit Assignment',
+          style: Theme.of(context)
+              .textTheme
+              .titleMedium!
+              .copyWith(color: MyAppColors.whiteColor),
+        ),
         backgroundColor: MyAppColors.primaryColor,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.only(
+            bottomLeft:
+                Radius.circular(MediaQuery.of(context).size.width * 0.1),
+            bottomRight:
+                Radius.circular(MediaQuery.of(context).size.width * 0.1),
+          ),
+        ),
+        elevation: 0,
+        leading: IconButton(
+          onPressed: () {
+            Navigator.pop(context);
+          },
+          icon: const Icon(Icons.arrow_back_ios),
+        ),
       ),
       body: SingleChildScrollView(
         child: Padding(
@@ -57,7 +79,9 @@ class _AssignmentSubmissionScreenState
                 // Assignment Info Card
                 Card(
                   elevation: 2,
-                  margin: EdgeInsets.only(bottom: 24),
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(20)),
+                  margin: const EdgeInsets.only(bottom: 24),
                   child: Padding(
                     padding: const EdgeInsets.all(16.0),
                     child: Column(
@@ -67,7 +91,7 @@ class _AssignmentSubmissionScreenState
                           widget.assignment.title,
                           style: Theme.of(context).textTheme.titleLarge,
                         ),
-                        Divider(),
+                        const Divider(),
                         Text(
                           widget.assignment.description,
                           style: Theme.of(context).textTheme.bodyMedium,

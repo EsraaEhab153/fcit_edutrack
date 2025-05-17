@@ -35,8 +35,9 @@ class _RegisterScreenState extends State<LoginScreen> {
     bool isLoading = Provider.of<AuthProvider>(context).isLoading;
 
     return Scaffold(
-      backgroundColor:
-          isdDark ? MyAppColors.primaryDarkColor : MyAppColors.whiteColor,
+      backgroundColor: isdDark
+          ? MyAppColors.primaryDarkColor
+          : MyAppColors.lightBackgroundColor,
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,

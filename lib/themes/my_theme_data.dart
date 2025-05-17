@@ -4,7 +4,7 @@ import 'package:google_fonts/google_fonts.dart';
 
 class MyThemeData {
   static final ThemeData lightModeStyle = ThemeData(
-      scaffoldBackgroundColor: MyAppColors.whiteColor,
+      scaffoldBackgroundColor: MyAppColors.lightBackgroundColor,
       textTheme: TextTheme(
         titleLarge: GoogleFonts.roboto(
           fontSize: 28,

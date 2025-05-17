@@ -157,6 +157,14 @@ class _QuizSubmissionDetailsScreenState
                 .titleMedium!
                 .copyWith(color: MyAppColors.whiteColor)),
         centerTitle: true,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.only(
+            bottomLeft:
+                Radius.circular(MediaQuery.of(context).size.width * 0.1),
+            bottomRight:
+                Radius.circular(MediaQuery.of(context).size.width * 0.1),
+          ),
+        ),
         iconTheme: IconThemeData(
           color: isDark ? MyAppColors.whiteColor : MyAppColors.blackColor,
         ),

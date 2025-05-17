@@ -2,6 +2,7 @@ import 'package:fci_edutrack/auth/login_screen.dart'; // Import LoginScreen for 
 import 'package:fci_edutrack/providers/auth_provider.dart'; // Import AuthProvider
 import 'package:fci_edutrack/screens/assignment/assignment_screen.dart'; // Placeholder for assignment management
 import 'package:fci_edutrack/screens/home_screen/courses_screen.dart'; // For enrolling/viewing courses
+import 'package:fci_edutrack/screens/home_screen/profiles/student_profile_screen.dart';
 import 'package:fci_edutrack/screens/professor/professor_attendance_management.dart'; // Import the correct screen
 import 'package:fci_edutrack/screens/professor/quiz_management_screen.dart'; // Placeholder for quiz management
 import 'package:fci_edutrack/style/my_app_colors.dart';
@@ -77,6 +78,15 @@ class _ProfessorHomeScreenState extends State<ProfessorHomeScreen> {
         backgroundColor: MyAppColors.primaryColor,
         elevation: 0,
         centerTitle: true,
+        leading: IconButton(
+          onPressed: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => StudentProfileScreen()),
+            );
+          },
+          icon: Icon(Icons.person),
+        ),
         actions: [
           IconButton(
             icon: const Icon(Icons.logout),
