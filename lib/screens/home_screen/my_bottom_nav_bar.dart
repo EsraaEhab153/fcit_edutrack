@@ -84,7 +84,9 @@ class _MyBottomNavBarState extends State<MyBottomNavBar> {
       },
       child: Scaffold(
         appBar: AppBar(
-          backgroundColor: Colors.blue.shade50,
+          backgroundColor: Provider.of<ThemeProvider>(context).isDark()
+              ? MyAppColors.primaryDarkColor
+              : MyAppColors.lightBackgroundColor,
           elevation: 0,
           iconTheme: const IconThemeData(color: MyAppColors.primaryColor),
           title: isAdmin
