@@ -7,7 +7,6 @@ import 'package:fci_edutrack/themes/theme_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
-
 import '../themes/my_theme_data.dart';
 
 class AttendanceHistoryScreen extends StatefulWidget {
@@ -106,23 +105,6 @@ class _AttendanceHistoryScreenState extends State<AttendanceHistoryScreen> {
     final attendanceProvider = Provider.of<AttendanceProvider>(context);
 
     return Scaffold(
-      backgroundColor:
-          isDark ? MyAppColors.primaryDarkColor : Colors.blue.shade50,
-      // appBar: AppBar(
-      //   backgroundColor: Colors.transparent,
-      //   elevation: 0,
-      //   title: Text(
-      //     'My Attendance History',
-      //     style: TextStyle(
-      //       fontSize: 18,
-      //       fontWeight: FontWeight.bold,
-      //       color: isDark ? MyAppColors.whiteColor : MyAppColors.blackColor,
-      //     ),
-      //   ),
-      //   iconTheme: IconThemeData(
-      //     color: isDark ? MyAppColors.whiteColor : MyAppColors.blackColor,
-      //   ),
-      // ),
       appBar: AppBar(
         title: Text(
           'My Attendance History',
@@ -145,6 +127,9 @@ class _AttendanceHistoryScreenState extends State<AttendanceHistoryScreen> {
             Navigator.pop(context);
           },
           icon: const Icon(Icons.arrow_back_ios),
+        ),
+        iconTheme: IconThemeData(
+          color: isDark ? MyAppColors.whiteColor : MyAppColors.blackColor,
         ),
       ),
       body: Padding(
@@ -318,28 +303,31 @@ class _AttendanceHistoryScreenState extends State<AttendanceHistoryScreen> {
                                       mainAxisAlignment:
                                           MainAxisAlignment.spaceEvenly,
                                       children: [
-                                        _buildAttendanceInfoItem(
-                                            'Attended',
-                                            '${attendanceRecords.length}',
-                                            Icons.check_circle_outline,
-                                            Colors.green,
-                                            isDark),
-                                        _buildAttendanceInfoItem(
-                                            'Total Classes',
-                                            '$totalClasses',
-                                            Icons.calendar_today,
-                                            Colors.blue,
-                                            isDark),
-                                        _buildAttendanceInfoItem(
-                                            'Last Attended',
-                                            lastAttended,
-                                            Icons.access_time,
-                                            Colors.blue,
-                                            isDark),
-                                      ],
-                                    ),
-
-                                    // Expanded attendance details
+                                        Row(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.spaceBetween,
+                                          children: [
+                                            _buildAttendanceInfoItem(
+                                                'Attended',
+                                                '${attendanceRecords.length}',
+                                                Icons.check_circle_outline,
+                                                Colors.green,
+                                                isDark),
+                                            _buildAttendanceInfoItem(
+                                                'Total Classes',
+                                                '$totalClasses',
+                                                Icons.calendar_today,
+                                                Colors.blue,
+                                                isDark),
+                                            _buildAttendanceInfoItem(
+                                                'Last Attended',
+                                                lastAttended,
+                                                Icons.access_time,
+                                                Colors.blue,
+                                                isDark),
+                                          ],
+                                        ),
+                                        // Expanded attendance details
                                     if (isExpanded) ...[
                                       const SizedBox(height: 16),
                                       const Divider(height: 1),
@@ -398,6 +386,8 @@ class _AttendanceHistoryScreenState extends State<AttendanceHistoryScreen> {
                                     ],
                                   ],
                                 ),
+                                  ],
+                                ),
                               ),
                             );
                           },
@@ -439,7 +429,7 @@ class _AttendanceHistoryScreenState extends State<AttendanceHistoryScreen> {
               ),
             ),
           ],
-        )
+        ),
       ],
     );
   }

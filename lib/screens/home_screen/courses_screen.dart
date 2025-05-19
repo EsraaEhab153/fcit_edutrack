@@ -41,8 +41,6 @@ class _CoursesScreenState extends State<CoursesScreen>
     final courseProvider = Provider.of<CourseProvider>(context);
 
     return Scaffold(
-      backgroundColor:
-          isDark ? MyAppColors.primaryDarkColor : Colors.blue.shade50,
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
@@ -195,6 +193,7 @@ class _CoursesScreenState extends State<CoursesScreen>
                       shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(13)),
                       backgroundColor: MyAppColors.primaryColor,
+                      foregroundColor: MyAppColors.whiteColor,
                       padding: const EdgeInsets.symmetric(
                           vertical: 8, horizontal: 16),
                     ),

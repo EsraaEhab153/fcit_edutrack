@@ -66,7 +66,8 @@ class _QuizCreationScreenState extends State<QuizCreationScreen> {
     });
 
     // Delay to ensure that we have courses loaded
-    await Future.delayed(Duration(milliseconds: 500));
+
+    await Future.delayed(const Duration(milliseconds: 500));
 
     final quizProvider = Provider.of<QuizProvider>(context, listen: false);
     if (quizProvider.hasDraft) {
@@ -200,7 +201,6 @@ class _QuizCreationScreenState extends State<QuizCreationScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.blue.shade50,
       appBar: AppBar(
         title: Text(_isEditMode
             ? 'Edit Quiz'
@@ -860,7 +860,8 @@ class _QuizCreationScreenState extends State<QuizCreationScreen> {
     );
 
     final quizProvider = Provider.of<QuizProvider>(context, listen: false);
-    final response;
+
+    final Map<String, dynamic> response;
 
     if (_isEditMode) {
       // Edit existing quiz

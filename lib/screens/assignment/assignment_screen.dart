@@ -1,6 +1,5 @@
 import 'dart:io';
 import 'dart:typed_data';
-
 import 'package:fci_edutrack/models/assignment_model.dart';
 import 'package:fci_edutrack/providers/assignment_provider.dart';
 import 'package:fci_edutrack/providers/auth_provider.dart';
@@ -14,11 +13,12 @@ import 'package:flutter/material.dart';
 import 'package:open_file/open_file.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:provider/provider.dart';
-
 import '../../themes/my_theme_data.dart';
+import 'package:fci_edutrack/screens/assignment/assignment_drafts_screen.dart';
 
 class AssignmentScreen extends StatefulWidget {
   static const String routeName = 'assignment_screen';
+
   const AssignmentScreen({super.key});
 
   @override
@@ -154,48 +154,66 @@ class _AssignmentScreenState extends State<AssignmentScreen> {
         final hasDraft = provider.hasDraft;
 
         return Scaffold(
-          backgroundColor: Colors.blue.shade50,
-          appBar: _isProfessor
-              ? AppBar(
-                  backgroundColor: Colors.transparent,
-                  elevation: 0,
-                  title: Text(
-                    'Assignments',
-                    style: MyThemeData.lightModeStyle.textTheme.titleMedium!
-                        .copyWith(
-                            color: MyAppColors.primaryColor, fontSize: 24),
+          appBar: AppBar(
+            title: Text(
+              'Assignments',
+              style: MyThemeData.lightModeStyle.textTheme.titleMedium!
+                  .copyWith(color: MyAppColors.whiteColor),
             ),
-                )
-              : AppBar(
-                  title: Text(
-                    'Assignments',
-                    style: MyThemeData.lightModeStyle.textTheme.titleMedium!
-                        .copyWith(color: MyAppColors.whiteColor),
-                  ),
-                  elevation: 0,
-                  centerTitle: true,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.only(
-                      bottomLeft: Radius.circular(
-                          MediaQuery.of(context).size.width * 0.1),
-                      bottomRight: Radius.circular(
-                          MediaQuery.of(context).size.width * 0.1),
-                    ),
-                  ),
-                  backgroundColor: MyAppColors.primaryColor,
-                  leading: IconButton(
-                    onPressed: () {
-                      Navigator.pop(context);
-                    },
-                    icon: const Icon(Icons.arrow_back_ios),
-                  ),
-                ),
+            elevation: 0,
+            centerTitle: true,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.only(
+                bottomLeft:
+                    Radius.circular(MediaQuery.of(context).size.width * 0.1),
+                bottomRight:
+                    Radius.circular(MediaQuery.of(context).size.width * 0.1),
+              ),
+            ),
+            backgroundColor: MyAppColors.primaryColor,
+            leading: IconButton(
+              onPressed: () {
+                Navigator.pop(context);
+              },
+              icon: const Icon(Icons.arrow_back_ios),
+            ),
+            // Add actions for professor mode only
+            actions: _isProfessor
+                ? [
+                    // Add a button to access local drafts
+                    if (hasDraft)
+                      Padding(
+                        padding: const EdgeInsets.only(right: 8.0),
+                        child: Badge(
+                          label: const Text("1"),
+                          child: IconButton(
+                            icon: const Icon(Icons.description),
+                            tooltip: 'View Drafts',
+                            onPressed: () {
+                              Navigator.pushNamed(
+                                context,
+                                AssignmentDraftsScreen.routeName,
+                              ).then((value) {
+                                // Refresh the view when returning from drafts screen
+                                if (value == true) {
+                                  provider.fetchProfessorAssignments();
+                                }
+                                // Force refresh to update UI based on draft status
+                                setState(() {});
+                              });
+                            },
+                          ),
+                        ),
+                      ),
+                  ]
+                : null,
+          ),
           body: Container(
             decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(20),
                 color: isDark
                     ? MyAppColors.primaryDarkColor
-                    : Colors.blue.shade50),
+                    : MyAppColors.lightBackgroundColor),
             child: provider.isLoading
                 ? const Center(child: CircularProgressIndicator())
                 : _isProfessor
@@ -228,7 +246,7 @@ class _AssignmentScreenState extends State<AssignmentScreen> {
                           });
                         },
                         child: SingleChildScrollView(
-                          physics: AlwaysScrollableScrollPhysics(),
+                          physics: const AlwaysScrollableScrollPhysics(),
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
@@ -289,38 +307,37 @@ class _AssignmentScreenState extends State<AssignmentScreen> {
                                                     CrossAxisAlignment.start,
                                                 children: [
                                                   if (sub.notes.isNotEmpty) ...[
-                                                    Text('Notes:',
+                                                    const Text('Notes:',
                                                         style: TextStyle(
                                                             fontWeight:
                                                                 FontWeight
                                                                     .bold)),
                                                     Text(sub.notes),
-                                                    SizedBox(height: 8),
+                                                    const SizedBox(height: 8),
                                                   ],
                                                   if (sub.files != null &&
                                                       sub.files!
                                                           .isNotEmpty) ...[
-                                                    Text('Files:',
+                                                    const Text('Files:',
                                                         style: TextStyle(
                                                             fontWeight:
                                                                 FontWeight
                                                                     .bold)),
-                                                    SizedBox(height: 4),
+                                                    const SizedBox(height: 4),
                                                     ...sub.files!.map((file) {
                                                       bool isImage = file
                                                           .contentType
                                                           .startsWith('image/');
                                                       return ListTile(
                                                         contentPadding:
-                                                            EdgeInsets
+                                                            const EdgeInsets
                                                                 .symmetric(
-                                                                    vertical:
-                                                                        4),
+                                                                vertical: 4),
                                                         leading: Icon(
-                                                          isImage
-                                                              ? Icons.image
-                                                              : Icons
-                                                                  .insert_drive_file,
+                                                            isImage
+                                                                ? Icons.image
+                                                                : Icons
+                                                                    .insert_drive_file,
                                                             color: Colors.blue),
                                                         title: Text(
                                                           file.fileName,
@@ -342,15 +359,15 @@ class _AssignmentScreenState extends State<AssignmentScreen> {
                                                   ],
                                                   if (sub.graded) ...[
                                                     Text('Score: ${sub.score}',
-                                                        style: TextStyle(
+                                                        style: const TextStyle(
                                                             fontWeight:
                                                                 FontWeight
                                                                     .bold)),
                                                     if (sub.feedback != null &&
                                                         sub.feedback!
                                                             .isNotEmpty) ...[
-                                                      SizedBox(height: 8),
-                                                      Text('Feedback:',
+                                                      const SizedBox(height: 8),
+                                                      const Text('Feedback:',
                                                           style: TextStyle(
                                                               fontWeight:
                                                                   FontWeight
@@ -358,7 +375,7 @@ class _AssignmentScreenState extends State<AssignmentScreen> {
                                                       Text(sub.feedback!),
                                                     ],
                                                   ] else
-                                                    Text(
+                                                    const Text(
                                                         'Status: Pending grading',
                                                         style: TextStyle(
                                                             color:
@@ -391,8 +408,8 @@ class _AssignmentScreenState extends State<AssignmentScreen> {
                     setState(() {});
                   },
                   backgroundColor: MyAppColors.primaryColor,
-                  child: const Icon(Icons.add),
                   tooltip: 'Create Assignment',
+                  child: const Icon(Icons.add),
                 )
               : null,
         );
@@ -431,14 +448,14 @@ class _AssignmentScreenState extends State<AssignmentScreen> {
                     automaticallyImplyLeading: false,
                     actions: [
                       IconButton(
-                        icon: Icon(Icons.close),
+                        icon: const Icon(Icons.close),
                         onPressed: () => Navigator.of(ctx).pop(),
                       )
                     ],
                   ),
                   InteractiveViewer(
                     panEnabled: true,
-                    boundaryMargin: EdgeInsets.all(20),
+                    boundaryMargin: const EdgeInsets.all(20),
                     minScale: 0.5,
                     maxScale: 4,
                     child: Image.memory(
@@ -446,10 +463,10 @@ class _AssignmentScreenState extends State<AssignmentScreen> {
                       fit: BoxFit.contain,
                     ),
                   ),
-                  SizedBox(height: 16),
+                  const SizedBox(height: 16),
                   ElevatedButton.icon(
-                    icon: Icon(Icons.open_in_new),
-                    label: Text('Open in external app'),
+                    icon: const Icon(Icons.open_in_new),
+                    label: const Text('Open in external app'),
                     onPressed: () async {
                       try {
                         // Save to temporary file
@@ -481,7 +498,7 @@ class _AssignmentScreenState extends State<AssignmentScreen> {
                       }
                     },
                   ),
-                  SizedBox(height: 8),
+                  const SizedBox(height: 8),
                 ],
               ),
             ),

@@ -1,15 +1,17 @@
+// Flutter & Dart packages
+// App-specific files
 import 'package:fci_edutrack/providers/auth_provider.dart';
 import 'package:fci_edutrack/screens/admin/course_management_screen.dart';
 import 'package:fci_edutrack/screens/admin/professor_requests_screen.dart';
-import 'package:fci_edutrack/screens/assignment/assignment_screen.dart'; // Import assignment screen
+import 'package:fci_edutrack/screens/assignment/assignment_screen.dart';
 import 'package:fci_edutrack/screens/home_screen/courses_screen.dart';
 import 'package:fci_edutrack/screens/home_screen/drawer/my_drawer.dart';
+// Screens
 import 'package:fci_edutrack/screens/home_screen/home_screen.dart';
 import 'package:fci_edutrack/screens/home_screen/profiles/student_profile_screen.dart';
-import 'package:fci_edutrack/screens/professor/professor_attendance_management.dart'; // Import new professor attendance screen (will create)
+import 'package:fci_edutrack/screens/professor/professor_attendance_management.dart';
 import 'package:fci_edutrack/screens/professor/quiz_management_screen.dart';
-// import 'package:fci_edutrack/screens/professor/attendance_recording_screen.dart'; // Will create a new one
-import 'package:fci_edutrack/screens/register_attendance.dart'; // Import student attendance screen
+import 'package:fci_edutrack/screens/register_attendance.dart';
 import 'package:fci_edutrack/style/my_app_colors.dart';
 import 'package:fci_edutrack/themes/theme_provider.dart';
 import 'package:flutter/material.dart';
@@ -33,6 +35,7 @@ class MyBottomNavBar extends StatefulWidget {
 class _MyBottomNavBarState extends State<MyBottomNavBar> {
   int selectedIndex = 0;
   DateTime? lastBackPressTime;
+
   // Remove internal state variables for role, read directly from provider in build
   // bool isAdmin = false;
   // bool isProfessor = false;
@@ -108,8 +111,8 @@ class _MyBottomNavBarState extends State<MyBottomNavBar> {
             ? const Center(
                 child:
                     CircularProgressIndicator()) // Show loading if auth is loading
-            : _getScreens(isAdmin, isProfessor)[
-                selectedIndex], // Pass roles to getScreens
+            : _getScreens(isAdmin, isProfessor)[selectedIndex],
+        // Pass roles to getScreens
         backgroundColor: Provider.of<ThemeProvider>(context).isDark()
             ? MyAppColors.primaryDarkColor
             : MyAppColors.whiteColor,
@@ -218,11 +221,16 @@ class _MyBottomNavBarState extends State<MyBottomNavBar> {
     } else if (isProfessor) {
       // Updated Screens for Professor
       return [
-        const CoursesScreen(), // Reuse for viewing/enrolling
-        const ProfessorAttendanceManagementScreen(), // New screen for session mgmt (Create this next)
-        const QuizManagementScreen(), // Existing placeholder
-        const AssignmentScreen(), // Existing placeholder
-        const StudentProfileScreen(), // Reuse student profile for now
+        const CoursesScreen(),
+        // Reuse for viewing/enrolling
+        const ProfessorAttendanceManagementScreen(),
+        // New screen for session mgmt (Create this next)
+        const QuizManagementScreen(),
+        // Existing placeholder
+        const AssignmentScreen(),
+        // Existing placeholder
+        const StudentProfileScreen(),
+        // Reuse student profile for now
       ];
     } else {
       return [

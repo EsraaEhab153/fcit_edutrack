@@ -3,7 +3,6 @@ import 'package:fci_edutrack/style/my_app_colors.dart';
 import 'package:fci_edutrack/utils/date_formatter.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-
 import '../../providers/assignment_provider.dart';
 import '../../services/api_service.dart';
 import '../../themes/theme_provider.dart';
@@ -41,6 +40,7 @@ class AssignmentCard extends StatelessWidget {
             ),
             borderRadius: BorderRadius.circular(15)),
         width: double.infinity,
+        height: MediaQuery.of(context).size.height * 0.3,
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           mainAxisAlignment: MainAxisAlignment.spaceBetween,

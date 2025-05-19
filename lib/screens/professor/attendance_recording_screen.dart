@@ -2,7 +2,10 @@ import 'package:fci_edutrack/style/my_app_colors.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart'; // Import Provider
-
+import 'package:flutter/material.dart';
+import 'package:fci_edutrack/style/my_app_colors.dart';
+import 'package:intl/intl.dart';
+import 'package:provider/provider.dart'; // Import Provider
 import '../../providers/attendance_provider.dart'; // Import AttendanceProvider
 
 class AttendanceRecordingScreen extends StatefulWidget {
@@ -28,10 +31,10 @@ class AttendanceRecordingScreen extends StatefulWidget {
 class _AttendanceRecordingScreenState extends State<AttendanceRecordingScreen> {
   bool _isLoadingApiCall = false;
   DateTime selectedDate = DateTime.now();
+
   final _expiryMinutesController =
       TextEditingController(text: '5'); // Default to 5 minutes
   final _topicController = TextEditingController();
-
   // Initialize controllers without default text here
   final _startTimeController = TextEditingController();
   final _endTimeController = TextEditingController();
@@ -223,8 +226,7 @@ class _AttendanceRecordingScreenState extends State<AttendanceRecordingScreen> {
           const SizedBox(height: 24),
           // Info Text (Keep as is)
           Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            // Align text better
+            crossAxisAlignment: CrossAxisAlignment.start, // Align text better
             children: [
               const Icon(Icons.info_outline,
                   color: Colors.blue, size: 20), // Slightly smaller icon

@@ -5,9 +5,17 @@
 *.swp
 .DS_Store
 .atom/
+<<<<<<< HEAD
 .buildlog/
 .history
 .svn/
+=======
+.build/
+.buildlog/
+.history
+.svn/
+.swiftpm/
+>>>>>>> teammate2/main
 migrate_working_dir/
 
 # IntelliJ related
@@ -27,7 +35,10 @@ migrate_working_dir/
 .dart_tool/
 .flutter-plugins
 .flutter-plugins-dependencies
+<<<<<<< HEAD
 .packages
+=======
+>>>>>>> teammate2/main
 .pub-cache/
 .pub/
 /build/
@@ -42,6 +53,9 @@ app.*.map.json
 /android/app/debug
 /android/app/profile
 /android/app/release
+<<<<<<< HEAD
 
 # FVM Version Cache
 .fvm/
+=======
+>>>>>>> teammate2/main

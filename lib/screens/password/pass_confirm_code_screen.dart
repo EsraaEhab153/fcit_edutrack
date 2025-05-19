@@ -1,10 +1,11 @@
+import 'dart:async';
+
 import 'package:fci_edutrack/providers/auth_provider.dart';
 import 'package:fci_edutrack/screens/home_screen/my_bottom_nav_bar.dart';
 import 'package:fci_edutrack/screens/password/reset_password_screen.dart';
 import 'package:fci_edutrack/style/my_app_colors.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'dart:async';
 
 import '../../themes/theme_provider.dart';
 
@@ -148,7 +149,7 @@ class _PasswordConfirmationCodeState extends State<PasswordConfirmationCode> {
                   ),
                 ),
               ),
-              SizedBox(height: 10),
+              const SizedBox(height: 10),
               TextButton(
                 onPressed: _isResendEnabled ? _resendCode : null,
                 child: Text(
@@ -275,7 +276,7 @@ class _PasswordConfirmationCodeState extends State<PasswordConfirmationCode> {
     _isResendEnabled = false;
     _remainingSeconds = 30;
     _resendTimer?.cancel();
-    _resendTimer = Timer.periodic(Duration(seconds: 1), (timer) {
+    _resendTimer = Timer.periodic(const Duration(seconds: 1), (timer) {
       setState(() {
         if (_remainingSeconds > 0) {
           _remainingSeconds--;

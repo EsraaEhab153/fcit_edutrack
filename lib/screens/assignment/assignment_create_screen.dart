@@ -8,7 +8,6 @@ import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
-
 import '../../themes/my_theme_data.dart';
 
 class AssignmentCreateScreen extends StatefulWidget {
@@ -172,7 +171,6 @@ class _AssignmentCreateScreenState extends State<AssignmentCreateScreen> {
     }
 
     return Scaffold(
-      backgroundColor: Colors.blue.shade50,
       appBar: AppBar(
         title: Text(
           screenTitle,
@@ -427,8 +425,8 @@ class _AssignmentCreateScreenState extends State<AssignmentCreateScreen> {
                                 }
                               },
                               style: OutlinedButton.styleFrom(
-                                side:
-                                    BorderSide(color: MyAppColors.primaryColor),
+                                side: const BorderSide(
+                                    color: MyAppColors.primaryColor),
                               ),
                               child: const Text('Save as Draft'),
                             ),

@@ -1,20 +1,30 @@
 import 'dart:io';
 import 'dart:typed_data';
-
 import 'package:fci_edutrack/config.dart';
 import 'package:fci_edutrack/providers/assignment_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:open_file/open_file.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:provider/provider.dart';
-
 import '../../services/api_service.dart';
 import '../../style/my_app_colors.dart';
+import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:fci_edutrack/providers/assignment_provider.dart';
+import 'package:fci_edutrack/config.dart';
+import 'package:url_launcher/url_launcher.dart';
+import '../../style/my_app_colors.dart';
 import '../../utils/date_formatter.dart';
+import '../../services/api_service.dart';
+import 'dart:typed_data';
+import 'dart:io';
+import 'package:path_provider/path_provider.dart';
+import 'package:open_file/open_file.dart';
 
 class AssignmentSubmissionsScreen extends StatefulWidget {
   static const String routeName = 'assignment_submissions_screen';
   final int assignmentId;
+
   const AssignmentSubmissionsScreen({super.key, required this.assignmentId});
 
   @override
@@ -40,7 +50,6 @@ class _AssignmentSubmissionsScreenState
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: MyAppColors.lightBackgroundColor,
       appBar: AppBar(
         title: Text('Assignment Submissions',
             style: Theme.of(context)
@@ -62,7 +71,6 @@ class _AssignmentSubmissionsScreenState
           },
           icon: const Icon(Icons.arrow_back_ios),
         ),
-        backgroundColor: MyAppColors.primaryColor,
         actions: [
           IconButton(
             icon: Icon(
@@ -159,13 +167,13 @@ class _AssignmentSubmissionsScreenState
                                 (submission.studentName?.isNotEmpty == true)
                                     ? submission.studentName![0].toUpperCase()
                                     : '?',
-                                style: TextStyle(
+                                style: const TextStyle(
                                   color: MyAppColors.primaryColor,
                                   fontWeight: FontWeight.bold,
                                 ),
                               ),
                             ),
-                            SizedBox(width: 12),
+                            const SizedBox(width: 12),
                             Expanded(
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -191,7 +199,7 @@ class _AssignmentSubmissionsScreenState
                             ),
                             if (editedAfterGrading) // Add indicator for edited after grading
                               Container(
-                                padding: EdgeInsets.symmetric(
+                                padding: const EdgeInsets.symmetric(
                                     horizontal: 8, vertical: 4),
                                 decoration: BoxDecoration(
                                   color: Colors.blue[100],
@@ -208,7 +216,7 @@ class _AssignmentSubmissionsScreenState
                               ),
                             if (submission.late)
                               Container(
-                                padding: EdgeInsets.symmetric(
+                                padding: const EdgeInsets.symmetric(
                                     horizontal: 8, vertical: 4),
                                 decoration: BoxDecoration(
                                   color: Colors.red[100],
@@ -226,7 +234,7 @@ class _AssignmentSubmissionsScreenState
                           ],
                         ),
                         if (submission.notes.isNotEmpty) ...[
-                          SizedBox(height: 12),
+                          const SizedBox(height: 12),
                           Text(
                             'Notes: ${submission.notes}',
                             maxLines: 2,
@@ -235,12 +243,12 @@ class _AssignmentSubmissionsScreenState
                         ],
                         if (submission.files != null &&
                             submission.files!.isNotEmpty) ...[
-                          SizedBox(height: 12),
+                          const SizedBox(height: 12),
                           Wrap(
                             spacing: 8,
                             children: submission.files!.map((file) {
-                              bool isImage = file.contentType != null &&
-                                  file.contentType!.startsWith('image/');
+                              bool isImage =
+                                  file.contentType.startsWith('image/');
 
                               return Chip(
                                 backgroundColor: Colors.grey[100],
@@ -288,7 +296,8 @@ class _AssignmentSubmissionsScreenState
                                                       false,
                                                   actions: [
                                                     IconButton(
-                                                      icon: Icon(Icons.close),
+                                                      icon: const Icon(
+                                                          Icons.close),
                                                       onPressed: () =>
                                                           Navigator.of(ctx)
                                                               .pop(),
@@ -298,7 +307,7 @@ class _AssignmentSubmissionsScreenState
                                                 InteractiveViewer(
                                                   panEnabled: true,
                                                   boundaryMargin:
-                                                      EdgeInsets.all(20),
+                                                      const EdgeInsets.all(20),
                                                   minScale: 0.5,
                                                   maxScale: 4,
                                                   child: Image.memory(
@@ -308,7 +317,7 @@ class _AssignmentSubmissionsScreenState
                                                         error, stackTrace) {
                                                       print(
                                                           'Error displaying image: $error');
-                                                      return Center(
+                                                      return const Center(
                                                         child: Column(
                                                           mainAxisSize:
                                                               MainAxisSize.min,
@@ -327,11 +336,12 @@ class _AssignmentSubmissionsScreenState
                                                     },
                                                   ),
                                                 ),
-                                                SizedBox(height: 16),
+                                                const SizedBox(height: 16),
                                                 // Add button to open in external app
                                                 ElevatedButton.icon(
-                                                  icon: Icon(Icons.open_in_new),
-                                                  label: Text(
+                                                  icon: const Icon(
+                                                      Icons.open_in_new),
+                                                  label: const Text(
                                                       'Open in external app'),
                                                   onPressed: () async {
                                                     try {
@@ -415,7 +425,7 @@ class _AssignmentSubmissionsScreenState
                                     file.fileName.length > 20
                                         ? '${file.fileName.substring(0, 17)}...'
                                         : file.fileName,
-                                    style: TextStyle(
+                                    style: const TextStyle(
                                       color: Colors.blue,
                                       fontSize: 12,
                                     ),
@@ -425,7 +435,7 @@ class _AssignmentSubmissionsScreenState
                             }).toList(),
                           ),
                         ],
-                        SizedBox(height: 12),
+                        const SizedBox(height: 12),
                         Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [

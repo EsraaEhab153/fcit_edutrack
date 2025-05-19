@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-
 import '../../modules/custom_text_formfield.dart';
 import '../../providers/auth_provider.dart';
 import '../../style/my_app_colors.dart';
@@ -73,7 +72,6 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.blue.shade50,
       appBar: AppBar(
         title: Text(
           'Change Password',

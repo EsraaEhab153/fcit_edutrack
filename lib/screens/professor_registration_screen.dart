@@ -2,8 +2,8 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
+
 import '../services/api_service.dart';
-import '../config.dart';
 
 class ProfessorRegistrationScreen extends StatefulWidget {
   const ProfessorRegistrationScreen({Key? key}) : super(key: key);
@@ -251,7 +251,7 @@ class _ProfessorRegistrationScreenState
                                   }
 
                                   // Error state
-                                  return Center(
+                                  return const Center(
                                     child: Column(
                                       mainAxisSize: MainAxisSize.min,
                                       children: [

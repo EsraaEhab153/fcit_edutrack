@@ -136,9 +136,6 @@ class _QuizSubmissionDetailsScreenState
     final isDark = Provider.of<ThemeProvider>(context).isDark();
 
     return Scaffold(
-      backgroundColor: isDark
-          ? MyAppColors.primaryDarkColor
-          : MyAppColors.lightBackgroundColor,
       appBar: AppBar(
         backgroundColor: MyAppColors.primaryColor,
         elevation: 0,

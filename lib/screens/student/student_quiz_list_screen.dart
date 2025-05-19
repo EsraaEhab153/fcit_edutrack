@@ -53,7 +53,6 @@ class _StudentQuizListScreenState extends State<StudentQuizListScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.blue.shade50,
       appBar: AppBar(
         title: Text(
           'Available Quizzes',

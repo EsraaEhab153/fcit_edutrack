@@ -5,6 +5,12 @@ import 'package:google_fonts/google_fonts.dart';
 class MyThemeData {
   static final ThemeData lightModeStyle = ThemeData(
       scaffoldBackgroundColor: MyAppColors.lightBackgroundColor,
+      elevatedButtonTheme: ElevatedButtonThemeData(
+        style: ElevatedButton.styleFrom(
+          backgroundColor: MyAppColors.primaryColor,
+          foregroundColor: MyAppColors.whiteColor,
+        ),
+      ),
       textTheme: TextTheme(
         titleLarge: GoogleFonts.roboto(
           fontSize: 28,
@@ -34,6 +40,12 @@ class MyThemeData {
       ));
   static final ThemeData darkModeStyle = ThemeData(
       scaffoldBackgroundColor: MyAppColors.primaryDarkColor,
+      elevatedButtonTheme: ElevatedButtonThemeData(
+        style: ElevatedButton.styleFrom(
+          backgroundColor: MyAppColors.primaryColor,
+          foregroundColor: MyAppColors.whiteColor,
+        ),
+      ),
       textTheme: TextTheme(
         titleLarge: GoogleFonts.roboto(
           fontSize: 28,

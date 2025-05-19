@@ -154,8 +154,6 @@ class _ProfessorRequestsScreenState extends State<ProfessorRequestsScreen> {
     final isDark = Provider.of<ThemeProvider>(context).isDark();
 
     return Scaffold(
-      backgroundColor:
-          isDark ? MyAppColors.primaryDarkColor : Colors.blue.shade50,
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
@@ -473,6 +471,11 @@ class _ProfessorRequestsScreenState extends State<ProfessorRequestsScreen> {
                             ElevatedButton(
                               style: ElevatedButton.styleFrom(
                                 backgroundColor: MyAppColors.primaryColor,
+                                foregroundColor: Colors.white,
+                                padding:
+                                    const EdgeInsets.symmetric(vertical: 12),
+                                shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(15)),
                               ),
                               onPressed: () {
                                 Navigator.pop(context);
@@ -484,12 +487,6 @@ class _ProfessorRequestsScreenState extends State<ProfessorRequestsScreen> {
                         ),
                       );
                     },
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: MyAppColors.primaryColor,
-                      foregroundColor: Colors.white,
-                      padding: const EdgeInsets.symmetric(vertical: 12),
-                        shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(15))),
                     child: const Text('Approve'),
                   ),
                 ),
@@ -533,7 +530,6 @@ class _ProfessorRequestsScreenState extends State<ProfessorRequestsScreen> {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        //scrollable: true,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
         title: const Text(
           'Reject Request',
@@ -613,7 +609,7 @@ class _ProfessorRequestsScreenState extends State<ProfessorRequestsScreen> {
             ),
             InteractiveViewer(
               panEnabled: true,
-              boundaryMargin: EdgeInsets.all(20),
+              boundaryMargin: const EdgeInsets.all(20),
               minScale: 0.5,
               maxScale: 4,
               child: Image.memory(
@@ -623,8 +619,8 @@ class _ProfessorRequestsScreenState extends State<ProfessorRequestsScreen> {
             ),
             SizedBox(height: 16),
             ElevatedButton.icon(
-              icon: Icon(Icons.open_in_new),
-              label: Text('Open in external app'),
+              icon: const Icon(Icons.open_in_new),
+              label: const Text('Open in external app'),
               onPressed: () async {
                 try {
                   // Save to temporary file
@@ -655,7 +651,7 @@ class _ProfessorRequestsScreenState extends State<ProfessorRequestsScreen> {
                 }
               },
             ),
-            SizedBox(height: 8),
+            const SizedBox(height: 8),
           ],
         ),
       ),

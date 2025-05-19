@@ -5,6 +5,13 @@ import 'package:fci_edutrack/style/my_app_colors.dart';
 import 'package:fci_edutrack/themes/theme_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:flutter/material.dart';
+import 'package:fci_edutrack/style/my_app_colors.dart';
+import 'package:fci_edutrack/themes/theme_provider.dart';
+import 'package:provider/provider.dart';
+import 'package:fci_edutrack/services/api_service.dart';
+import 'package:fci_edutrack/providers/course_provider.dart';
+import 'package:fci_edutrack/models/course_model.dart';
 
 class CourseManagementScreen extends StatefulWidget {
   static const String routeName = 'admin_course_management';
@@ -278,8 +285,6 @@ class _CourseManagementScreenState extends State<CourseManagementScreen> {
     final isDark = Provider.of<ThemeProvider>(context).isDark();
 
     return Scaffold(
-      backgroundColor:
-          isDark ? MyAppColors.primaryDarkColor : Colors.blue.shade50,
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
@@ -336,7 +341,7 @@ class _CourseManagementScreenState extends State<CourseManagementScreen> {
                   ),
                 )
               : SingleChildScrollView(
-                  padding: const EdgeInsets.all(10.0),
+                  padding: const EdgeInsets.all(16.0),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [

@@ -47,8 +47,6 @@ class _RegisterAttendanceScreenState extends State<RegisterAttendanceScreen> {
         Provider.of<AttendanceProvider>(context, listen: false);
 
     return Scaffold(
-      backgroundColor:
-          isDark ? MyAppColors.primaryDarkColor : Colors.blue.shade50,
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
@@ -224,12 +222,12 @@ class _RegisterAttendanceScreenState extends State<RegisterAttendanceScreen> {
                             });
 
                             final response = await attendanceProvider
-                          .recordAttendanceWithCode(
-                        course.id,
-                        codeController.text
-                            .trim()
-                            .toUpperCase(), // Send uppercase code
-                      );
+                                .recordAttendanceWithCode(
+                              course.id,
+                              codeController.text
+                                  .trim()
+                                  .toUpperCase(), // Send uppercase code
+                            );
 
                             if (!dialogContext.mounted) {
                               return; // Check if dialog context is still valid
@@ -269,7 +267,6 @@ class _RegisterAttendanceScreenState extends State<RegisterAttendanceScreen> {
       },
     );
   }
-
 // Removed _submitVerificationCode as logic is now in the dialog
 // Removed _buildQrCodeScanner and _buildScannerPrompt as they are no longer used
 }

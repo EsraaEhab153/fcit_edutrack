@@ -17,8 +17,6 @@ class StudentProfileScreen extends StatelessWidget {
     final authProvider = Provider.of<AuthProvider>(context);
 
     return Scaffold(
-      backgroundColor:
-          isDark ? MyAppColors.primaryDarkColor : Colors.blue.shade50,
       body: Padding(
         padding: EdgeInsets.all(MediaQuery.of(context).size.height * 0.04),
         child: SingleChildScrollView(

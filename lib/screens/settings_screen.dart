@@ -15,7 +15,6 @@ class SettingsScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.blue.shade50,
       appBar: AppBar(
         title: Text(
           'Settings',
@@ -80,7 +79,7 @@ class SettingsScreen extends StatelessWidget {
                 border: Border.all(
                   color: Provider.of<ThemeProvider>(context).isDark()
                       ? Colors.blue.shade800
-                      : MyAppColors.primaryColor,
+                      : Colors.grey.shade200,
                 ),
               ),
               child: Column(

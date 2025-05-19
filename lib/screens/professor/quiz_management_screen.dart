@@ -141,7 +141,6 @@ class _QuizManagementScreenState extends State<QuizManagementScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: MyAppColors.lightBackgroundColor,
       appBar: AppBar(
         title: const Text(
           'Quiz Management',
@@ -160,9 +159,9 @@ class _QuizManagementScreenState extends State<QuizManagementScreen> {
                 return Padding(
                   padding: const EdgeInsets.only(right: 8.0),
                   child: Badge(
-                    label: Text("1"),
+                    label: const Text("1"),
                     child: IconButton(
-                      icon: Icon(Icons.description),
+                      icon: const Icon(Icons.description),
                       tooltip: 'View Drafts',
                       onPressed: () {
                         Navigator.pushNamed(
@@ -210,8 +209,8 @@ class _QuizManagementScreenState extends State<QuizManagementScreen> {
             setState(() {});
           });
         },
-        child: const Icon(Icons.add),
         tooltip: 'Create Quiz',
+        child: const Icon(Icons.add),
       ),
     );
   }
@@ -354,7 +353,7 @@ class _QuizManagementScreenState extends State<QuizManagementScreen> {
                       top: BorderSide(color: Colors.grey.shade300),
                     ),
                   ),
-                  child: ButtonBar(
+                  child: OverflowBar(
                     alignment: MainAxisAlignment.spaceAround,
                     children: [
                       TextButton.icon(

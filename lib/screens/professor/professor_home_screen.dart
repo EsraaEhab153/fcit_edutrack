@@ -8,7 +8,6 @@ import 'package:fci_edutrack/screens/professor/quiz_management_screen.dart'; // 
 import 'package:fci_edutrack/style/my_app_colors.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart'; // Import Provider
-
 // TODO: Implement actual screens for professor features
 
 class ProfessorHomeScreen extends StatefulWidget {
@@ -63,7 +62,6 @@ class _ProfessorHomeScreenState extends State<ProfessorHomeScreen> {
         Provider.of<AuthProvider>(context, listen: false); // Get AuthProvider
 
     return Scaffold(
-      backgroundColor: Colors.blue.shade50,
       appBar: AppBar(
         title: const Text('Professor Dashboard',
             style: TextStyle(fontSize: 20)), // Adjust font size

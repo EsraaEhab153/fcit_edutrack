@@ -1,6 +1,5 @@
 import 'dart:io';
 import 'dart:typed_data';
-
 import 'package:fci_edutrack/models/assignment_model.dart';
 import 'package:fci_edutrack/providers/auth_provider.dart';
 import 'package:file_picker/file_picker.dart';
@@ -8,11 +7,24 @@ import 'package:flutter/material.dart';
 import 'package:open_file/open_file.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:provider/provider.dart';
-
 import '../../services/api_service.dart';
 import '../../style/my_app_colors.dart';
 import '../../utils/date_formatter.dart';
 import '../assignment/assignment_submission_screen.dart';
+import 'package:fci_edutrack/models/assignment_model.dart';
+import 'package:fci_edutrack/providers/auth_provider.dart';
+import 'package:provider/provider.dart';
+import 'package:fci_edutrack/themes/theme_provider.dart';
+import 'package:file_picker/file_picker.dart';
+import 'package:flutter/material.dart';
+import 'package:open_file/open_file.dart';
+import '../../style/my_app_colors.dart';
+import '../../services/api_service.dart';
+import '../../utils/date_formatter.dart';
+import '../assignment/assignment_submission_screen.dart';
+import 'dart:typed_data';
+import 'dart:io';
+import 'package:path_provider/path_provider.dart';
 
 class AssignmentDetails extends StatefulWidget {
   static const String routeName = 'assignment_details';
@@ -127,7 +139,7 @@ class _AssignmentDetailsState extends State<AssignmentDetails> {
                     elevation: 0,
                     backgroundColor: MyAppColors.primaryColor,
                     leading: IconButton(
-                      icon: Icon(Icons.close),
+                      icon: const Icon(Icons.close),
                       onPressed: () => Navigator.of(ctx).pop(),
                     ),
                   ),
@@ -139,8 +151,8 @@ class _AssignmentDetailsState extends State<AssignmentDetails> {
                   ),
                   SizedBox(height: 16),
                   ElevatedButton.icon(
-                    icon: Icon(Icons.open_in_new),
-                    label: Text('Open in external app'),
+                    icon: const Icon(Icons.open_in_new),
+                    label: const Text('Open in external app'),
                     onPressed: () async {
                       try {
                         // Save to temporary file
@@ -172,7 +184,7 @@ class _AssignmentDetailsState extends State<AssignmentDetails> {
                       }
                     },
                   ),
-                  SizedBox(height: 8),
+                  const SizedBox(height: 8),
                 ],
               ),
             ),
@@ -266,7 +278,7 @@ class _AssignmentDetailsState extends State<AssignmentDetails> {
         ),
       ),
       body: _isLoading
-          ? Center(child: CircularProgressIndicator())
+          ? const Center(child: CircularProgressIndicator())
           : FutureBuilder<bool>(
               future: Provider.of<AuthProvider>(context, listen: false)
                   .isProfessor(),
@@ -300,6 +312,27 @@ class _AssignmentDetailsState extends State<AssignmentDetails> {
                               .bodyMedium!
                               .copyWith(color: Colors.grey.shade500),
                         ),
+                        Container(
+                          padding: EdgeInsets.all(
+                              MediaQuery.of(context).size.width * 0.019),
+                          decoration: BoxDecoration(
+                              color: MyAppColors.whiteColor,
+                              borderRadius: BorderRadius.circular(5)),
+                          child: Text(
+                            assignment.title,
+                            style: Theme.of(context)
+                                .textTheme
+                                .titleSmall!
+                                .copyWith(
+                                    color: MyAppColors.darkBlueColor,
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 18),
+                          ),
+                        ),
+                        SizedBox(
+                          height: MediaQuery.of(context).size.height * 0.01,
+                        ),
+                        // Description
                         Text(
                           assignment.description,
                           style: Theme.of(context)
@@ -352,6 +385,10 @@ class _AssignmentDetailsState extends State<AssignmentDetails> {
                                   .bodyMedium!
                                   .copyWith(color: MyAppColors.darkBlueColor),
                             ),
+                            Text(
+                              assignment.maxPoints.toString(),
+                              style: Theme.of(context).textTheme.bodyMedium,
+                            ),
                           ],
                         ),
                         SizedBox(
@@ -385,87 +422,83 @@ class _AssignmentDetailsState extends State<AssignmentDetails> {
                                   )),
                             ],
                           ),
-                        SizedBox(height: 20),
 
-                        // Action Buttons
-                        isProfessor
-                            ? ElevatedButton(
-                                onPressed: () {
-                                  Navigator.pushNamed(
-                                    context,
-                                    'assignment_submissions_screen',
-                                    arguments: assignment.id,
-                                  );
-                                },
-                                style: ElevatedButton.styleFrom(
-                                  backgroundColor: MyAppColors.primaryColor,
-                                ),
-                                child: Text('View Submissions'),
-                              )
-                            : Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  // Submit button (show only if due date hasn't passed)
-                                  if (!dueDatePassed)
-                                    ElevatedButton(
-                                      style: ElevatedButton.styleFrom(
-                                        backgroundColor:
-                                            MyAppColors.primaryColor,
-                                      ),
-                                      onPressed: () {
-                                        // If there's an existing submission, edit it instead of creating a new one
-                                        if (studentSubmissions.isNotEmpty) {
-                                          editSubmission(
-                                              studentSubmissions.first);
-                                        } else {
-                                          Navigator.pushNamed(
-                                            context,
-                                            AssignmentSubmissionScreen
-                                                .routeName,
-                                            arguments: assignment,
-                                          ).then((value) {
-                                            if (value == true) {
-                                              // Refresh my submissions
-                                              fetchStudentSubmissions();
-                                            }
-                                          });
-                                        }
-                                      },
-                                      child: Text(studentSubmissions.isNotEmpty
-                                          ? 'Edit Submission'
-                                          : 'Submit Assignment'),
-                                    ),
+                        const SizedBox(height: 20),
+                  // Action Buttons
+                  isProfessor
+                      ? ElevatedButton(
+                    onPressed: () {
+                      Navigator.pushNamed(
+                        context,
+                        'assignment_submissions_screen',
+                        arguments: assignment.id,
+                      );
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: MyAppColors.primaryColor,
+                    ),
+                    child: const Text('View Submissions'),
+                  )
+                      : Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      // Submit button (show only if due date hasn't passed)
+                      if (!dueDatePassed)
+                        ElevatedButton(
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor:
+                            MyAppColors.primaryColor,
+                          ),
+                          onPressed: () {
+                            // If there's an existing submission, edit it instead of creating a new one
+                            if (studentSubmissions.isNotEmpty) {
+                              editSubmission(
+                                  studentSubmissions.first);
+                            } else {
+                              Navigator.pushNamed(
+                                context,
+                                AssignmentSubmissionScreen
+                                    .routeName,
+                                arguments: assignment,
+                              ).then((value) {
+                                if (value == true) {
+                                  // Refresh my submissions
+                                  fetchStudentSubmissions();
+                                }
+                              });
+                            }
+                          },
+                          child: Text(studentSubmissions.isNotEmpty
+                              ? 'Edit Submission'
+                              : 'Submit Assignment'),
+                        ),
 
                                   // My Submissions section
                                   if (isLoadingSubmissions)
                                     Center(child: CircularProgressIndicator())
                                   else if (studentSubmissions.isNotEmpty) ...[
-                                    SizedBox(height: 24),
+                                    const SizedBox(height: 24),
                                     Text(
                                       'My Submissions',
                                       style: Theme.of(context)
                                           .textTheme
                                           .titleLarge,
                                     ),
-                                    SizedBox(height: 16),
+                                    const SizedBox(height: 16),
                                     ListView.builder(
                                       shrinkWrap: true,
-                                      physics: NeverScrollableScrollPhysics(),
+                                      physics:
+                                          const NeverScrollableScrollPhysics(),
                                       itemCount: studentSubmissions.length,
                                       itemBuilder: (context, index) {
                                         final submission =
                                             studentSubmissions[index];
                                         return Card(
-                                          margin: EdgeInsets.only(bottom: 16),
+                                          margin:
+                                              const EdgeInsets.only(bottom: 16),
                                           shape: RoundedRectangleBorder(
                                             borderRadius:
                                                 BorderRadius.circular(20),
-                                            side: BorderSide(
-                                              color: submission.graded
-                                                  ? Colors.green.shade200
-                                                  : Colors.orange.shade200,
-                                              width: 1,
-                                            ),
                                           ),
                                           child: Padding(
                                             padding: const EdgeInsets.all(16.0),
@@ -481,14 +514,12 @@ class _AssignmentDetailsState extends State<AssignmentDetails> {
                                                     // Submission date
                                                     Text(
                                                       'Submitted: ${DateFormatter.formatDateString(submission.submissionDate)}',
-                                                      style: TextStyle(
+                                                      style: const TextStyle(
                                                         fontWeight:
                                                             FontWeight.bold,
                                                       ),
                                                     ),
-
-                                                    SizedBox(height: 8),
-
+                                                    const SizedBox(height: 8),
                                                     // Status badges and edit button
                                                     Row(
                                                       mainAxisAlignment:
@@ -535,15 +566,15 @@ class _AssignmentDetailsState extends State<AssignmentDetails> {
                                                                 .late) ...[
                                                               if (submission
                                                                   .graded)
-                                                                SizedBox(
+                                                                const SizedBox(
                                                                     width: 8),
                                                               Container(
-                                                                padding: EdgeInsets
+                                                                padding: const EdgeInsets
                                                                     .symmetric(
-                                                                        horizontal:
-                                                                            8,
-                                                                        vertical:
-                                                                            4),
+                                                                    horizontal:
+                                                                        8,
+                                                                    vertical:
+                                                                        4),
                                                                 decoration:
                                                                     BoxDecoration(
                                                                   color: Colors
@@ -574,11 +605,12 @@ class _AssignmentDetailsState extends State<AssignmentDetails> {
                                                         // Add Edit button if due date hasn't passed
                                                         if (!dueDatePassed)
                                                           TextButton.icon(
-                                                            icon: Icon(
+                                                            icon: const Icon(
                                                                 Icons.edit,
                                                                 color: Colors
                                                                     .blue),
-                                                            label: Text('Edit',
+                                                            label: const Text(
+                                                                'Edit',
                                                                 style: TextStyle(
                                                                     color: Colors
                                                                         .blue)),
@@ -588,8 +620,9 @@ class _AssignmentDetailsState extends State<AssignmentDetails> {
                                                             },
                                                             style: TextButton
                                                                 .styleFrom(
-                                                              padding: EdgeInsets
-                                                                  .symmetric(
+                                                              padding:
+                                                                  const EdgeInsets
+                                                                      .symmetric(
                                                                       horizontal:
                                                                           8),
                                                             ),
@@ -600,91 +633,99 @@ class _AssignmentDetailsState extends State<AssignmentDetails> {
                                                 ),
 
                                                 if (submission
-                                                    .notes.isNotEmpty) ...[
-                                                  SizedBox(height: 12),
-                                                  Text(
-                                                    'Notes: ${submission.notes}',
-                                                    style: TextStyle(
-                                                        color:
-                                                            Colors.grey[700]),
-                                                  ),
-                                                ],
-                                                if (submission.graded &&
-                                                    submission.score !=
-                                                        null) ...[
-                                                  SizedBox(height: 12),
-                                                  Text(
-                                                    'Score: ${submission.score} / ${assignment.maxPoints}',
-                                                    style: TextStyle(
-                                                      fontWeight:
-                                                          FontWeight.bold,
-                                                      color: Colors.green[700],
-                                                    ),
-                                                  ),
-                                                ],
-                                                if (submission.graded &&
-                                                    submission.feedback !=
-                                                        null) ...[
-                                                  SizedBox(height: 8),
-                                                  Text(
-                                                    'Feedback: ${submission.feedback}',
-                                                    style: TextStyle(
-                                                      fontStyle:
-                                                          FontStyle.italic,
-                                                      color: Colors.grey[800],
-                                                    ),
-                                                  ),
-                                                ],
-                                                if (submission.files != null &&
-                                                    submission
-                                                        .files!.isNotEmpty) ...[
-                                                  SizedBox(height: 12),
-                                                  Text('Files:',
-                                                      style: TextStyle(
-                                                          fontWeight:
-                                                              FontWeight.bold)),
-                                                  ...submission.files!
-                                                      .map((file) => ListTile(
-                                                            title: Text(
-                                                                file.fileName),
-                                                            subtitle: Text(
-                                                                '${(file.fileSize / 1024).toStringAsFixed(1)} KB'),
-                                                            trailing: Icon(
-                                                              file.contentType
-                                                                      .startsWith(
-                                                                          'image/')
-                                                                  ? Icons.image
-                                                                  : Icons
-                                                                      .file_present,
-                                                              color: file
-                                                                      .contentType
-                                                                      .startsWith(
-                                                                          'image/')
-                                                                  ? Colors.blue
-                                                                  : Colors.grey[
-                                                                      700],
-                                                            ),
-                                                            onTap: () {
-                                                              _openAssignmentFile(
-                                                                  file);
-                                                            },
-                                                          )),
-                                                ],
-                                              ],
-                                            ),
+                                          .notes.isNotEmpty) ...[
+                                        const SizedBox(height: 12),
+
+                                        Text(
+                                          'Notes: ${submission.notes}',
+                                          style: TextStyle(
+                                              color:
+                                              Colors.grey[700]),
+                                        ),
+                                      ],
+                                      if (submission.graded &&
+                                          submission.score !=
+                                              null) ...[
+
+                                        const SizedBox(height: 12),
+
+                                        Text(
+                                          'Score: ${submission
+                                              .score} / ${assignment
+                                              .maxPoints}',
+                                          style: TextStyle(
+                                            fontWeight:
+                                            FontWeight.bold,
+                                            color: Colors.green[700],
                                           ),
-                                        );
-                                      },
-                                    ),
-                                  ],
-                                ],
-                              ),
-                      ],
-                    ),
+                                        ),
+                                      ],
+                                      if (submission.graded &&
+                                          submission.feedback !=
+                                              null) ...[
+                                        const SizedBox(height: 8),
+                                        Text(
+                                          'Feedback: ${submission.feedback}',
+                                          style: TextStyle(
+                                            fontStyle:
+                                            FontStyle.italic,
+                                            color: Colors.grey[800],
+                                          ),
+                                        ),
+                                      ],
+                                      if (submission.files != null &&
+                                          submission
+                                              .files!.isNotEmpty) ...[
+                                        const SizedBox(height: 12),
+                                        const Text('Files:',
+                                            style: TextStyle(
+                                                fontWeight:
+                                                FontWeight.bold)),
+                                        ...submission.files!
+                                            .map((file) =>
+                                            ListTile(
+                                              title: Text(
+                                                  file.fileName),
+                                              subtitle: Text(
+                                                  '${(file.fileSize / 1024)
+                                                      .toStringAsFixed(1)} KB'),
+                                              trailing: Icon(
+                                                file.contentType
+                                                    .startsWith(
+                                                    'image/')
+                                                    ? Icons.image
+                                                    : Icons
+                                                    .file_present,
+                                                color: file
+                                                    .contentType
+                                                    .startsWith(
+                                                    'image/')
+                                                    ? Colors.blue
+                                                    : Colors.grey[
+                                                700],
+                                              ),
+                                              onTap: () {
+                                                _openAssignmentFile(
+                                                    file);
+                                              },
+                                            )),
+                                      ],
+                                    ],
+                                  ),
+                                )
+                                ,
+                              );
+                            },
+                          ),
+                        ],
+                    ],
                   ),
-                );
-              },
+                ],
+              ),
             ),
+          );
+        },
+      ),
     );
   }
 }

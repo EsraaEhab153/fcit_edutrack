@@ -53,7 +53,6 @@ class _QuizDraftsScreenState extends State<QuizDraftsScreen> {
     final quizProvider = Provider.of<QuizProvider>(context);
 
     return Scaffold(
-      backgroundColor: Colors.blue.shade50,
       appBar: AppBar(
         elevation: 0,
         title: const Text('Quiz Drafts'),
@@ -87,7 +86,7 @@ class _QuizDraftsScreenState extends State<QuizDraftsScreen> {
                     shadowColor: Colors.purple,
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(12),
-                      // side: BorderSide(color: Colors.blue.shade100, width: 2),
+                      side: BorderSide(color: Colors.blue.shade100, width: 2),
                     ),
                     child: Padding(
                       padding: const EdgeInsets.all(16.0),

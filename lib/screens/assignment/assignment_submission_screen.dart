@@ -3,7 +3,11 @@ import 'package:fci_edutrack/providers/assignment_provider.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-
+import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:fci_edutrack/models/assignment_model.dart';
+import 'package:fci_edutrack/providers/assignment_provider.dart';
+import 'package:file_picker/file_picker.dart';
 import '../../style/my_app_colors.dart';
 import '../../utils/date_formatter.dart';
 
@@ -96,6 +100,7 @@ class _AssignmentSubmissionScreenState
                           widget.assignment.description,
                           style: Theme.of(context).textTheme.bodyMedium,
                         ),
+
                         SizedBox(height: 12),
                         Row(
                           children: [
@@ -108,7 +113,7 @@ class _AssignmentSubmissionScreenState
                             ),
                           ],
                         ),
-                        SizedBox(height: 4),
+                        const SizedBox(height: 4),
                         Row(
                           children: [
                             Icon(Icons.score, size: 16, color: Colors.grey),
@@ -119,11 +124,23 @@ class _AssignmentSubmissionScreenState
                             ),
                           ],
                         ),
+                        const SizedBox(height: 12),
+                        Row(
+                          children: [
+                            const Icon(Icons.calendar_today,
+                                size: 16, color: Colors.grey),
+                            const SizedBox(width: 8),
+                            Text(
+                              'Due: ${DateFormatter.formatNonUtcDateString(widget.assignment.dueDate)}',
+                              style: const TextStyle(color: Colors.grey),
+                            ),
+                          ],
+                        ),
 
                         // If editing, show existing submission info
                         if (_isEditMode) ...[
-                          SizedBox(height: 12),
-                          Divider(),
+                          const SizedBox(height: 12),
+                          const Divider(),
                           Text(
                             'Editing submission from: ${DateFormatter.formatDateString(widget.existingSubmission!.submissionDate)}',
                             style: TextStyle(
@@ -134,9 +151,9 @@ class _AssignmentSubmissionScreenState
                           if (widget.existingSubmission!.graded)
                             Row(
                               children: [
-                                Icon(Icons.warning,
+                                const Icon(Icons.warning,
                                     size: 16, color: Colors.orange),
-                                SizedBox(width: 8),
+                                const SizedBox(width: 8),
                                 Expanded(
                                   child: Text(
                                     'This submission has already been graded. Editing it will mark it as updated.',
@@ -159,10 +176,11 @@ class _AssignmentSubmissionScreenState
                   'Your Submission',
                   style: Theme.of(context).textTheme.titleMedium,
                 ),
+
                 SizedBox(height: 16),
 
                 TextFormField(
-                  decoration: InputDecoration(
+                  decoration: const InputDecoration(
                     labelText: 'Notes (optional)',
                     border: OutlineInputBorder(),
                     hintText: 'Add any comments about your submission',
@@ -172,7 +190,7 @@ class _AssignmentSubmissionScreenState
                   onSaved: (val) => _notes = val,
                 ),
 
-                SizedBox(height: 24),
+                const SizedBox(height: 24),
 
                 // File Attachment Section
                 _selectedFile == null
@@ -185,7 +203,7 @@ class _AssignmentSubmissionScreenState
                         ),
                         child: InkWell(
                           onTap: _pickFile,
-                          child: Column(
+                          child: const Column(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
                               Icon(Icons.cloud_upload,
@@ -199,13 +217,13 @@ class _AssignmentSubmissionScreenState
                     : Card(
                         elevation: 1,
                         child: ListTile(
-                          leading: Icon(Icons.insert_drive_file,
+                          leading: const Icon(Icons.insert_drive_file,
                               color: MyAppColors.primaryColor),
                           title: Text(_selectedFile!.name),
                           subtitle: Text(
                               '${(_selectedFile!.size / 1024).toStringAsFixed(1)} KB'),
                           trailing: IconButton(
-                            icon: Icon(Icons.close, color: Colors.red),
+                            icon: const Icon(Icons.close, color: Colors.red),
                             onPressed: () {
                               setState(() {
                                 _selectedFile = null;
@@ -214,17 +232,16 @@ class _AssignmentSubmissionScreenState
                           ),
                         ),
                       ),
-
                 // Show existing files if editing
                 if (_isEditMode &&
                     widget.existingSubmission!.files != null &&
                     widget.existingSubmission!.files!.isNotEmpty) ...[
-                  SizedBox(height: 16),
+                  const SizedBox(height: 16),
                   Text(
                     'Currently attached file(s):',
                     style: TextStyle(fontWeight: FontWeight.bold),
                   ),
-                  SizedBox(height: 8),
+                  const SizedBox(height: 8),
                   ...widget.existingSubmission!.files!
                       .map((file) => Card(
                             elevation: 1,
@@ -252,10 +269,10 @@ class _AssignmentSubmissionScreenState
                   ),
                 ],
 
-                SizedBox(height: 32),
+                const SizedBox(height: 32),
 
                 _isSubmitting
-                    ? Center(child: CircularProgressIndicator())
+                    ? const Center(child: CircularProgressIndicator())
                     : SizedBox(
                         width: double.infinity,
                         height: 50,
@@ -268,7 +285,7 @@ class _AssignmentSubmissionScreenState
                             _isEditMode
                                 ? 'Update Submission'
                                 : 'Submit Assignment',
-                            style: TextStyle(fontSize: 16),
+                            style: const TextStyle(fontSize: 16),
                           ),
                         ),
                       ),

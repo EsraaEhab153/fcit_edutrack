@@ -17,7 +17,7 @@ class DateFormatter {
         utcDate = DateTime.parse(dateString + 'Z');
       } else {
         // For dates without time component
-        utcDate = DateTime.parse(dateString + 'T00:00:00Z');
+        utcDate = DateTime.parse('${dateString}T00:00:00Z');
       }
 
       // Convert to local time
@@ -46,7 +46,7 @@ class DateFormatter {
         utcDate = DateTime.parse(dateString + 'Z');
       } else {
         // For dates without time component
-        utcDate = DateTime.parse(dateString + 'T00:00:00Z');
+        utcDate = DateTime.parse('${dateString}T00:00:00Z');
       }
 
       // Convert to local time
@@ -72,7 +72,7 @@ class DateFormatter {
       if (dateString.contains('T')) {
         date = DateTime.parse(dateString);
       } else {
-        date = DateTime.parse(dateString + 'T00:00:00');
+        date = DateTime.parse('${dateString}T00:00:00');
       }
 
       // Format directly without timezone conversion

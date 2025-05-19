@@ -544,8 +544,7 @@ class ApiService {
       headers: _headers(token: token),
       body: jsonEncode(assignmentData),
     );
-    print(
-        "Create assignment response status: " + response.statusCode.toString());
+    print("Create assignment response status: ${response.statusCode}");
     if (response.statusCode != 201) {
       print("Error response body: ${response.body}");
     }
@@ -630,7 +629,7 @@ class ApiService {
   // New method to fetch current student's submissions across all assignments
   Future<Map<String, dynamic>> getStudentSubmissions() async {
     final token = await _getToken();
-    final url = '${Config.assignmentsUrl}/submissions/student';
+    const url = '${Config.assignmentsUrl}/submissions/student';
     print("Getting current student submissions from URL: $url");
     final response = await http.get(
       Uri.parse(url),
@@ -679,13 +678,11 @@ class ApiService {
   }
 
   // Submit professor request
-  Future<dynamic> submitProfessorRequest(
-    String fullName,
-    String email,
-    String department,
-    String idImageUrl,
-    String additionalInfo,
-  ) async {
+  Future<dynamic> submitProfessorRequest(String fullName,
+      String email,
+      String department,
+      String idImageUrl,
+      String additionalInfo,) async {
     try {
       // No token needed for professor requests
       final response = await http.post(
@@ -1166,6 +1163,7 @@ class ApiService {
   }
 
   // --- Old Upload Method (kept for reference/potential other uses, but prefer uploadFileToServer) ---
+
   // Upload file with optional file type parameter
   Future<dynamic> uploadFile(File file, {String? fileType}) async {
     try {

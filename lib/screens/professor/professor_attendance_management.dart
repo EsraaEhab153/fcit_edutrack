@@ -114,7 +114,6 @@ class _ProfessorAttendanceManagementScreenState
   Widget build(BuildContext context) {
     // Use multiple Consumers or nested Consumers if needed, or read providers directly in build methods
     return Scaffold(
-      backgroundColor: Colors.blue.shade50,
       // AppBar might be handled by MyBottomNavBar, or add one here if needed
       body: RefreshIndicator(
         onRefresh: _refreshData, // Use combined refresh method

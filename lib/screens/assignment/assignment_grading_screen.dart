@@ -1,15 +1,26 @@
 import 'dart:io';
 import 'dart:typed_data';
-
 import 'package:fci_edutrack/models/assignment_model.dart';
 import 'package:fci_edutrack/providers/assignment_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:open_file/open_file.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:provider/provider.dart';
-
 import '../../services/api_service.dart';
 import '../../style/my_app_colors.dart';
+import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:url_launcher/url_launcher.dart';
+import 'package:fci_edutrack/models/assignment_model.dart';
+import 'package:fci_edutrack/providers/assignment_provider.dart';
+import 'package:fci_edutrack/config.dart';
+import '../../style/my_app_colors.dart';
+import '../../utils/date_formatter.dart';
+import '../../services/api_service.dart';
+import 'dart:typed_data';
+import 'dart:io';
+import 'package:path_provider/path_provider.dart';
+import 'package:open_file/open_file.dart';
 
 class AssignmentGradingScreen extends StatefulWidget {
   static const String routeName = 'assignment_grading_screen';
@@ -76,8 +87,7 @@ class _AssignmentGradingScreenState extends State<AssignmentGradingScreen> {
   }
 
   void _openFile(AssignmentFile file) async {
-    final bool isImage =
-        file.contentType != null && file.contentType!.startsWith('image/');
+    final bool isImage = file.contentType.startsWith('image/');
 
     try {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -106,14 +116,14 @@ class _AssignmentGradingScreenState extends State<AssignmentGradingScreen> {
                     automaticallyImplyLeading: false,
                     actions: [
                       IconButton(
-                        icon: Icon(Icons.close),
+                        icon: const Icon(Icons.close),
                         onPressed: () => Navigator.of(ctx).pop(),
                       )
                     ],
                   ),
                   InteractiveViewer(
                     panEnabled: true,
-                    boundaryMargin: EdgeInsets.all(20),
+                    boundaryMargin: const EdgeInsets.all(20),
                     minScale: 0.5,
                     maxScale: 4,
                     child: Image.memory(
@@ -121,10 +131,10 @@ class _AssignmentGradingScreenState extends State<AssignmentGradingScreen> {
                       fit: BoxFit.contain,
                     ),
                   ),
-                  SizedBox(height: 16),
+                  const SizedBox(height: 16),
                   ElevatedButton.icon(
-                    icon: Icon(Icons.open_in_new),
-                    label: Text('Open in external app'),
+                    icon: const Icon(Icons.open_in_new),
+                    label: const Text('Open in external app'),
                     onPressed: () async {
                       try {
                         // Save to temporary file
@@ -156,7 +166,7 @@ class _AssignmentGradingScreenState extends State<AssignmentGradingScreen> {
                       }
                     },
                   ),
-                  SizedBox(height: 8),
+                  const SizedBox(height: 8),
                 ],
               ),
             ),
@@ -232,8 +242,7 @@ class _AssignmentGradingScreenState extends State<AssignmentGradingScreen> {
                   style: TextStyle(fontWeight: FontWeight.bold)),
               const SizedBox(height: 4),
               ...sub.files!.map((file) {
-                final bool isImage = file.contentType != null &&
-                    file.contentType!.startsWith('image/');
+                final bool isImage = file.contentType.startsWith('image/');
                 return ListTile(
                   contentPadding: EdgeInsets.zero,
                   leading: Icon(
@@ -242,7 +251,7 @@ class _AssignmentGradingScreenState extends State<AssignmentGradingScreen> {
                   ),
                   title: Text(
                     file.fileName,
-                    style: TextStyle(color: Colors.blue),
+                    style: const TextStyle(color: Colors.blue),
                   ),
                   onTap: () => _openFile(file),
                 );

@@ -48,7 +48,6 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
         Provider.of<AuthProvider>(context, listen: false); // Get AuthProvider
 
     return Scaffold(
-      backgroundColor: Colors.blue.shade50,
       appBar: AppBar(
         title: const Text('Admin Dashboard',
           style: TextStyle(fontSize: 20),
